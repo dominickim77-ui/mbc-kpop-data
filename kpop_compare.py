@@ -31,10 +31,7 @@ results = []
 for artist, track in songs:
 
     # Spotify 데이터 찾기
-    spotify_row = df[
-        (df["artist_names"] == artist) &
-        (df["track_name"] == track)
-    ]
+    spotify_row = df[(df["artist_names"] == artist) & (df["track_name"] == track)]
 
     if spotify_row.empty:
         print(f"Spotify에서 찾지 못함: {artist} - {track}")
@@ -55,7 +52,7 @@ for artist, track in songs:
         "q": query,
         "type": "video",
         "maxResults": 1,
-        "key": API_KEY
+        "key": API_KEY,
     }
 
     search_response = requests.get(search_url, params=search_params)
@@ -77,11 +74,7 @@ for artist, track in songs:
 
     video_url = "https://www.googleapis.com/youtube/v3/videos"
 
-    video_params = {
-        "part": "statistics",
-        "id": video_id,
-        "key": API_KEY
-    }
+    video_params = {"part": "statistics", "id": video_id, "key": API_KEY}
 
     video_response = requests.get(video_url, params=video_params)
     video_data = video_response.json()
@@ -92,32 +85,44 @@ for artist, track in songs:
     # 5. 결과 저장
     # -------------------------
 
-    results.append({
-        "artist": artist,
-        "track": track,
-        "spotify_rank": spotify_row["rank"],
-        "spotify_streams": spotify_row["streams"],
-        "youtube_title": youtube_title,
-        "youtube_channel": channel,
-        "youtube_views": int(stats.get("viewCount", 0)),
-        "youtube_likes": int(stats.get("likeCount", 0)),
-        "youtube_comments": int(stats.get("commentCount", 0))
-    })
+    results.append(
+        {
+            "artist": artist,
+            "track": track,
+            "spotify_rank": spotify_row["rank"],
+            "spotify_streams": spotify_row["streams"],
+            # YouTube에서 찾은 정확한 영상 ID를 저장한다.
+            # 나중에 같은 제목의 다른 영상과 혼동하지 않기 위해 필요하다.
+            "youtube_video_id": video_id,
+            "youtube_title": youtube_title,
+            "youtube_channel": channel,
+            "youtube_views": int(stats.get("viewCount", 0)),
+            "youtube_likes": int(stats.get("likeCount", 0)),
+            "youtube_comments": int(stats.get("commentCount", 0)),
+        }
+    )
 
 # -------------------------
 # 6. 표로 출력
 # -------------------------
 
 result_df = pd.DataFrame(results)
+
+# --------------------------------------------------
+# Spotify 차트 기준 날짜 기록
+#
+# 현재 사용한 Spotify CSV는
+# 2026-09-25 ~ 2026-10-01 주간 차트이므로
+# 차트 기준일을 2026-10-01로 기록한다.
+# --------------------------------------------------
+
+result_df["chart_date"] = "2026-10-01"
+
 # 데이터 수집 시간 기록
 result_df["collected_at"] = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
 
 # 비교 결과를 CSV 파일로 저장
-result_df.to_csv(
-    "kpop_comparison.csv",
-    index=False,
-    encoding="utf-8-sig"
-)
+result_df.to_csv("kpop_comparison.csv", index=False, encoding="utf-8-sig")
 
 print("✅ kpop_comparison.csv 저장 완료")
 
@@ -134,7 +139,7 @@ print(
             "spotify_streams",
             "youtube_views",
             "youtube_likes",
-            "youtube_comments"
+            "youtube_comments",
         ]
     ].to_string(index=False)
 )
