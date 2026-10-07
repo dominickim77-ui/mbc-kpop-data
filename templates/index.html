@@ -4,44 +4,798 @@
 <head>
     <meta charset="UTF-8">
 
-    <!-- 모바일에서도 화면 크기가 맞도록 설정 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- FastAPI에서 전달한 title 값 사용 -->
     <title>{{ title }}</title>
 
-    <!-- static 폴더의 CSS 연결 -->
+    <!--
+    static 폴더의 CSS 파일 연결
+    -->
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
+
 <body>
+
+    <!-- ==================================================
+         PAGE HEADER
+    =================================================== -->
 
     <header>
         <h1>K-POP DATA LAB</h1>
-        <p>Spotify와 YouTube 데이터를 비교하는 데이터 저널리즘 실습</p>
+
+        <p>
+            Spotify + YouTube Data Journalism Dashboard
+        </p>
     </header>
 
-    <main>
 
-        <section class="card">
-            <h2>🎵 Spotify</h2>
-            <p>K-POP 곡의 주간 차트 순위와 스트리밍을 확인합니다.</p>
-            <a href="/spotify">Spotify Data</a>
+    <main class="dashboard">
+
+
+        <!-- ==================================================
+             1. ARTIST SEARCH
+        =================================================== -->
+
+        <section class="search-panel">
+
+            <h2>🔎 Artist Search</h2>
+
+            <p>
+                Spotify Weekly Global Top 200에서
+                아티스트를 검색합니다.
+            </p>
+
+
+            <!--
+            GET 방식으로 Artist 이름을 HOME에 전달한다.
+
+            예:
+            /?artist=BTS
+            -->
+
+            <form class="search-form" method="get" action="/">
+
+                <input type="text" name="artist" value="{{ search_artist }}" placeholder="예: BLACKPINK" required>
+
+                <button type="submit">
+                    Search
+                </button>
+
+            </form>
+
+
+            <!-- 검색 결과가 없는 경우 안내 -->
+
+            {% if search_message %}
+
+            <div class="search-message">
+                {{ search_message }}
+            </div>
+
+            {% endif %}
+
+
+            <!-- ==================================================
+                 SEARCH RESULTS
+            =================================================== -->
+
+            {% if search_results %}
+
+            <div class="search-results">
+
+                <h3>
+                    Search Results —
+                    {{ search_results|length }}곡
+                </h3>
+
+
+                <!--
+                체크한 Spotify Rank들을
+                /add-analysis로 전달한다.
+                -->
+
+                <form method="post" action="/add-analysis">
+
+                    <!--
+                    어떤 Artist의 검색 결과인지
+                    함께 FastAPI에 전달한다.
+                    -->
+
+                    <input type="hidden" name="search_artist" value="{{ search_artist }}">
+
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Rank</th>
+                                <th>Artist</th>
+                                <th>Track</th>
+                                <th>Weekly Streams</th>
+                            </tr>
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for song in search_results %}
+
+                            <tr>
+
+                                <td>
+                                    <input type="checkbox" name="selected_ranks" value="{{ song.rank }}">
+                                </td>
+
+                                <td>
+                                    #{{ song.rank }}
+                                </td>
+
+                                <td>
+                                    {{ song.artist_names }}
+                                </td>
+
+                                <td>
+                                    {{ song.track_name }}
+                                </td>
+
+                                <td>
+                                    {{ "{:,}".format(song.streams) }}
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+
+                    <button class="add-analysis-button" type="submit">
+                        Add Selected to Analysis
+                    </button>
+
+                </form>
+
+            </div>
+
+            {% endif %}
+
         </section>
 
-        <section class="card">
-            <h2>▶ YouTube</h2>
-            <p>뮤직비디오 조회수, 좋아요, 댓글을 확인합니다.</p>
-            <a href="/youtube">YouTube Data</a>
+
+        <!-- ==================================================
+             2. SUCCESS / INFO MESSAGE
+        =================================================== -->
+
+        {% if message %}
+
+        <div class="success-message">
+            ✅ {{ message }}
+        </div>
+
+        {% endif %}
+
+
+        <!-- ==================================================
+             3. CURRENT ANALYSIS
+        =================================================== -->
+
+        <section class="dashboard-section">
+
+            <div class="analysis-header">
+
+                <div>
+
+                    <h2>🎯 Current Analysis</h2>
+
+                    <p>
+                        Artists:
+                        <strong>
+                            {{ artist_count }} / {{ max_artists }}
+                        </strong>
+
+                        &nbsp;&nbsp;
+
+                        Tracks:
+                        <strong>
+                            {{ track_count }} / {{ max_tracks }}
+                        </strong>
+                    </p>
+
+                </div>
+
+
+                <!--
+                현재 분석 목록 전체 초기화.
+
+                중요:
+                MySQL 데이터는 삭제하지 않는다.
+                -->
+
+                {% if current_analysis %}
+
+                <form method="post" action="/reset-analysis">
+
+                    <button class="reset-button" type="submit">
+                        RESET ANALYSIS
+                    </button>
+
+                </form>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- 최대 Track 도달 안내 -->
+
+            {% if track_count >= max_tracks %}
+
+            <div class="notice">
+                최대 {{ max_tracks }}곡까지 비교할 수 있습니다.
+                곡을 추가하려면 기존 곡을 제거해 주세요.
+            </div>
+
+            {% endif %}
+
+
+            <!-- 최대 Artist 도달 안내 -->
+
+            {% if artist_count >= max_artists %}
+
+            <div class="notice">
+                최대 {{ max_artists }}명의 Artist까지
+                비교할 수 있습니다.
+            </div>
+
+            {% endif %}
+
+
+            <!-- 선택된 곡 목록 -->
+
+            {% if current_analysis %}
+
+            <div class="selected-track-list">
+
+                {% for item in current_analysis %}
+
+                <div class="selected-track">
+
+                    <div>
+
+                        <strong>
+                            {{ item.artist }}
+                        </strong>
+
+                        —
+
+                        {{ item.track }}
+
+                    </div>
+
+
+                    <!--
+                    이 곡만 Current Analysis에서 제거.
+
+                    MySQL 데이터는 유지한다.
+                    -->
+
+                    <form method="post" action="/remove-analysis/{{ item.song_id }}">
+
+                        <button class="remove-button" type="submit" title="Remove from Analysis">
+                            ×
+                        </button>
+
+                    </form>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            {% else %}
+
+            <p>
+                아직 분석에 추가된 곡이 없습니다.
+                위 Artist Search에서 곡을 선택해 주세요.
+            </p>
+
+            {% endif %}
+
         </section>
 
-        <section class="card">
+
+        <!-- ==================================================
+             4. SPOTIFY DATA
+        =================================================== -->
+
+        <section class="dashboard-section">
+
+            <h2>🎵 Spotify Data</h2>
+
+            <p>
+                현재 Analysis에 선택된 곡의
+                Spotify 주간 데이터
+            </p>
+
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Artist</th>
+                        <th>Track</th>
+                        <th>Weekly Streams</th>
+                        <th>Chart Date</th>
+                    </tr>
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in spotify_data %}
+
+                    <tr>
+
+                        <td>
+                            #{{ item.spotify_rank }}
+                        </td>
+
+                        <td>
+                            {{ item.artist }}
+                        </td>
+
+                        <td>
+                            {{ item.track }}
+                        </td>
+
+                        <td>
+                            {{ "{:,}".format(
+                            item.spotify_streams
+                            ) }}
+                        </td>
+
+                        <td>
+                            {{ item.chart_date }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+
+        <!-- ==================================================
+             5. YOUTUBE DATA
+        =================================================== -->
+
+        <section class="dashboard-section">
+
+            <h2>▶ YouTube Data</h2>
+
+            <p>
+                현재 Analysis에 선택된 곡의
+                YouTube 누적 데이터
+            </p>
+
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Artist</th>
+                        <th>Track</th>
+                        <th>Views</th>
+                        <th>Likes</th>
+                        <th>Comments</th>
+                        <th>Channel</th>
+                    </tr>
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in youtube_data %}
+
+                    <tr>
+
+                        <td>
+                            {{ item.artist }}
+                        </td>
+
+                        <td>
+                            {{ item.track }}
+                        </td>
+
+                        <td>
+                            {{ "{:,}".format(
+                            item.youtube_views
+                            ) }}
+                        </td>
+
+                        <td>
+                            {{ "{:,}".format(
+                            item.youtube_likes
+                            ) }}
+                        </td>
+
+                        <td>
+                            {{ "{:,}".format(
+                            item.youtube_comments
+                            ) }}
+                        </td>
+
+                        <td>
+                            {{ item.youtube_channel }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+
+        <!-- ==================================================
+             6. COMPARE
+        =================================================== -->
+
+        <section class="dashboard-section">
+
             <h2>📊 Compare</h2>
-            <p>Spotify와 YouTube 데이터를 한 화면에서 비교합니다.</p>
-            <a href="/compare">Compare Data</a>
+
+
+            <div class="notice">
+
+                Spotify는
+                <strong>주간 스트리밍 수</strong>,
+
+                YouTube는
+                <strong>영상 공개 후 누적 조회수</strong>입니다.
+
+                따라서 두 숫자는 동일한 기간의
+                지표가 아닙니다.
+
+            </div>
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Artist</th>
+                        <th>Track</th>
+                        <th>Spotify Streams</th>
+                        <th>YouTube Views</th>
+                        <th>Difference</th>
+                        <th>Ratio</th>
+                        <th>Larger</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in comparison_data %}
+
+                    <tr>
+
+                        <td>
+                            {{ item.artist }}
+                        </td>
+
+                        <td>
+                            {{ item.track }}
+                        </td>
+
+                        <td>
+                            {{ "{:,}".format(
+                            item.spotify_streams
+                            ) }}
+                        </td>
+
+                        <td>
+                            {{ "{:,}".format(
+                            item.youtube_views
+                            ) }}
+                        </td>
+
+                        <td>
+                            {{ "{:,}".format(
+                            item.difference
+                            ) }}
+                        </td>
+
+                        <td>
+                            {{ item.ratio }}x
+                        </td>
+
+                        <td>
+                            {{ item.larger_value }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+
+        <!-- ==================================================
+             7. ACCUMULATED ANALYSIS CHART
+        =================================================== -->
+
+        <section class="dashboard-section">
+
+            <h2>📈 Accumulated Analysis</h2>
+
+            <p>
+                현재 선택한 최대 10곡의
+                Spotify 주간 스트리밍과
+                YouTube 누적 조회수를 비교합니다.
+            </p>
+
+
+            <div class="notice">
+
+                Spotify는 주간 스트리밍,
+                YouTube는 누적 조회수입니다.
+
+                또한 두 값의 크기 차이가 크기 때문에
+                그래프는
+                <strong>Logarithmic Scale</strong>
+                을 사용합니다.
+
+            </div>
+
+
+            {% if comparison_data %}
+
+
+            <div class="chart-container">
+
+
+                <!--
+                Python에서 json.dumps()로 만든
+                JSON 문자열을 별도의 JSON 영역에 저장한다.
+
+                이렇게 하면:
+                That's What I Like
+                ROSÉ
+                쉼표
+                특수문자
+
+                등이 들어가도 HTML attribute가
+                깨지지 않는다.
+                -->
+
+
+                <script id="chartLabels" type="application/json">{{ chart_labels | tojson }}</script>
+
+                <script id="chartSpotify" type="application/json">{{ chart_spotify | tojson }}</script>
+
+                <script id="chartYoutube" type="application/json">{{ chart_youtube | tojson }}</script>
+
+                <canvas id="comparisonChart"></canvas>
+
+            </div>
+
+
+            {% else %}
+
+
+            <p>
+                Chart를 보려면 Artist Search에서
+                곡을 Analysis에 추가해 주세요.
+            </p>
+
+
+            {% endif %}
+
         </section>
 
     </main>
+
+
+    <!-- ==================================================
+         Chart.js
+    =================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    {% if comparison_data %}
+
+
+    <script>
+
+        // --------------------------------------------------
+        // 1. Python에서 전달한 JSON 데이터를 읽는다.
+        // --------------------------------------------------
+
+        const labels = JSON.parse(
+            document
+                .getElementById("chartLabels")
+                .textContent
+                .trim()
+        );
+
+
+        const spotifyStreams = JSON.parse(
+            document
+                .getElementById("chartSpotify")
+                .textContent
+                .trim()
+        );
+
+
+        const youtubeViews = JSON.parse(
+            document
+                .getElementById("chartYoutube")
+                .textContent
+                .trim()
+        );
+
+
+        // --------------------------------------------------
+        // 2. Chart가 들어갈 Canvas를 찾는다.
+        // --------------------------------------------------
+
+        const ctx =
+            document.getElementById("comparisonChart");
+
+
+        // --------------------------------------------------
+        // 3. Spotify vs YouTube Chart 생성
+        // --------------------------------------------------
+
+        new Chart(
+            ctx,
+            {
+
+                type: "bar",
+
+
+                data: {
+
+                    labels: labels,
+
+
+                    datasets: [
+
+                        {
+                            label:
+                                "Spotify Weekly Streams",
+
+                            data:
+                                spotifyStreams
+                        },
+
+
+                        {
+                            label:
+                                "YouTube Cumulative Views",
+
+                            data:
+                                youtubeViews
+                        }
+
+                    ]
+                },
+
+
+                options: {
+
+                    // 가로 막대 그래프
+                    indexAxis: "y",
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+
+                    plugins: {
+
+                        legend: {
+
+                            position: "top"
+
+                        },
+
+
+                        tooltip: {
+
+                            callbacks: {
+
+                                // 숫자를
+                                // 165,581,136 형식으로 표시
+                                label: function (context) {
+
+                                    const value =
+                                        context
+                                            .raw
+                                            .toLocaleString();
+
+
+                                    return (
+                                        context
+                                            .dataset
+                                            .label
+
+                                        + ": "
+
+                                        + value
+                                    );
+                                }
+                            }
+                        }
+                    },
+
+
+                    scales: {
+
+                        // Spotify / YouTube의
+                        // 숫자 차이가 매우 크기 때문에
+                        // Log Scale 사용
+                        x: {
+
+                            type:
+                                "logarithmic",
+
+
+                            title: {
+
+                                display:
+                                    true,
+
+                                text:
+                                    "Streams / Views (Log Scale)"
+                            }
+                        },
+
+
+                        y: {
+
+                            title: {
+
+                                display:
+                                    true,
+
+                                text:
+                                    "Artist / Track"
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+    </script>
+
+
+    {% endif %}
+
 
 </body>
 

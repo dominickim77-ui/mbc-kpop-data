@@ -14,7 +14,6 @@ import mysql.connector
 # .env 파일의 환경변수를 읽기 위한 라이브러리
 from dotenv import load_dotenv
 
-
 # --------------------------------------------------
 # 1. .env 파일 읽기
 # --------------------------------------------------
@@ -38,7 +37,7 @@ connection = mysql.connector.connect(
     port=MYSQL_PORT,
     user=MYSQL_USER,
     password=MYSQL_PASSWORD,
-    database=MYSQL_DATABASE
+    database=MYSQL_DATABASE,
 )
 
 
