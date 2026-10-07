@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ title }}</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>📊 Compare Data</h1>
+        <p>Spotify 주간 스트리밍 vs YouTube 누적 조회수</p>
+    </header>
+
+    <main class="data-page">
+
+        <a class="back-link" href="/">← HOME</a>
+
+        <!--
+        데이터 해석 시 반드시 기억해야 할 기준
+        -->
+        <div class="notice">
+            Spotify는 주간 스트리밍 수,
+            YouTube는 영상 공개 후 누적 조회수입니다.
+            따라서 두 숫자는 동일한 기간의 지표가 아닙니다.
+        </div>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Artist</th>
+                    <th>Track</th>
+                    <th>Spotify Rank</th>
+                    <th>Spotify Streams</th>
+                    <th>YouTube Views</th>
+                    <th>Difference</th>
+                    <th>Ratio</th>
+                    <th>Larger Value</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in comparisons %}
+
+                <tr>
+                    <td>{{ item.artist }}</td>
+
+                    <td>{{ item.track }}</td>
+
+                    <td>#{{ item.spotify_rank }}</td>
+
+                    <td>
+                        {{ "{:,}".format(item.spotify_streams) }}
+                    </td>
+
+                    <td>
+                        {{ "{:,}".format(item.youtube_views) }}
+                    </td>
+
+                    <td>
+                        {{ "{:,}".format(item.difference) }}
+                    </td>
+
+                    <td>
+                        {{ item.ratio }}x
+                    </td>
+
+                    <td>
+                        {{ item.larger_value }}
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </main>
+
+</body>
+
+</html>

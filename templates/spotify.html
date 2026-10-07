@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ title }}</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>🎵 Spotify Data</h1>
+        <p>2026 Spotify Weekly Top Songs Global</p>
+    </header>
+
+    <main class="data-page">
+
+        <!-- HOME으로 돌아가기 -->
+        <a class="back-link" href="/">← HOME</a>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Artist</th>
+                    <th>Track</th>
+                    <th>Weekly Streams</th>
+                    <th>Chart Date</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <!--
+                FastAPI에서 전달받은 songs 데이터를
+                한 곡씩 반복해서 출력한다.
+                -->
+
+                {% for song in songs %}
+
+                <tr>
+                    <td>#{{ song.spotify_rank }}</td>
+
+                    <td>
+                        {{ song.artist }}
+                    </td>
+
+                    <td>
+                        {{ song.track }}
+                    </td>
+
+                    <td>
+                        {{ "{:,}".format(song.spotify_streams) }}
+                    </td>
+
+                    <td>
+                        {{ song.chart_date }}
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </main>
+
+</body>
+
+</html>
