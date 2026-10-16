@@ -1,0 +1,107 @@
+{
+  "status": "DRAFT_NOT_FOR_PUBLICATION",
+  "review_stage": "TRACK_IDENTITY_AND_EDITORIAL_CATEGORY_APPROVED",
+  "article_publication_approved": false,
+  "editorial_decision_date": "2026-10-16",
+  "recorded_at_utc": "2026-10-16T05:21:09.390207+00:00",
+  "region": "Global",
+  "week_previous": {
+    "start": "2026-09-25",
+    "end": "2026-10-01"
+  },
+  "week_current": {
+    "start": "2026-10-02",
+    "end": "2026-10-08"
+  },
+  "chart_cutoffs": {
+    "spotify_top_n": 200,
+    "youtube_top_n": 100
+  },
+  "sources": {
+    "spotify_charts": "https://charts.spotify.com/",
+    "youtube_charts": "https://charts.youtube.com/"
+  },
+  "source_files": [
+    "data/charts/spotify/regional-global-weekly-2026-10-01.csv",
+    "data/charts/spotify/regional-global-weekly-2026-10-08.csv",
+    "data/charts/youtube/youtube-charts-top-songs-global-weekly-20261001.csv",
+    "data/charts/youtube/youtube-charts-top-songs-global-weekly-20261008.csv",
+    "data/processed/track_review_draft_20261008.csv",
+    "data/processed/weekly_changes_20261008.csv"
+  ],
+  "approved_categories": {
+    "KATSEYE": "KPOP_RELATED_GLOBAL",
+    "LISA": "KPOP_SOLO"
+  },
+  "analysis_tracks": [
+    {
+      "track_name": "Animal",
+      "artist": "KATSEYE",
+      "editorial_category": "KPOP_RELATED_GLOBAL",
+      "identity_review": "CONFIRMED_SAME_SONG",
+      "spotify": {
+        "previous_rank": 50,
+        "current_rank": 48,
+        "previous_week_streams": 12676531,
+        "current_week_streams": 12339335,
+        "streams_change_pct": -2.66,
+        "source_track_url": "https://open.spotify.com/track/3ouNEk0tv5TTi8VWMe1xbX"
+      },
+      "youtube": {
+        "previous_rank": 14,
+        "current_rank": 14,
+        "previous_week_views": 21431122,
+        "current_week_views": 16431213,
+        "views_change_pct": -23.33,
+        "representative_video_reference_only": "https://www.youtube.com/watch?v=m7k9UMcHbr0"
+      },
+      "caution": "주간 스트리밍과 주간 조회수는 서로 다른 지표; 단일 영상 누적 조회수 아님."
+    },
+    {
+      "track_name": "SaWaDiKa",
+      "artist": "LISA",
+      "editorial_category": "KPOP_SOLO",
+      "identity_review": "CONFIRMED_SAME_SONG",
+      "spotify": {
+        "previous_rank": 106,
+        "current_rank": 152,
+        "previous_week_streams": 9627318,
+        "current_week_streams": 8704202,
+        "streams_change_pct": -9.59,
+        "source_track_url": "https://open.spotify.com/track/1VWiDyYTrqQhhmnWANWkFa"
+      },
+      "youtube": {
+        "previous_rank": 10,
+        "current_rank": 17,
+        "previous_week_views": 23644316,
+        "current_week_views": 15541762,
+        "views_change_pct": -34.27,
+        "representative_video_reference_only": "https://www.youtube.com/watch?v=FyS5dAywkEo"
+      },
+      "caution": "주간 스트리밍과 주간 조회수는 서로 다른 지표; 단일 영상 누적 조회수 아님."
+    }
+  ],
+  "analysis_track_count": 2,
+  "excluded_reference_tracks": [
+    {
+      "track_name": "Hootie Frutti",
+      "editorial_category": "KPOP_RELATED_GLOBAL",
+      "reason": "Spotify 페이지는 PEDRO SAMPAIO Remix, YouTube 대표 MV는 일반 곡명; 버전 대응 불명확",
+      "use": "설명용 사례만 가능. 기사 핵심 순위 비교·통계에서 제외"
+    }
+  ],
+  "excluded_reference_count": 1,
+  "review_evidence": "2026-10-16 사용자 제공 Spotify 및 공식 YouTube 영상 페이지 캡처; 최종 기사 출고 검토는 별도",
+  "method": "각 플랫폼 내부에서만 전주와 금주 수치의 변화율을 계산한다.",
+  "cautions": [
+    "Spotify와 YouTube의 순위는 차트별 상대적 위치. 순위 차이만으로 인기도 배율을 계산하지 않는다.",
+    "서로 다른 단위인 스트리밍과 조회수를 합산하거나 서로 나누지 않는다.",
+    "두 플랫폼의 차트 범위는 Spotify 200곡, YouTube 100곡으로 다르다.",
+    "KATSEYE는 K-POP 연계 글로벌 그룹으로, LISA는 K-POP 그룹 멤버 솔로로 분류한다.",
+    "기사 주요 분석 사례 2곡만으로 K-POP 전체 또는 글로벌 팬덤에 일반화하지 않는다.",
+    "YouTube Weekly Top Songs는 곡 차트의 주간 조회수이며 대표 MV 한 편의 조회수가 아니다.",
+    "과거 주간 미매칭을 조회수·스트리밍 0으로 치환하지 않는다.",
+    "원인이나 인과관계, 이용자 수를 추론하지 않는다.",
+    "수치와 기사 본문은 추가 대조해야 하며 AI 기사 초안은 출고 승인이 아니다."
+  ]
+}

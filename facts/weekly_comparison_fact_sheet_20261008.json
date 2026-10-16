@@ -1,0 +1,72 @@
+{
+  "status": "DRAFT_NOT_FOR_PUBLICATION",
+  "computed_at_utc": "2026-10-16T04:14:25.828593+00:00",
+  "region": "Global",
+  "week_previous": {
+    "start": "2026-09-25",
+    "end": "2026-10-01"
+  },
+  "week_current": {
+    "start": "2026-10-02",
+    "end": "2026-10-08"
+  },
+  "spotify_top_n": 200,
+  "youtube_top_n": 100,
+  "same_week_match_candidates": 23,
+  "both_top_100_candidates_current_week": 18,
+  "both_weeks_matched_spotify": 22,
+  "both_weeks_matched_youtube": 21,
+  "kpop_related_examples_needing_human_review": [
+    {
+      "track_name": "Hootie Frutti",
+      "spotify_rank_20261001": 148,
+      "spotify_rank_20261008": 150,
+      "spotify_rank_movement_up": -2,
+      "spotify_streams_change_pct": -0.6,
+      "youtube_rank_20261001": 6,
+      "youtube_rank_20261008": 9,
+      "youtube_rank_movement_up": -3,
+      "youtube_views_change_pct": -25.5
+    },
+    {
+      "track_name": "Animal",
+      "spotify_rank_20261001": 50,
+      "spotify_rank_20261008": 48,
+      "spotify_rank_movement_up": 2,
+      "spotify_streams_change_pct": -2.66,
+      "youtube_rank_20261001": 14,
+      "youtube_rank_20261008": 14,
+      "youtube_rank_movement_up": 0,
+      "youtube_views_change_pct": -23.33
+    },
+    {
+      "track_name": "SaWaDiKa",
+      "spotify_rank_20261001": 106,
+      "spotify_rank_20261008": 152,
+      "spotify_rank_movement_up": -46,
+      "spotify_streams_change_pct": -9.59,
+      "youtube_rank_20261001": 10,
+      "youtube_rank_20261008": 17,
+      "youtube_rank_movement_up": -7,
+      "youtube_views_change_pct": -34.27
+    }
+  ],
+  "method": "Normalize song title and primary artist, match within each week; compute week-on-week changes only within the same platform",
+  "source_files": [
+    "data/charts/spotify/regional-global-weekly-2026-10-01.csv",
+    "data/charts/spotify/regional-global-weekly-2026-10-08.csv",
+    "data/charts/youtube/youtube-charts-top-songs-global-weekly-20261001.csv",
+    "data/charts/youtube/youtube-charts-top-songs-global-weekly-20261008.csv"
+  ],
+  "review_required": true,
+  "cautions": [
+    "Songs matched by title and primary artist are candidates, not confirmed same recordings or versions.",
+    "K-POP classification is not finalized; highlighted tracks are review examples only.",
+    "The two platforms have unequal rank cutoffs (Spotify 200, YouTube 100).",
+    "A missing previous-week match is unknown/unmatched, not zero streams or views.",
+    "Spotify stream change and YouTube view change are calculated separately; do not divide one by the other.",
+    "YouTube supplied Growth field is ignored; change percentages are recomputed from both weeks' raw Views.",
+    "Rank movement is previous_rank minus current_rank; positive means moving toward #1.",
+    "Relative week-on-week change does not establish causal explanations."
+  ]
+}

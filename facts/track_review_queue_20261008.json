@@ -1,0 +1,97 @@
+{
+  "status": "DRAFT_NOT_FOR_PUBLICATION",
+  "created_at_utc": "2026-10-16T04:19:18.166746+00:00",
+  "region": "Global",
+  "period_start": "2026-10-02",
+  "period_end": "2026-10-08",
+  "review_policy": "Manual confirmation required for track identity, version and editorial K-POP category",
+  "category_options": [
+    "KPOP_GROUP",
+    "KPOP_SOLO",
+    "KPOP_RELATED_GLOBAL",
+    "KPOP_COLLABORATION",
+    "OTHER",
+    "UNRESOLVED"
+  ],
+  "identity_status_options": [
+    "PENDING",
+    "CONFIRMED_SAME_SONG",
+    "AMBIGUOUS_VERSION",
+    "REJECTED"
+  ],
+  "category_status_options": [
+    "PENDING",
+    "CONFIRMED",
+    "UNRESOLVED"
+  ],
+  "youtube_aggregation_warning": "Weekly Top Songs views are chart-level song totals; the representative video URL is not the sole source of those views",
+  "no_auto_approval": true,
+  "source_charts": [
+    "https://charts.spotify.com/",
+    "https://charts.youtube.com/"
+  ],
+  "review_items": [
+    {
+      "track_name": "Hootie Frutti",
+      "spotify_artists": "KATSEYE",
+      "youtube_artists": "KATSEYE",
+      "spotify_rank": 150,
+      "youtube_rank": 9,
+      "spotify_weekly_streams": 8766613,
+      "youtube_weekly_views": 22744420,
+      "spotify_change_pct": -0.6,
+      "youtube_change_pct": -25.5,
+      "spotify_url": "https://open.spotify.com/track/3NxXZVLBdHsNMOaTvBaF3b",
+      "youtube_reference_url": "https://www.youtube.com/watch?v=is8UDe2PhKQ",
+      "youtube_link_note": "YouTube URL은 참고 링크. Weekly Top Songs의 전체 주간 조회수를 단일 영상 조회수로 해석 금지",
+      "suggested_category": "KPOP_RELATED_GLOBAL",
+      "identity_review": "PENDING",
+      "category_review": "PENDING",
+      "approved_category": "",
+      "reviewer_note": "",
+      "reviewed_at": ""
+    },
+    {
+      "track_name": "Animal",
+      "spotify_artists": "KATSEYE",
+      "youtube_artists": "KATSEYE",
+      "spotify_rank": 48,
+      "youtube_rank": 14,
+      "spotify_weekly_streams": 12339335,
+      "youtube_weekly_views": 16431213,
+      "spotify_change_pct": -2.66,
+      "youtube_change_pct": -23.33,
+      "spotify_url": "https://open.spotify.com/track/3ouNEk0tv5TTi8VWMe1xbX",
+      "youtube_reference_url": "https://www.youtube.com/watch?v=m7k9UMcHbr0",
+      "youtube_link_note": "YouTube URL은 참고 링크. Weekly Top Songs의 전체 주간 조회수를 단일 영상 조회수로 해석 금지",
+      "suggested_category": "KPOP_RELATED_GLOBAL",
+      "identity_review": "PENDING",
+      "category_review": "PENDING",
+      "approved_category": "",
+      "reviewer_note": "",
+      "reviewed_at": ""
+    },
+    {
+      "track_name": "SaWaDiKa",
+      "spotify_artists": "LISA",
+      "youtube_artists": "LISA",
+      "spotify_rank": 152,
+      "youtube_rank": 17,
+      "spotify_weekly_streams": 8704202,
+      "youtube_weekly_views": 15541762,
+      "spotify_change_pct": -9.59,
+      "youtube_change_pct": -34.27,
+      "spotify_url": "https://open.spotify.com/track/1VWiDyYTrqQhhmnWANWkFa",
+      "youtube_reference_url": "https://www.youtube.com/watch?v=FyS5dAywkEo",
+      "youtube_link_note": "YouTube URL은 참고 링크. Weekly Top Songs의 전체 주간 조회수를 단일 영상 조회수로 해석 금지",
+      "suggested_category": "KPOP_SOLO",
+      "identity_review": "PENDING",
+      "category_review": "PENDING",
+      "approved_category": "",
+      "reviewer_note": "",
+      "reviewed_at": ""
+    }
+  ],
+  "pending_identity_count": 3,
+  "pending_category_count": 3
+}

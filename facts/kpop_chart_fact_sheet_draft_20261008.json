@@ -1,0 +1,126 @@
+{
+  "project": "MBC K-POP DATA NEWS ENGINE",
+  "status": "DRAFT — automated comparison; publication requires manual fact-check",
+  "comparison_scope": {
+    "location": "Global",
+    "chart_periods": [
+      {
+        "start": "2026-09-25",
+        "end": "2026-10-01"
+      },
+      {
+        "start": "2026-10-02",
+        "end": "2026-10-08"
+      }
+    ],
+    "spotify_chart": "Weekly Top Songs Global (Top 200)",
+    "youtube_chart": "Weekly Top Songs Global (Top 100)",
+    "methods": "track-title normalization and primary-artist matching; version-level matching not yet verified",
+    "important_limit": "Spotify streams vs YouTube views should not be treated as directly equivalent; ranks are within different chart universes and different population sizes"
+  },
+  "input_files": [
+    {
+      "filename": "youtube-charts-top-songs-global-weekly-20261001.csv",
+      "rows": 100,
+      "columns": [
+        "Rank",
+        "Previous Rank",
+        "Track Name",
+        "Artist Names",
+        "Periods on Chart",
+        "Views",
+        "Growth",
+        "YouTube URL"
+      ]
+    },
+    {
+      "filename": "youtube-charts-top-songs-global-weekly-20261008.csv",
+      "rows": 100,
+      "columns": [
+        "Rank",
+        "Previous Rank",
+        "Track Name",
+        "Artist Names",
+        "Periods on Chart",
+        "Views",
+        "Growth",
+        "YouTube URL"
+      ]
+    },
+    {
+      "filename": "regional-global-weekly-2026-10-08.csv",
+      "rows": 200,
+      "columns": [
+        "rank",
+        "uri",
+        "artist_names",
+        "track_name",
+        "source",
+        "peak_rank",
+        "previous_rank",
+        "weeks_on_chart",
+        "streams"
+      ]
+    },
+    {
+      "filename": "regional-global-weekly-2026-10-01.csv",
+      "source": "https://github.com/dominickim77-ui/mbc-kpop-data/blob/main/regional-global-weekly-2026-10-01.csv",
+      "note": "Prior-week Spotify rank cross-check from spotify_20261008.previous_rank. Full earlier Spotify file remains in GitHub, not copied into these generated artifacts."
+    }
+  ],
+  "computed_results": {
+    "matched_song_candidates_current_week": 23,
+    "matched_song_candidates_with_both_top_100": 18,
+    "kpop_related_matching_song_candidates": 3
+  },
+  "kpop_related_examples": [
+    {
+      "track_name": "Hootie Frutti",
+      "artist": "KATSEYE",
+      "spotify_rank_w1": 148,
+      "spotify_rank_w2": 150,
+      "spotify_streams_w2": 8766613,
+      "youtube_rank_w1": 6,
+      "youtube_rank_w2": 9,
+      "youtube_views_w1": 30530025,
+      "youtube_views_w2": 22744420,
+      "youtube_views_change_pct": -25.5,
+      "classification_note": "KATSEYE — K-POP 연계 글로벌 그룹(분류 기준 검토 필요)"
+    },
+    {
+      "track_name": "Animal",
+      "artist": "KATSEYE",
+      "spotify_rank_w1": 50,
+      "spotify_rank_w2": 48,
+      "spotify_streams_w2": 12339335,
+      "youtube_rank_w1": 14,
+      "youtube_rank_w2": 14,
+      "youtube_views_w1": 21431122,
+      "youtube_views_w2": 16431213,
+      "youtube_views_change_pct": -23.33,
+      "classification_note": "KATSEYE — K-POP 연계 글로벌 그룹(분류 기준 검토 필요)"
+    },
+    {
+      "track_name": "SaWaDiKa",
+      "artist": "LISA",
+      "spotify_rank_w1": 106,
+      "spotify_rank_w2": 152,
+      "spotify_streams_w2": 8704202,
+      "youtube_rank_w1": 10,
+      "youtube_rank_w2": 17,
+      "youtube_views_w1": 23644316,
+      "youtube_views_w2": 15541762,
+      "youtube_views_change_pct": -34.27,
+      "classification_note": "LISA — K-POP 그룹 멤버의 솔로곡"
+    }
+  ],
+  "data_quality_flags": [
+    "YouTube CSV Growth column appears to be a decimal fractional change with a percent sign; e.g. SaWaDiKa -0.34% vs views-implied -34.27%. Recalculate from Views.",
+    "The same track title/primary artist does not guarantee the same version; check remixes, collaborations, YouTube chart aggregations and Spotify track URIs.",
+    "YouTube is Top 100; Spotify is Top 200. Absence from either chart is not zero streams/views.",
+    "KATSEYE is a global group with K-pop-related production context; define inclusion criteria rather than silently treating it as Korean K-pop.",
+    "Dracula (Remix) (feat. JENNIE) on YouTube vs Dracula (with JENNIE) on Spotify are not auto-merged: different displayed versions."
+  ],
+  "review_required": true,
+  "article_ready": false
+}

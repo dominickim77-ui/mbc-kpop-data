@@ -1,0 +1,26 @@
+{
+  "status": "DRAFT_NOT_FOR_PUBLICATION",
+  "period_start": "2026-10-02",
+  "period_end": "2026-10-08",
+  "geography": "Global",
+  "spotify_chart": "Weekly Top Songs Global, first 200 tracks",
+  "youtube_chart": "Weekly Top Songs Global, first 100 tracks",
+  "spotify_rows": 200,
+  "youtube_rows": 100,
+  "match_candidate_count": 23,
+  "both_charts_top_100_candidates": 18,
+  "ambiguous_matches_excluded": [],
+  "method": "Track title and primary artist are normalized and matched exactly",
+  "review_required": true,
+  "cautions": [
+    "Matched entries are candidates, not verified identical song versions.",
+    "Spotify streams and YouTube views must not be directly divided or compared as equal units.",
+    "Global charts cover different numbers of ranked songs (Spotify 200, YouTube 100).",
+    "K-POP artist classification has not been performed or verified.",
+    "YouTube Growth CSV field is not used; calculate week-over-week changes from raw Views separately."
+  ],
+  "source_files": [
+    "data\\charts\\spotify\\regional-global-weekly-2026-10-08.csv",
+    "data\\charts\\youtube\\youtube-charts-top-songs-global-weekly-20261008.csv"
+  ]
+}
