@@ -310,3 +310,38 @@ th {
 
     margin-top: 25px;
 }
+/* KPOP_NEWS_INLINE_V1 */
+
+/* --------------------------------------------------
+   NEWS ANALYSIS: 메인 페이지 안에서 기사 표시
+-------------------------------------------------- */
+.news-inline-panel { border: 1px solid #e8e2f4; background: #fff; }
+.news-panel-heading h2 { margin-top: 0; margin-bottom: 8px; }
+.news-panel-heading p { color: #555; margin-top: 0; line-height: 1.6; }
+.news-panel-note { color: #56525f; font-size: 14px; line-height: 1.65; }
+.news-panel-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0; }
+.news-panel-actions button { border: 0; border-radius: 10px; padding: 13px 18px; font-weight: 700; font-size: 15px; cursor: pointer; }
+.news-generate-button { color: white; background: #6635a0; }
+.news-saved-button { color: #30203e; background: #eeeaf5; }
+.news-panel-actions button:disabled { cursor: wait; opacity: 0.6; }
+.news-status { font-size: 14px; color: #55446a; line-height: 1.6; }
+.news-article-output { border-top: 1px solid #e8e2f4; margin-top: 18px; padding-top: 20px; }
+.news-article-output[hidden] { display: none; }
+.news-article-output h3 { color: #17121f; font-size: 23px; line-height: 1.35; margin: 0 0 22px; }
+.news-article-output p { color: #27222d; line-height: 1.85; white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 16px; }
+.news-result-source { font-size: 12px; color: #70667a; overflow-wrap: anywhere; }
+
+/* STEP11 */
+/* STEP 11: selected-song status, inside existing News panel. */
+.news-selection-summary { background: #f8f6fb; border-radius: 10px; padding: 14px 16px; margin: 18px 0; }
+.news-selection-summary > p { margin: 0 0 10px; font-weight: 700; }
+.news-selection-lists { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; }
+.news-selection-lists strong { font-size: 13px; }
+.news-selection-lists ul { padding-left: 18px; margin: 8px 0 0; font-size: 13px; line-height: 1.7; }
+.news-selection-lists li { overflow-wrap: anywhere; }
+.news-panel-actions button:disabled { opacity: .5; cursor: not-allowed; }
+.analysis-two-charts { display: grid; grid-template-columns: 1fr; gap: 22px; }
+.analysis-chart-standalone { min-height: 300px; }
+.analysis-chart-standalone .chart-container { height: 300px; }
+.analysis-chart-standalone h3 { font-size: 16px; margin: 12px 0; }
+.analysis-chart-hint { color: #5c5661; font-size: 13px; line-height: 1.65; }

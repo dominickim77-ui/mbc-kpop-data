@@ -1,0 +1,23 @@
+<!-- KPOP_NEWS_SELECTED_STEP11: show only approved selected tracks -->
+<section id="news-inline-panel" class="dashboard-section news-inline-panel" aria-labelledby="news-panel-title">
+  <div class="news-panel-heading">
+    <h2 id="news-panel-title">📰 K-POP NEWS ANALYSIS</h2>
+    <p>Current Analysis에서 선택한 곡 → 검수된 Fact Sheet → 기사 초안</p>
+  </div>
+  <p class="news-panel-note">이 페이지의 예전 YouTube 영상 누적 조회수와 공식 주간 Top Songs 조회수는 서로 달라. 기사에는 <strong>검수된 같은 주차의 주간 차트 자료만</strong> 사용할게.</p>
+  <div class="news-selection-summary" aria-live="polite">
+    <p id="news-selected-count">선택한 곡을 확인하는 중…</p>
+    <div class="news-selection-lists">
+      <div><strong>기사에 사용할 검수 완료 곡</strong><ul id="news-approved-list"></ul></div>
+      <div><strong>현재 근거 부족 · 기사 제외</strong><ul id="news-excluded-list"></ul></div>
+    </div>
+  </div>
+  <div class="news-panel-actions">
+    <button type="button" id="news-preview-btn" class="news-saved-button" disabled>🔎 선택한 곡 기사 미리보기 (무료)</button>
+    <button type="button" id="news-generate-btn" class="news-generate-button" disabled>✨ 선택한 곡 AI 기사 생성 (유료)</button>
+    <button type="button" id="news-saved-btn" class="news-saved-button">📄 기존 2곡 수정 기사 예시 (무료)</button>
+  </div>
+  <p id="news-status" class="news-status" role="status" aria-live="polite">승인된 곡이 없으면 생성하지 않아. 기사 출력은 출고 미승인 상태야.</p>
+  <div id="news-article-output" class="news-article-output" hidden></div>
+  <p id="news-result-source" class="news-result-source"></p>
+</section>

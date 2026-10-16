@@ -1,0 +1,13 @@
+/* STEP 11: selected-song status, inside existing News panel. */
+.news-selection-summary { background: #f8f6fb; border-radius: 10px; padding: 14px 16px; margin: 18px 0; }
+.news-selection-summary > p { margin: 0 0 10px; font-weight: 700; }
+.news-selection-lists { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; }
+.news-selection-lists strong { font-size: 13px; }
+.news-selection-lists ul { padding-left: 18px; margin: 8px 0 0; font-size: 13px; line-height: 1.7; }
+.news-selection-lists li { overflow-wrap: anywhere; }
+.news-panel-actions button:disabled { opacity: .5; cursor: not-allowed; }
+.analysis-two-charts { display: grid; grid-template-columns: 1fr; gap: 22px; }
+.analysis-chart-standalone { min-height: 300px; }
+.analysis-chart-standalone .chart-container { height: 300px; }
+.analysis-chart-standalone h3 { font-size: 16px; margin: 12px 0; }
+.analysis-chart-hint { color: #5c5661; font-size: 13px; line-height: 1.65; }

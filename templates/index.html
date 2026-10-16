@@ -32,6 +32,9 @@
 
     <main class="dashboard">
 
+        
+
+
 
         <!-- ==================================================
              1. ARTIST SEARCH
@@ -456,90 +459,24 @@
         =================================================== -->
 
         <section class="dashboard-section">
-
-            <h2>📊 Compare</h2>
-
-
-            <div class="notice">
-
-                Spotify는
-                <strong>주간 스트리밍 수</strong>,
-
-                YouTube는
-                <strong>영상 공개 후 누적 조회수</strong>입니다.
-
-                따라서 두 숫자는 동일한 기간의
-                지표가 아닙니다.
-
-            </div>
-
-
-            <table>
-
-                <thead>
-
-                    <tr>
-                        <th>Artist</th>
-                        <th>Track</th>
-                        <th>Spotify Streams</th>
-                        <th>YouTube Views</th>
-                        <th>Difference</th>
-                        <th>Ratio</th>
-                        <th>Larger</th>
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    {% for item in comparison_data %}
-
-                    <tr>
-
-                        <td>
-                            {{ item.artist }}
-                        </td>
-
-                        <td>
-                            {{ item.track }}
-                        </td>
-
-                        <td>
-                            {{ "{:,}".format(
-                            item.spotify_streams
-                            ) }}
-                        </td>
-
-                        <td>
-                            {{ "{:,}".format(
-                            item.youtube_views
-                            ) }}
-                        </td>
-
-                        <td>
-                            {{ "{:,}".format(
-                            item.difference
-                            ) }}
-                        </td>
-
-                        <td>
-                            {{ item.ratio }}x
-                        </td>
-
-                        <td>
-                            {{ item.larger_value }}
-                        </td>
-
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </section>
+  <h2>📊 Compare — 서로 다른 지표는 별도로 확인</h2>
+  <div class="notice">
+    아래 자료는 <strong>10/01 종료 주간 Spotify 재생수</strong>와
+    <strong>개별 YouTube 영상 누적 조회수</strong>야.
+    집계 기간·대상이 달라 차이(Difference)·배율(Ratio)·우위(Larger)를 계산하지 않아.
+    기사에 사용할 공식 YouTube 주간 Top Songs 값은 아래 NEWS ANALYSIS의 검증된 Fact Sheet에서 확인해.
+  </div>
+  <table>
+    <thead><tr><th>Artist</th><th>Track</th><th>Spotify 주간 Streams (10/01)</th><th>YouTube 영상 누적 Views</th></tr></thead>
+    <tbody>
+    {% for item in comparison_data %}
+      <tr><td>{{ item.artist }}</td><td>{{ item.track }}</td>
+      <td>{{ "{:,}".format(item.spotify_streams) }}</td>
+      <td>{{ "{:,}".format(item.youtube_views) }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
 
 
         <!-- ==================================================
@@ -547,73 +484,50 @@
         =================================================== -->
 
         <section class="dashboard-section">
+  <h2>📈 Accumulated Analysis — 지표별 시각화</h2>
+  <p>선택한 곡의 주간 스트리밍과 영상 누적 조회수를 <strong>각각 다른 그래프</strong>로 표시해.</p>
+  <div class="notice">주의: 기존 대시보드의 Spotify는 10/01 주간, YouTube는 개별 영상의 조회 시점까지 누적 데이터야.
+  서로 같은 기간의 소비량을 의미하지 않아. 아래 두 그래프의 길이를 가로질러 비교하지 마.</div>
+  {% if comparison_data %}
+  <script id="chartLabels" type="application/json">{{ chart_labels | tojson }}</script>
+  <script id="chartSpotify" type="application/json">{{ chart_spotify | tojson }}</script>
+  <script id="chartYoutube" type="application/json">{{ chart_youtube | tojson }}</script>
+  <div class="analysis-two-charts">
+    <div class="analysis-chart-standalone"><h3>Spotify — 10/01 종료 주간 스트리밍</h3><div class="chart-container"><canvas id="spotifyWeeklyChart"></canvas></div></div>
+    <div class="analysis-chart-standalone"><h3>YouTube — 개별 영상의 누적 조회수</h3><div class="chart-container"><canvas id="youtubeCumulativeChart"></canvas></div></div>
+  </div>
+  <p class="analysis-chart-hint">기사 생성은 위 그래프가 아니라 2주간의 공식 주간 차트로 작성한 검수 완료 Fact Sheet를 사용해.</p>
+  {% else %}
+  <p>차트를 보려면 Artist Search에서 분석할 곡을 추가해 줘.</p>
+  {% endif %}
+</section>
 
-            <h2>📈 Accumulated Analysis</h2>
-
-            <p>
-                현재 선택한 최대 10곡의
-                Spotify 주간 스트리밍과
-                YouTube 누적 조회수를 비교합니다.
-            </p>
-
-
-            <div class="notice">
-
-                Spotify는 주간 스트리밍,
-                YouTube는 누적 조회수입니다.
-
-                또한 두 값의 크기 차이가 크기 때문에
-                그래프는
-                <strong>Logarithmic Scale</strong>
-                을 사용합니다.
-
-            </div>
-
-
-            {% if comparison_data %}
-
-
-            <div class="chart-container">
-
-
-                <!--
-                Python에서 json.dumps()로 만든
-                JSON 문자열을 별도의 JSON 영역에 저장한다.
-
-                이렇게 하면:
-                That's What I Like
-                ROSÉ
-                쉼표
-                특수문자
-
-                등이 들어가도 HTML attribute가
-                깨지지 않는다.
-                -->
-
-
-                <script id="chartLabels" type="application/json">{{ chart_labels | tojson }}</script>
-
-                <script id="chartSpotify" type="application/json">{{ chart_spotify | tojson }}</script>
-
-                <script id="chartYoutube" type="application/json">{{ chart_youtube | tojson }}</script>
-
-                <canvas id="comparisonChart"></canvas>
-
-            </div>
-
-
-            {% else %}
-
-
-            <p>
-                Chart를 보려면 Artist Search에서
-                곡을 Analysis에 추가해 주세요.
-            </p>
-
-
-            {% endif %}
-
-        </section>
+        <!-- KPOP_NEWS_INLINE_V1 -->
+<!-- K-POP NEWS ANALYSIS: 메인 페이지 인라인 기사 생성 -->
+<!-- KPOP_NEWS_SELECTED_STEP11: show only approved selected tracks -->
+<section id="news-inline-panel" class="dashboard-section news-inline-panel" aria-labelledby="news-panel-title">
+  <div class="news-panel-heading">
+    <h2 id="news-panel-title">📰 K-POP NEWS ANALYSIS</h2>
+    <p>Current Analysis에서 선택한 곡 → 검수된 Fact Sheet → 기사 초안</p>
+  </div>
+  <p class="news-panel-note">이 페이지의 예전 YouTube 영상 누적 조회수와 공식 주간 Top Songs 조회수는 서로 달라. 기사에는 <strong>검수된 같은 주차의 주간 차트 자료만</strong> 사용할게.</p>
+  <div class="news-selection-summary" aria-live="polite">
+    <p id="news-selected-count">선택한 곡을 확인하는 중…</p>
+    <div class="news-selection-lists">
+      <div><strong>기사에 사용할 검수 완료 곡</strong><ul id="news-approved-list"></ul></div>
+      <div><strong>현재 근거 부족 · 기사 제외</strong><ul id="news-excluded-list"></ul></div>
+    </div>
+  </div>
+  <div class="news-panel-actions">
+    <button type="button" id="news-preview-btn" class="news-saved-button" disabled>🔎 선택한 곡 기사 미리보기 (무료)</button>
+    <button type="button" id="news-generate-btn" class="news-generate-button" disabled>✨ 선택한 곡 AI 기사 생성 (유료)</button>
+    <button type="button" id="news-saved-btn" class="news-saved-button">📄 기존 2곡 수정 기사 예시 (무료)</button>
+  </div>
+  <p id="news-status" class="news-status" role="status" aria-live="polite">승인된 곡이 없으면 생성하지 않아. 기사 출력은 출고 미승인 상태야.</p>
+  <div id="news-article-output" class="news-article-output" hidden></div>
+  <p id="news-result-source" class="news-result-source"></p>
+</section>
+<script src="/static/news_panel.js" defer></script>
 
     </main>
 
@@ -629,169 +543,23 @@
 
 
     <script>
-
-        // --------------------------------------------------
-        // 1. Python에서 전달한 JSON 데이터를 읽는다.
-        // --------------------------------------------------
-
-        const labels = JSON.parse(
-            document
-                .getElementById("chartLabels")
-                .textContent
-                .trim()
-        );
-
-
-        const spotifyStreams = JSON.parse(
-            document
-                .getElementById("chartSpotify")
-                .textContent
-                .trim()
-        );
-
-
-        const youtubeViews = JSON.parse(
-            document
-                .getElementById("chartYoutube")
-                .textContent
-                .trim()
-        );
-
-
-        // --------------------------------------------------
-        // 2. Chart가 들어갈 Canvas를 찾는다.
-        // --------------------------------------------------
-
-        const ctx =
-            document.getElementById("comparisonChart");
-
-
-        // --------------------------------------------------
-        // 3. Spotify vs YouTube Chart 생성
-        // --------------------------------------------------
-
-        new Chart(
-            ctx,
-            {
-
-                type: "bar",
-
-
-                data: {
-
-                    labels: labels,
-
-
-                    datasets: [
-
-                        {
-                            label:
-                                "Spotify Weekly Streams",
-
-                            data:
-                                spotifyStreams
-                        },
-
-
-                        {
-                            label:
-                                "YouTube Cumulative Views",
-
-                            data:
-                                youtubeViews
-                        }
-
-                    ]
-                },
-
-
-                options: {
-
-                    // 가로 막대 그래프
-                    indexAxis: "y",
-
-                    responsive: true,
-
-                    maintainAspectRatio: false,
-
-
-                    plugins: {
-
-                        legend: {
-
-                            position: "top"
-
-                        },
-
-
-                        tooltip: {
-
-                            callbacks: {
-
-                                // 숫자를
-                                // 165,581,136 형식으로 표시
-                                label: function (context) {
-
-                                    const value =
-                                        context
-                                            .raw
-                                            .toLocaleString();
-
-
-                                    return (
-                                        context
-                                            .dataset
-                                            .label
-
-                                        + ": "
-
-                                        + value
-                                    );
-                                }
-                            }
-                        }
-                    },
-
-
-                    scales: {
-
-                        // Spotify / YouTube의
-                        // 숫자 차이가 매우 크기 때문에
-                        // Log Scale 사용
-                        x: {
-
-                            type:
-                                "logarithmic",
-
-
-                            title: {
-
-                                display:
-                                    true,
-
-                                text:
-                                    "Streams / Views (Log Scale)"
-                            }
-                        },
-
-
-                        y: {
-
-                            title: {
-
-                                display:
-                                    true,
-
-                                text:
-                                    "Artist / Track"
-                            }
-                        }
-                    }
-                }
-            }
-        );
-
-    </script>
+  const chartLabels = JSON.parse(document.getElementById('chartLabels').textContent.trim());
+  const spotifyWeekly = JSON.parse(document.getElementById('chartSpotify').textContent.trim());
+  const youtubeLifetime = JSON.parse(document.getElementById('chartYoutube').textContent.trim());
+  function drawSeparateChart(canvasId, label, values) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas || typeof Chart === 'undefined') return;
+    new Chart(canvas, {
+      type:'bar',
+      data:{labels:chartLabels,datasets:[{label:label,data:values}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:(ctx)=>label+': '+Number(ctx.raw).toLocaleString()}}},
+        scales:{x:{beginAtZero:true,title:{display:true,text:label}},y:{title:{display:true,text:'Artist / Track'}}}}
+    });
+  }
+  drawSeparateChart('spotifyWeeklyChart','Spotify Weekly Streams',spotifyWeekly);
+  drawSeparateChart('youtubeCumulativeChart','YouTube Video Lifetime Views',youtubeLifetime);
+</script>
 
 
     {% endif %}

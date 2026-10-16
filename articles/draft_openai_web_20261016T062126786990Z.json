@@ -1,0 +1,10 @@
+{
+  "article": "Global 차트서 Animal·SaWaDiKa 순위 변화 뚜렷\n\nGlobal 기준 2026-09-25~2026-10-01, 2026-10-02~2026-10-08 주차에서 KATSEYE의 Animal은 Spotify 50위→48위로 오르며 주간 스트리밍이 12,676,531회에서 12,339,335회로 -2.66% 감소했다. YouTube는 14위→14위를 유지했고 주간 조회수는 21,431,122회에서 16,431,213회로 -23.33% 줄었다.\n\nLISA의 SaWaDiKa는 Spotify 106위→152위로 하락하며 주간 스트리밍이 9,627,318회에서 8,704,202회로 -9.59% 감소했다. YouTube도 10위→17위로 내려가며 주간 조회수는 23,644,316회에서 15,541,762회로 -34.27% 줄었다. Spotify 주간 스트리밍과 YouTube 주간 곡 차트 조회수는 서로 다른 지표이며, 차트 범위도 Spotify 상위 200곡·YouTube 상위 100곡으로 다르다. 출처: Spotify Charts, YouTube Charts.",
+  "mode": "openai",
+  "model": "gpt-5.4-mini-2026-03-17",
+  "created_at_utc": "2026-10-16T06:21:26.787189+00:00",
+  "fact_sheet": "facts/article_ready_fact_sheet_20261008.json",
+  "review_required": true,
+  "publication_approved": false,
+  "article_status": "DRAFT_NOT_FOR_PUBLICATION"
+}

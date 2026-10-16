@@ -99,6 +99,10 @@ MYSQL_DATABASE = os.getenv("MYSQL_DATABASE")
 
 app = FastAPI()
 
+# KPOP_NEWS_INLINE_V1: 새 뉴스 라우터만 추가 (기존 라우트 변경 없음)
+from news.news_routes import router as news_router
+app.include_router(news_router)
+
 
 # --------------------------------------------------
 # 6. static 폴더 연결

@@ -1,0 +1,16 @@
+<!-- K-POP NEWS ANALYSIS: 메인 페이지 인라인 기사 생성 -->
+<section id="news-inline-panel" class="dashboard-section news-inline-panel" aria-labelledby="news-panel-title">
+  <div class="news-panel-heading">
+    <h2 id="news-panel-title">📰 K-POP NEWS ANALYSIS</h2>
+    <p>검수한 2주간 글로벌 차트 · KATSEYE 'Animal' &amp; LISA 'SaWaDiKa'</p>
+  </div>
+  <p class="news-panel-note">Spotify 주간 스트리밍과 YouTube 주간 곡 차트 조회수는 다른 지표야. 기사 초안은 사람 검수 전까지 게시하지 않아.</p>
+  <div class="news-panel-actions">
+    <button type="button" id="news-generate-btn" class="news-generate-button">✨ 기사 생성 (OpenAI · 유료)</button>
+    <button type="button" id="news-saved-btn" class="news-saved-button">📄 저장된 수정 기사 보기 (무료)</button>
+  </div>
+  <p id="news-status" class="news-status" role="status" aria-live="polite">버튼을 누르면 이 아래에 기사 내용이 나타나.</p>
+  <div id="news-article-output" class="news-article-output" hidden></div>
+  <p id="news-result-source" class="news-result-source"></p>
+</section>
+<script src="/static/news_panel.js" defer></script>
