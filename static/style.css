@@ -380,3 +380,22 @@ th {
 .artist-week-manager button { padding:10px 14px; border:0; border-radius:7px; font-weight:700;
   color:white; background:#111; cursor:pointer; }
 .artist-week-manager button:disabled { opacity:.5; cursor:default; }
+
+/* STEP16: read-only evidence queue beneath NEWS ANALYSIS actions. */
+.news-review-queue {border-top:1px solid #e8e2f4;padding-top:15px;margin-top:16px;line-height:1.55}
+.news-review-queue[hidden] {display:none}
+.news-review-queue h3 {font-size:18px;margin:4px 0 10px}
+.news-review-queue > p {font-size:13px;color:#554b61}
+.news-review-table-scroll {overflow-x:auto;max-width:100%}
+.news-review-table {width:100%;min-width:780px;border-collapse:collapse;font-size:12px;text-align:left}
+.news-review-table th {padding:10px;background:#17171a;color:#fff}
+.news-review-table td {padding:10px;vertical-align:top;border-bottom:1px solid #e4e4e4;overflow-wrap:anywhere}
+.news-review-table td:nth-child(1) {min-width:150px}
+.news-review-table td:nth-child(2),.news-review-table td:nth-child(3) {min-width:160px}
+.news-review-table td:nth-child(4) {min-width:240px}
+.news-review-table td p {margin:5px 0 0}
+.review-queue-hold {color:#925212}
+.review-queue-ok {color:#155e2f}
+.review-queue-link {display:inline-block;margin-right:12px;margin-top:6px}
+.review-queue-link a {color:#57348c}
+.news-review-caution {padding:12px;border-radius:8px;background:#f8f6fb}

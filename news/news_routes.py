@@ -52,6 +52,28 @@ def _public_selection(snapshot):
     }
 
 
+@router.get('/review-candidates')
+def current_review_candidates(week_end: str = ''):
+    # STEP16 · read-only candidate evidence; no AI requests or approvals.
+    from news.chart_data_manager import choose_pair, CatalogError
+    from news.weekly_chart_analysis import ChartValidationError
+    from news.review_candidates_step16 import build_review_queue, ReviewQueueError
+    try:
+        pair, _, _ = choose_pair(root=ROOT, week_end=week_end)
+        if pair is None:
+            raise HTTPException(409, '선택한 주차의 연속 2주 공식 차트가 준비되지 않았어.')
+        selected = read_current_selection()
+        return build_review_queue(selected, pair, root=ROOT)
+    except (CatalogError, ChartValidationError, ReviewQueueError) as exc:
+        raise HTTPException(422, str(exc)) from None
+    except HTTPException:
+        raise
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(422, f'검수 후보 자료 오류: {exc}') from None
+    except Exception:
+        raise HTTPException(503, '선택곡 데이터베이스를 읽을 수 없어. MySQL 연결을 확인해 줘.') from None
+
+
 @router.get('/selection')
 def current_news_selection(week_end: str = ''):
     facts, snapshot = _selection()
