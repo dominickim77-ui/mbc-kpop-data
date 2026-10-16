@@ -1,3 +1,4 @@
+<!-- KPOP_ARTIST_WEEK_SYNC_STEP15 -->
 <!DOCTYPE html>
 <html lang="ko">
 
@@ -43,6 +44,21 @@
         <section class="search-panel">
 
             <h2>🔎 Artist Search</h2>
+
+            <!-- STEP15 · Artist Search and Compare share the SAME period -->
+            <form class="artist-week-manager" method="get" action="/">
+              <label for="artist-week-selector">📅 검색 기준 주차</label>
+              <select id="artist-week-selector" name="week_end" aria-label="Spotify 검색 주차">
+                {% for item in week_options %}
+                <option value="{{ item.end }}" {% if item.end == selected_week_end %}selected{% endif %}>{{ item.label }}</option>
+                {% endfor %}
+              </select>
+              <input type="hidden" name="artist" value="{{ search_artist }}">
+              <button type="submit" {% if not week_options %}disabled{% endif %}>주차 적용</button>
+            </form>
+            <p class="weekly-footnote">선택한 비교 기간의 <strong>금주 종료일</strong>을 기준으로 Spotify Top 200을 검색해.
+              선택한 곡은 유지하며, 다른 주차에 없는 곡의 수치는 <strong>—</strong>로 표시해.
+              YouTube 기존 영상 누적 데이터는 별도 지표야.</p>
 
             <p>
                 Spotify Weekly Global Top 200에서
@@ -107,6 +123,7 @@
                     -->
 
                     <input type="hidden" name="search_artist" value="{{ search_artist }}">
+                    <input type="hidden" name="week_end" value="{{ selected_week_end }}">
 
 
                     <table>
@@ -222,6 +239,7 @@
                 {% if current_analysis %}
 
                 <form method="post" action="/reset-analysis">
+                    <input type="hidden" name="week_end" value="{{ selected_week_end }}">
 
                     <button class="reset-button" type="submit">
                         RESET ANALYSIS
@@ -288,6 +306,7 @@
                     -->
 
                     <form method="post" action="/remove-analysis/{{ item.song_id }}">
+                        <input type="hidden" name="week_end" value="{{ selected_week_end }}">
 
                         <button class="remove-button" type="submit" title="Remove from Analysis">
                             ×
@@ -322,10 +341,8 @@
 
             <h2>🎵 Spotify Data</h2>
 
-            <p>
-                현재 Analysis에 선택된 곡의
-                Spotify 주간 데이터
-            </p>
+            <p>선택된 종료 주 <strong>{{ selected_week_end or '없음' }}</strong>의 Spotify Global Top 200 원본 CSV를 표시해.
+              해당 주차에 없는 곡은 <strong>—</strong>로 표시하며, MySQL의 다른 주차 숫자로 대체하지 않아.</p>
 
 
             <table>
@@ -348,7 +365,7 @@
                     <tr>
 
                         <td>
-                            #{{ item.spotify_rank }}
+                            {% if item.spotify_rank is not none %}#{{ item.spotify_rank }}{% else %}—{% endif %}
                         </td>
 
                         <td>
@@ -360,13 +377,11 @@
                         </td>
 
                         <td>
-                            {{ "{:,}".format(
-                            item.spotify_streams
-                            ) }}
+                            {% if item.spotify_streams is not none %}{{ "{:,}".format(item.spotify_streams) }}{% else %}—{% endif %}
                         </td>
 
                         <td>
-                            {{ item.chart_date }}
+                            {{ item.chart_date or '—' }}
                         </td>
 
                     </tr>

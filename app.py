@@ -1,3 +1,4 @@
+# KPOP_ARTIST_WEEK_SYNC_STEP15
 # --------------------------------------------------
 # MBC K-POP DATA LAB
 # FastAPI 웹 서버
@@ -28,6 +29,7 @@ import pandas as pd
 import mysql.connector
 
 from datetime import datetime
+from pathlib import Path
 from urllib.parse import quote_plus
 
 from dotenv import load_dotenv
@@ -104,7 +106,7 @@ from news.news_routes import router as news_router
 app.include_router(news_router)
 
 # KPOP_WEEKLY_CHARTS_STEP12: read official weekly CSVs for Compare/Accumulated Analysis
-from news.weekly_chart_analysis import build_weekly_rows, weekly_chart_data, ChartValidationError
+from news.weekly_chart_analysis import build_weekly_rows, weekly_chart_data, ChartValidationError, song_key
 from news.chart_data_manager import choose_pair, CatalogError
 
 
@@ -160,9 +162,21 @@ def get_db_connection():
 # --------------------------------------------------
 
 
-def load_spotify_csv():
+def load_spotify_csv(week_end: str = ""):
+    """Load validated Spotify Top 200 for the selected complete comparison week.
 
-    return pd.read_csv(SPOTIFY_CSV_FILE)
+    The lookup is read-only; it NEVER falls back to a stale 10/01 chart.
+    """
+    pair, _, _ = choose_pair(week_end=week_end)
+    if pair is None:
+        raise CatalogError('비교 가능한 연속 2주 CSV가 없어 Spotify 검색을 중단했어.')
+    from news.weekly_chart_analysis import read_chart, ROOT as CHART_ROOT
+    index = read_chart(CHART_ROOT, pair.spotify_current, 'spotify')
+    return pd.DataFrame([
+        {'rank': row['rank'], 'artist_names': row['artist'],
+         'track_name': row['track'], 'streams': row['amount']}
+        for hits in index.values() for row in hits
+    ])
 
 
 # --------------------------------------------------
@@ -278,8 +292,11 @@ def home(
     search_message = ""
 
     if artist:
-
-        spotify_csv = load_spotify_csv()
+        try:
+            spotify_csv = load_spotify_csv(week_end)
+        except (CatalogError, ChartValidationError, OSError, ValueError) as exc:
+            spotify_csv = None
+            search_message = f'선택한 주차의 Spotify CSV를 사용할 수 없어: {exc}'
 
         # artist_names 컬럼에서 검색어를 찾는다.
         #
@@ -288,34 +305,23 @@ def home(
         #
         # na=False:
         # 빈 값 때문에 오류가 나지 않게 한다.
-        matches = spotify_csv[
-            spotify_csv["artist_names"].str.contains(
-                artist,
-                case=False,
-                na=False,
-            )
-        ]
-
-        # Spotify 순위 순서로 정렬
-        matches = matches.sort_values("rank")
-
-        # HTML에서 필요한 값만 가져온다.
-        search_results = matches[
-            [
-                "rank",
-                "artist_names",
-                "track_name",
-                "streams",
+        if spotify_csv is not None:
+            matches = spotify_csv[
+                spotify_csv["artist_names"].str.contains(
+                    artist, case=False, na=False, regex=False
+                )
             ]
-        ].to_dict("records")
+            matches = matches.sort_values("rank")
+            search_results = matches[
+                ["rank", "artist_names", "track_name", "streams"]
+            ].to_dict("records")
 
         # 검색 결과가 없는 경우
-        if not search_results:
-
+        if not search_results and not search_message:
             search_message = (
-                f'"{artist}"는 현재 Spotify '
-                "Weekly Global Top Songs 상위 200곡(10/01 종료 주)에서 "
-                "찾을 수 없습니다. YouTube 아티스트 차트의 순위와는 다른 자료입니다."
+                f'"{artist}"는 선택한 {week_end or "최신 비교 가능"} 종료 주의 '
+                'Spotify Global Weekly Top 200 곡 차트에서 찾지 못했어. '
+                'YouTube 아티스트 순위와는 별개의 차트야.'
             )
 
     # --------------------------------------------------
@@ -384,6 +390,18 @@ def home(
         weekly_comparison = []
         weekly_chart_error = str(exc)
     weekly_graph = weekly_chart_data(weekly_comparison)
+    # STEP15: The Spotify Data table must follow the selected CSV week,
+    # NOT the last row in MySQL (which may belong to another week).
+    weekly_by_song = {song_key(item['artist'], item['track']): item for item in weekly_comparison}
+    spotify_data = []
+    for old in analysis_data:
+        hit = weekly_by_song.get(song_key(old['artist'], old['track']))
+        rank = hit['spotify_curr_rank'] if hit else None
+        amount = hit['spotify_current'] if hit else None
+        spotify_data.append({**old, 'spotify_rank': rank, 'spotify_streams': amount,
+                             'chart_date': pair.current_end.isoformat() if rank is not None else None})
+    spotify_data.sort(key=lambda item: (item['spotify_rank'] is None,
+                                        item['spotify_rank'] if item['spotify_rank'] is not None else 10**6))
     week_options = [{'end': p.current_end.isoformat(), 'label': p.label} for p in week_pairs]
     selected_week_end = pair.current_end.isoformat() if pair else ''
     previous_week_end = pair.previous_end.strftime('%m/%d') if pair else ''
@@ -474,6 +492,7 @@ def home(
 def add_analysis(
     selected_ranks: list[int] = Form(default=[]),
     search_artist: str = Form(default=""),
+    week_end: str = Form(default=""),
 ):
 
     # --------------------------------------------------
@@ -487,16 +506,27 @@ def add_analysis(
         return RedirectResponse(
             url=(
                 f"/?artist={quote_plus(search_artist)}"
+                f"&week_end={quote_plus(week_end)}"
                 f"&message={quote_plus(message)}"
             ),
             status_code=303,
         )
 
     # --------------------------------------------------
-    # 12-2. Spotify CSV 읽기
+    # 12-2. Spotify CSV: verify requested week BEFORE touching MySQL/API.
     # --------------------------------------------------
-
-    spotify_csv = load_spotify_csv()
+    try:
+        pair, _, _ = choose_pair(week_end=week_end)
+        if pair is None:
+            raise CatalogError('선택 가능한 비교 주차가 없어')
+        spotify_csv = load_spotify_csv(pair.current_end.isoformat())
+        week_end = pair.current_end.isoformat()
+    except (CatalogError, ChartValidationError, OSError, ValueError) as exc:
+        return RedirectResponse(
+            url=f'/?artist={quote_plus(search_artist)}&week_end={quote_plus(week_end)}'
+                f'&message={quote_plus("주차 확인 실패: " + str(exc))}',
+            status_code=303,
+        )
 
     # --------------------------------------------------
     # 12-3. MySQL 연결
@@ -671,7 +701,7 @@ def add_analysis(
                     song_id,
                     spotify_rank,
                     spotify_streams,
-                    CHART_DATE,
+                    week_end,
                     collected_at,
                 ),
             )
@@ -865,6 +895,7 @@ def add_analysis(
     return RedirectResponse(
         url=(
             f"/?artist={quote_plus(search_artist)}"
+            f"&week_end={quote_plus(week_end)}"
             f"&message={quote_plus(message_text)}"
         ),
         status_code=303,
@@ -880,14 +911,14 @@ def add_analysis(
 
 
 @app.post("/remove-analysis/{song_id}")
-def remove_analysis(song_id: int):
+def remove_analysis(song_id: int, week_end: str = Form(default="")):
 
     if song_id in analysis_song_ids:
 
         analysis_song_ids.remove(song_id)
 
     return RedirectResponse(
-        url="/",
+        url='/?week_end=' + quote_plus(week_end),
         status_code=303,
     )
 
@@ -901,12 +932,12 @@ def remove_analysis(song_id: int):
 
 
 @app.post("/reset-analysis")
-def reset_analysis():
+def reset_analysis(week_end: str = Form(default="")):
 
     analysis_song_ids.clear()
 
     return RedirectResponse(
-        url="/",
+        url='/?week_end=' + quote_plus(week_end),
         status_code=303,
     )
 
