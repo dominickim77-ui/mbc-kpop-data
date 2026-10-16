@@ -363,3 +363,10 @@ th {
 .weekly-footnote { font-size:12px; line-height:1.6; color:#5b5860; margin-top:14px; }
 .analysis-chart-standalone .chart-container { min-height: 340px; height: 340px; }
 @media (max-width: 640px) { .analysis-chart-standalone .chart-container { height: 400px; } }
+
+/* KPOP_WEEKLY_MANAGER_STEP13: native accessible date select */
+.week-manager {display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0 8px}
+.week-manager label {font-weight:700}
+.week-manager select {min-width:280px;max-width:100%;padding:9px;border:1px solid #bbb;border-radius:8px;background:#fff;color:#222}
+.week-manager button {padding:9px 14px;border:0;border-radius:8px;background:#111;color:#fff;cursor:pointer}
+.week-manager button:hover {background:#333}

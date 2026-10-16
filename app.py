@@ -105,6 +105,7 @@ app.include_router(news_router)
 
 # KPOP_WEEKLY_CHARTS_STEP12: read official weekly CSVs for Compare/Accumulated Analysis
 from news.weekly_chart_analysis import build_weekly_rows, weekly_chart_data, ChartValidationError
+from news.chart_data_manager import choose_pair, CatalogError
 
 
 # --------------------------------------------------
@@ -264,6 +265,7 @@ def home(
     request: Request,
     artist: str = "",
     message: str = "",
+    week_end: str = "",
 ):
 
     # --------------------------------------------------
@@ -366,13 +368,31 @@ def home(
     # STEP 12: Article and graphs use the same current selected songs,
     # but chart figures are recomputed from four *weekly raw CSV* files.
     # DO NOT mix the old YouTube Data API video lifetime counts here.
+    # KPOP_WEEKLY_MANAGER_STEP13: CSV filename catalog; no MySQL/API/LLM updates.
     try:
-        weekly_comparison = build_weekly_rows(analysis_data)
-        weekly_chart_error = None
-    except (ChartValidationError, OSError, ValueError) as exc:
+        pair, week_pairs, week_notes = choose_pair(week_end=week_end)
+        if pair is None:
+            weekly_comparison = []
+            weekly_chart_error = "동일 기간의 연속 2주 Spotify·YouTube CSV가 준비되지 않았어"
+        else:
+            weekly_comparison = build_weekly_rows(analysis_data, pair=pair)
+            weekly_chart_error = None
+    except (CatalogError, ChartValidationError, OSError, ValueError) as exc:
+        pair = None
+        week_pairs = []
+        week_notes = []
         weekly_comparison = []
         weekly_chart_error = str(exc)
     weekly_graph = weekly_chart_data(weekly_comparison)
+    week_options = [{'end': p.current_end.isoformat(), 'label': p.label} for p in week_pairs]
+    selected_week_end = pair.current_end.isoformat() if pair else ''
+    previous_week_end = pair.previous_end.strftime('%m/%d') if pair else ''
+    current_week_end = pair.current_end.strftime('%m/%d') if pair else ''
+    previous_week_start_display = pair.previous_start.strftime('%m/%d') if pair else ''
+    current_week_start_display = pair.current_start.strftime('%m/%d') if pair else ''
+    selected_period_label = pair.label if pair else '등록된 주차 없음'
+    # The news Fact Sheet approved on 10/08 is NOT approved for future weeks.
+    news_week_compatible = selected_week_end == '2026-10-08' 
 
     # --------------------------------------------------
     # Chart 데이터를 JSON 문자열로 변환
@@ -420,6 +440,15 @@ def home(
             "weekly_comparison": weekly_comparison,
             "weekly_chart_error": weekly_chart_error,
             "weekly_chart_data": weekly_graph,
+            "week_options": week_options,
+            "selected_week_end": selected_week_end,
+            "previous_week_end": previous_week_end,
+            "current_week_end": current_week_end,
+            "previous_week_start_display": previous_week_start_display,
+            "current_week_start_display": current_week_start_display,
+            "selected_period_label": selected_period_label,
+            "week_catalog_notes": week_notes,
+            "news_week_compatible": news_week_compatible,
         },
     )
 
@@ -946,15 +975,21 @@ def youtube_page(request: Request):
 
 
 @app.get("/compare")
-def compare_page(request: Request):
+def compare_page(request: Request, week_end: str = ""):
 
     dashboard_data = get_dashboard_data()
 
     selected = [row for row in dashboard_data if row['song_id'] in analysis_song_ids]
     try:
-        weekly_comparison = build_weekly_rows(selected)
-        weekly_chart_error = None
-    except (ChartValidationError, OSError, ValueError) as exc:
+        pair, week_pairs, week_notes = choose_pair(week_end=week_end)
+        if pair is None:
+            weekly_comparison = []
+            weekly_chart_error = '등록된 연속 2주 원본 CSV가 없어'
+        else:
+            weekly_comparison = build_weekly_rows(selected, pair=pair)
+            weekly_chart_error = None
+    except (CatalogError, ChartValidationError, OSError, ValueError) as exc:
+        pair, week_pairs, week_notes = None, [], []
         weekly_comparison = []
         weekly_chart_error = str(exc)
 
@@ -965,5 +1000,11 @@ def compare_page(request: Request):
             "title": "Compare — Global Weekly Charts",
             "weekly_comparison": weekly_comparison,
             "weekly_chart_error": weekly_chart_error,
+            "week_options": [{'end': p.current_end.isoformat(), 'label': p.label} for p in week_pairs],
+            "selected_week_end": pair.current_end.isoformat() if pair else '',
+            "previous_week_end": pair.previous_end.strftime('%m/%d') if pair else '',
+            "current_week_end": pair.current_end.strftime('%m/%d') if pair else '',
+            "selected_period_label": pair.label if pair else '등록된 주차 없음',
+            "week_catalog_notes": week_notes,
         },
     )

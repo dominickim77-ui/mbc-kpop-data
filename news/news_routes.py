@@ -1,3 +1,4 @@
+# KPOP_WEEKLY_MANAGER_STEP13
 """Same-page selected-song news endpoints. GET actions are free; POST is paid."""
 import json
 import threading
@@ -19,6 +20,7 @@ _lock = threading.Lock()
 class GenerateRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
     confirm_paid: bool = False
+    week_end: str = ""
 
 
 def _same_origin(request: Request) -> bool:
@@ -51,14 +53,22 @@ def _public_selection(snapshot):
 
 
 @router.get('/selection')
-def current_news_selection():
-    _, snapshot = _selection()
-    return _public_selection(snapshot)
+def current_news_selection(week_end: str = ''):
+    facts, snapshot = _selection()
+    response = _public_selection(snapshot)
+    fact_week_end = facts['week_current']['end']
+    response['fact_week_end'] = fact_week_end
+    if week_end and week_end != fact_week_end:
+        response['can_generate'] = False
+        response['week_warning'] = '선택한 차트 주차의 교차 검수된 Fact Sheet가 아직 없어.'
+    return response
 
 
 @router.get('/preview')
-def preview_selected_article():
+def preview_selected_article(week_end: str = ''):
     facts, snapshot = _selection()
+    if week_end and week_end != facts['week_current']['end']:
+        raise HTTPException(409, '현재 비교 주차의 Fact Sheet 검수가 완료되지 않아 기사 생성을 중단했어.')
     try:
         evidence = evidence_for_selected(facts, snapshot)
     except SelectionError as e:
@@ -110,6 +120,8 @@ def generate_selected_article(request: Request, body: GenerateRequest):
         raise HTTPException(429, '이미 기사 생성이 진행 중입니다.')
     try:
         facts, snapshot = _selection()
+        if body.week_end and body.week_end != facts['week_current']['end']:
+            raise HTTPException(409, '현재 비교 주차와 기사 Fact Sheet 기간이 달라 유료 호출을 차단했어.')
         try:
             evidence = evidence_for_selected(facts, snapshot)
         except SelectionError as e:

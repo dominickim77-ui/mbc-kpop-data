@@ -1,3 +1,4 @@
+/* KPOP_WEEKLY_MANAGER_STEP13 */
 /* STEP11: only server-approved CURRENT selection is used for new paid news. */
 (() => {
   'use strict';
@@ -12,13 +13,16 @@
   const statusEl = document.getElementById('news-status');
   const output = document.getElementById('news-article-output');
   const sourceEl = document.getElementById('news-result-source');
+  const requestedWeekEnd = panel.dataset.chartWeekEnd || '';
+  const newsWeekCompatible = panel.dataset.newsWeekCompatible === 'true';
+  const weekQuery = '?week_end=' + encodeURIComponent(requestedWeekEnd);
   let busy = false;
   let selection = null;
 
   function setBusy(flag) {
     busy = flag;
-    btnPreview.disabled = flag || !selection || !selection.can_generate;
-    btnPaid.disabled = flag || !selection || !selection.can_generate;
+    btnPreview.disabled = flag || !newsWeekCompatible || !selection || !selection.can_generate;
+    btnPaid.disabled = flag || !newsWeekCompatible || !selection || !selection.can_generate;
     btnSaved.disabled = flag;
   }
   function addLine(list, text) {
@@ -70,7 +74,7 @@
     }
   }
   async function refreshSelection() {
-    const data = await requestJson('/api/news/selection');
+    const data = await requestJson('/api/news/selection' + weekQuery);
     showSelection(data);
     return data;
   }
@@ -80,7 +84,7 @@
     statusEl.textContent = kind === 'preview' ? '현재 선택 곡을 검증하는 중…' : '기존 예시를 읽는 중…';
     try {
       if (kind === 'preview') await refreshSelection();
-      const data = await requestJson(kind === 'preview' ? '/api/news/preview' : '/api/news/article?variant=edited');
+      const data = await requestJson(kind === 'preview' ? '/api/news/preview' + weekQuery : '/api/news/article?variant=edited');
       displayArticle(data);
     } catch (e) { statusEl.textContent = `오류: ${e.message}`; }
     finally { setBusy(false); }
@@ -103,13 +107,15 @@
       const data = await requestJson('/api/news/generate', {
         method:'POST',
         headers:{'Content-Type':'application/json','X-Requested-With':'KpopNewsPanel'},
-        body:JSON.stringify({confirm_paid:true})
+        body:JSON.stringify({confirm_paid:true, week_end: requestedWeekEnd})
       });
       displayArticle(data);
     } catch (e) { statusEl.textContent = `오류: ${e.message} · 유료 요청이 있었을 수 있으니 재시도 전 사용량을 확인해 줘.`; }
     finally { setBusy(false); }
   });
-  refreshSelection().catch(e => {
+  refreshSelection().then(() => {
+    if (!newsWeekCompatible) statusEl.textContent = '현재 선택 주차는 기존 검수 완료 Fact Sheet와 달라. 먼저 신규 주차 곡 검수를 진행해 줘.';
+  }).catch(e => {
     countEl.textContent = '선택 목록을 불러오지 못했어.';
     statusEl.textContent = `오류: ${e.message}`;
   });

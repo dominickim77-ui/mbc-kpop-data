@@ -58,6 +58,7 @@
             -->
 
             <form class="search-form" method="get" action="/">
+                <input type="hidden" name="week_end" value="{{ selected_week_end }}">
 
                 <input type="text" name="artist" value="{{ search_artist }}" placeholder="예: BLACKPINK" required>
 
@@ -458,8 +459,22 @@
         <!-- KPOP_WEEKLY_CHARTS_STEP12 -->
 <section class="dashboard-section">
   <h2>📊 Compare — 동일 기간 Global 주간 곡 차트</h2>
+<!-- KPOP_WEEKLY_MANAGER_STEP13: select an existing, paired chart period -->
+  <form class="week-manager" method="get" action="/">
+    <label for="week-selector">📅 주간 비교 기간</label>
+    <select id="week-selector" name="week_end" aria-label="비교 주차 선택" required>
+      {% for item in week_options %}
+      <option value="{{ item.end }}" {% if item.end == selected_week_end %}selected{% endif %}>{{ item.label }}</option>
+      {% endfor %}
+    </select>
+    <input type="hidden" name="artist" value="{{ search_artist }}">
+    <button type="submit">주차 적용</button>
+  </form>
+  {% for note in week_catalog_notes %}<p class="weekly-footnote">⚠ {{ note }}</p>{% endfor %}
+  <p class="weekly-footnote">CSV 파일명으로 주차를 찾고 열·순위·값을 검사해. 공식 출처·곡 버전·기사 승인은 별도 검수가 필요해.</p>
+
   <p>Spotify Global Weekly Top Songs(상위 200곡)와 YouTube Global Weekly Top Songs(상위 100곡),
-    <strong>2026.09.25~10.01 / 10.02~10.08</strong> 데이터를 비교해.</p>
+    <strong>{{ selected_period_label }}</strong> 데이터를 비교해.</p>
   <div class="notice">Spotify는 <strong>주간 스트리밍 수</strong>, YouTube는
     <strong>공식 곡 차트의 주간 조회수</strong>야. 같은 기간이지만 지표·집계 방식이 다르므로
     두 숫자의 차이·배율·우위를 계산하지 않아. 주간 조회수는 단일 MV 누적 조회수가 아니야.</div>
@@ -471,9 +486,9 @@
     <thead>
       <tr>
         <th>아티스트 / 곡</th>
-        <th>Spotify 순위<br><small>10/01 → 10/08</small></th>
+        <th>Spotify 순위<br><small>{{ previous_week_end }} → {{ current_week_end }}</small></th>
         <th>Spotify 주간 스트리밍<br><small>전주 → 금주 · 증감률</small></th>
-        <th>YouTube 곡 순위<br><small>10/01 → 10/08</small></th>
+        <th>YouTube 곡 순위<br><small>{{ previous_week_end }} → {{ current_week_end }}</small></th>
         <th>YouTube 주간 조회수<br><small>전주 → 금주 · 증감률</small></th>
         <th>검수 상태</th>
       </tr>
@@ -528,11 +543,15 @@
         <!-- KPOP_NEWS_INLINE_V1 -->
 <!-- K-POP NEWS ANALYSIS: 메인 페이지 인라인 기사 생성 -->
 <!-- KPOP_NEWS_SELECTED_STEP11: show only approved selected tracks -->
-<section id="news-inline-panel" class="dashboard-section news-inline-panel" aria-labelledby="news-panel-title">
+<section id="news-inline-panel" class="dashboard-section news-inline-panel" aria-labelledby="news-panel-title" data-chart-week-end="{{ selected_week_end }}" data-news-week-compatible="{{ 'true' if news_week_compatible else 'false' }}">
   <div class="news-panel-heading">
     <h2 id="news-panel-title">📰 K-POP NEWS ANALYSIS</h2>
     <p>Current Analysis에서 선택한 곡 → 검수된 Fact Sheet → 기사 초안</p>
   </div>
+  {% if not news_week_compatible %}
+  <p class="weekly-error" role="status">⚠ 현재 차트 주차({{ selected_period_label }})는 기존 기사 Fact Sheet(10/08 종료 주)와 달라.
+    최신 주차의 곡 검수와 Fact Sheet 승인이 끝날 때까지 <strong>새 기사 생성은 중단</strong>하고, 기존 기사 예시만 열람할 수 있어.</p>
+  {% endif %}
   <p class="news-panel-note">이 페이지의 예전 YouTube 영상 누적 조회수와 공식 주간 Top Songs 조회수는 서로 달라. 기사에는 <strong>검수된 같은 주차의 주간 차트 자료만</strong> 사용할게.</p>
   <div class="news-selection-summary" aria-live="polite">
     <p id="news-selected-count">선택한 곡을 확인하는 중…</p>
@@ -576,8 +595,8 @@
       data: {
         labels: payload.labels,
         datasets: [
-          {label:'09/25~10/01', data:payload[before]},
-          {label:'10/02~10/08', data:payload[after]},
+          {label:'{{ previous_week_start_display }}~{{ previous_week_end }}', data:payload[before]},
+          {label:'{{ current_week_start_display }}~{{ current_week_end }}', data:payload[after]},
         ],
       },
       options: {

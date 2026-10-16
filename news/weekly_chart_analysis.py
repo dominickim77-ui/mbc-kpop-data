@@ -1,3 +1,4 @@
+# KPOP_WEEKLY_MANAGER_STEP13
 """STEP 12 · Global weekly chart comparison on EXISTING selected tracks.
 
 Reads four raw CSVs, NEVER YouTube Data API cumulative video views. A name/primary-
@@ -107,7 +108,7 @@ def _format_amount(prior: int | None, current: int | None, pct: float | None) ->
     return f'{a} → {b}' + (f' ({pct:+.2f}%)' if pct is not None else ' (증감 계산 불가)')
 
 
-def _verified_tracks(root: Path) -> tuple[dict, set]:
+def _verified_tracks(root: Path, pair=None) -> tuple[dict, set]:
     path = root / 'facts/article_ready_fact_sheet_20261008.json'
     if not path.is_file():
         return {}, set()
@@ -117,9 +118,15 @@ def _verified_tracks(root: Path) -> tuple[dict, set]:
             or obj.get('review_stage') != 'TRACK_IDENTITY_AND_EDITORIAL_CATEGORY_APPROVED'
             or obj.get('article_publication_approved') is not False):
             raise ChartValidationError('기사 Fact Sheet의 검수·출고 상태가 예상과 다름')
-        if obj.get('week_previous') != dict(start=PREVIOUS_WEEK[0], end=PREVIOUS_WEEK[1]) or \
-           obj.get('week_current') != dict(start=CURRENT_WEEK[0], end=CURRENT_WEEK[1]):
-            raise ChartValidationError('Fact Sheet와 CSV 집계 기간이 다름')
+        if pair is None:
+            previous = dict(start=PREVIOUS_WEEK[0], end=PREVIOUS_WEEK[1])
+            current = dict(start=CURRENT_WEEK[0], end=CURRENT_WEEK[1])
+        else:
+            previous = dict(start=pair.previous_start.isoformat(), end=pair.previous_end.isoformat())
+            current = dict(start=pair.current_start.isoformat(), end=pair.current_end.isoformat())
+        if obj.get('week_previous') != previous or obj.get('week_current') != current:
+            # A previous week's approval NEVER carries forward to a new chart.
+            return {}, set()
         verified = {
             song_key(t['artist'], t['track_name']): t
             for t in obj.get('analysis_tracks', [])
@@ -148,16 +155,17 @@ def _matches_reviewed_facts(t: dict, s0: dict | None, s1: dict | None,
         return False
 
 
-def build_weekly_rows(selected: list[dict], root: Path = ROOT) -> list[dict]:
+def build_weekly_rows(selected: list[dict], root: Path = ROOT, pair=None) -> list[dict]:
     """Returns one record per current MySQL selection; NO cross-platform ratios/difference."""
     if not selected:
         return []
     root = Path(root)
+    files = pair.files if pair is not None else FILES
     sources = {
         name: read_chart(root, path, 'spotify' if name.startswith('spotify') else 'youtube')
-        for name, path in FILES.items()
+        for name, path in files.items()
     }
-    verified, excluded = _verified_tracks(root)
+    verified, excluded = _verified_tracks(root, pair)
     rows = []
     seen = set()
     for selected_row in selected:
