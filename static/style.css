@@ -345,3 +345,21 @@ th {
 .analysis-chart-standalone .chart-container { height: 300px; }
 .analysis-chart-standalone h3 { font-size: 16px; margin: 12px 0; }
 .analysis-chart-hint { color: #5c5661; font-size: 13px; line-height: 1.65; }
+
+
+/* STEP 12 · Global weekly charts; legacy dashboard styles untouched. */
+.weekly-table-scroll { overflow-x: auto; width: 100%; }
+.weekly-table { min-width: 1000px; font-size: 13px; }
+.weekly-table th { line-height: 1.6; vertical-align: bottom; }
+.weekly-table th:nth-child(2), .weekly-table th:nth-child(4) { min-width: 105px; }
+.weekly-table th small { font-size: 11px; font-weight: normal; color: #dedede; }
+.weekly-table td { vertical-align: middle; line-height: 1.65; }
+.weekly-nowrap { min-width: 190px; }
+.weekly-review-badge { display: inline-block; max-width: 220px; border-radius: 6px;
+    background:#f3f3f5; font-size:12px; padding:5px 9px; }
+.review-reviewed { background:#e5f6e8; color:#165c2b; }
+.review-excluded, .review-mismatch, .review-ambiguous { background:#fff0d7; color:#814814; }
+.weekly-error { background:#fff1ec; color:#912f17; border-radius:8px; padding:14px 16px; line-height:1.5; }
+.weekly-footnote { font-size:12px; line-height:1.6; color:#5b5860; margin-top:14px; }
+.analysis-chart-standalone .chart-container { min-height: 340px; height: 340px; }
+@media (max-width: 640px) { .analysis-chart-standalone .chart-container { height: 400px; } }

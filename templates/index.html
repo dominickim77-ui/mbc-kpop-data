@@ -454,51 +454,74 @@
         </section>
 
 
-        <!-- ==================================================
-             6. COMPARE
-        =================================================== -->
-
-        <section class="dashboard-section">
-  <h2>📊 Compare — 서로 다른 지표는 별도로 확인</h2>
-  <div class="notice">
-    아래 자료는 <strong>10/01 종료 주간 Spotify 재생수</strong>와
-    <strong>개별 YouTube 영상 누적 조회수</strong>야.
-    집계 기간·대상이 달라 차이(Difference)·배율(Ratio)·우위(Larger)를 계산하지 않아.
-    기사에 사용할 공식 YouTube 주간 Top Songs 값은 아래 NEWS ANALYSIS의 검증된 Fact Sheet에서 확인해.
-  </div>
-  <table>
-    <thead><tr><th>Artist</th><th>Track</th><th>Spotify 주간 Streams (10/01)</th><th>YouTube 영상 누적 Views</th></tr></thead>
+        <!-- STEP12 · CURRENT SELECTION, VERIFIED GLOBAL WEEKLY CSV -->
+        <!-- KPOP_WEEKLY_CHARTS_STEP12 -->
+<section class="dashboard-section">
+  <h2>📊 Compare — 동일 기간 Global 주간 곡 차트</h2>
+  <p>Spotify Global Weekly Top Songs(상위 200곡)와 YouTube Global Weekly Top Songs(상위 100곡),
+    <strong>2026.09.25~10.01 / 10.02~10.08</strong> 데이터를 비교해.</p>
+  <div class="notice">Spotify는 <strong>주간 스트리밍 수</strong>, YouTube는
+    <strong>공식 곡 차트의 주간 조회수</strong>야. 같은 기간이지만 지표·집계 방식이 다르므로
+    두 숫자의 차이·배율·우위를 계산하지 않아. 주간 조회수는 단일 MV 누적 조회수가 아니야.</div>
+  {% if weekly_chart_error %}
+    <p class="weekly-error" role="alert">⚠ 원본 차트 검사 실패: {{ weekly_chart_error }}. 임의의 수치로 대체하지 않았어.</p>
+  {% elif weekly_comparison %}
+    <div class="weekly-table-scroll">
+  <table class="weekly-table">
+    <thead>
+      <tr>
+        <th>아티스트 / 곡</th>
+        <th>Spotify 순위<br><small>10/01 → 10/08</small></th>
+        <th>Spotify 주간 스트리밍<br><small>전주 → 금주 · 증감률</small></th>
+        <th>YouTube 곡 순위<br><small>10/01 → 10/08</small></th>
+        <th>YouTube 주간 조회수<br><small>전주 → 금주 · 증감률</small></th>
+        <th>검수 상태</th>
+      </tr>
+    </thead>
     <tbody>
-    {% for item in comparison_data %}
-      <tr><td>{{ item.artist }}</td><td>{{ item.track }}</td>
-      <td>{{ "{:,}".format(item.spotify_streams) }}</td>
-      <td>{{ "{:,}".format(item.youtube_views) }}</td></tr>
-    {% endfor %}
+      {% for item in weekly_comparison %}
+      <tr>
+        <td><strong>{{ item.artist }}</strong><br>{{ item.track }}</td>
+        <td>{{ item.spotify_rank_display }}</td>
+        <td class="weekly-nowrap">{{ item.spotify_amount_display }}</td>
+        <td>{{ item.youtube_rank_display }}</td>
+        <td class="weekly-nowrap">{{ item.youtube_amount_display }}</td>
+        <td><span class="weekly-review-badge review-{{ item.review_code }}">{{ item.review_status }}</span></td>
+      </tr>
+      {% endfor %}
     </tbody>
   </table>
+</div>
+    <p class="weekly-footnote">— 표시는 제공된 Top 200/Top 100 파일에서 해당 곡을 확인하지 못했다는 뜻이며,
+      재생 수가 0이라는 의미는 아니야. 자동 매칭 후보는 곡 버전 검수가 필요하며 기사 승인과 별개야.</p>
+  {% else %}
+    <p class="weekly-footnote">Current Analysis에 곡을 추가하면 선택된 곡의 2주간 데이터를 표시해.</p>
+  {% endif %}
 </section>
 
-
-        <!-- ==================================================
-             7. ACCUMULATED ANALYSIS CHART
-        =================================================== -->
-
         <section class="dashboard-section">
-  <h2>📈 Accumulated Analysis — 지표별 시각화</h2>
-  <p>선택한 곡의 주간 스트리밍과 영상 누적 조회수를 <strong>각각 다른 그래프</strong>로 표시해.</p>
-  <div class="notice">주의: 기존 대시보드의 Spotify는 10/01 주간, YouTube는 개별 영상의 조회 시점까지 누적 데이터야.
-  서로 같은 기간의 소비량을 의미하지 않아. 아래 두 그래프의 길이를 가로질러 비교하지 마.</div>
-  {% if comparison_data %}
-  <script id="chartLabels" type="application/json">{{ chart_labels | tojson }}</script>
-  <script id="chartSpotify" type="application/json">{{ chart_spotify | tojson }}</script>
-  <script id="chartYoutube" type="application/json">{{ chart_youtube | tojson }}</script>
-  <div class="analysis-two-charts">
-    <div class="analysis-chart-standalone"><h3>Spotify — 10/01 종료 주간 스트리밍</h3><div class="chart-container"><canvas id="spotifyWeeklyChart"></canvas></div></div>
-    <div class="analysis-chart-standalone"><h3>YouTube — 개별 영상의 누적 조회수</h3><div class="chart-container"><canvas id="youtubeCumulativeChart"></canvas></div></div>
-  </div>
-  <p class="analysis-chart-hint">기사 생성은 위 그래프가 아니라 2주간의 공식 주간 차트로 작성한 검수 완료 Fact Sheet를 사용해.</p>
+  <h2>📈 Accumulated Analysis — 플랫폼별 2주 변화</h2>
+  <p>현재 선택한 곡의 <strong>Spotify 주간 스트리밍</strong>과
+    <strong>YouTube 공식 Top Songs 주간 조회수</strong>를 별도의 그래프로 그려.
+    두 플랫폼 수치의 크기는 직접 비교하지 않아.</p>
+  {% if weekly_chart_error %}
+    <p class="weekly-error" role="alert">⚠ 원본 주간 차트가 검증되지 않아 그래프를 그리지 않았어.</p>
+  {% elif weekly_comparison %}
+    <script id="weeklyChartPayload" type="application/json">{{ weekly_chart_data | tojson }}</script>
+    <div class="analysis-two-charts">
+      <div class="analysis-chart-standalone">
+        <h3>Spotify · Global Weekly Top Songs · 스트리밍 수 (상위 200곡)</h3>
+        <div class="chart-container"><canvas id="spotifyWeekTrend" role="img" aria-label="Spotify 주간 스트리밍 횟수 2주 비교"></canvas></div>
+      </div>
+      <div class="analysis-chart-standalone">
+        <h3>YouTube · Global Weekly Top Songs · 주간 조회수 (상위 100곡)</h3>
+        <div class="chart-container"><canvas id="youtubeWeekTrend" role="img" aria-label="YouTube 공식 곡 차트 주간 조회수 2주 비교"></canvas></div>
+      </div>
+    </div>
+    <p class="weekly-footnote">회색 또는 빈 값은 누락 데이터야. 조회수가 0이라는 뜻이 아니야.
+      두 그래프는 서로 다른 단위와 축을 사용해. 두 주의 집계 기간은 같아도 플랫폼 간 소비량을 나누거나 빼면 안 돼.</p>
   {% else %}
-  <p>차트를 보려면 Artist Search에서 분석할 곡을 추가해 줘.</p>
+    <p>먼저 Current Analysis에 분석할 곡을 추가해 줘.</p>
   {% endif %}
 </section>
 
@@ -537,34 +560,46 @@
     =================================================== -->
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-
-    {% if comparison_data %}
-
-
-    <script>
-  const chartLabels = JSON.parse(document.getElementById('chartLabels').textContent.trim());
-  const spotifyWeekly = JSON.parse(document.getElementById('chartSpotify').textContent.trim());
-  const youtubeLifetime = JSON.parse(document.getElementById('chartYoutube').textContent.trim());
-  function drawSeparateChart(canvasId, label, values) {
+{% if weekly_comparison and not weekly_chart_error %}
+<script>
+(() => {
+  'use strict';
+  const el = document.getElementById('weeklyChartPayload');
+  if (!el || typeof Chart === 'undefined') return;
+  let payload;
+  try { payload = JSON.parse(el.textContent); } catch { return; }
+  function render(canvasId, label, before, after) {
     const canvas = document.getElementById(canvasId);
-    if (!canvas || typeof Chart === 'undefined') return;
+    if (!canvas) return;
     new Chart(canvas, {
-      type:'bar',
-      data:{labels:chartLabels,datasets:[{label:label,data:values}]},
-      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:false},tooltip:{callbacks:{label:(ctx)=>label+': '+Number(ctx.raw).toLocaleString()}}},
-        scales:{x:{beginAtZero:true,title:{display:true,text:label}},y:{title:{display:true,text:'Artist / Track'}}}}
+      type: 'bar',
+      data: {
+        labels: payload.labels,
+        datasets: [
+          {label:'09/25~10/01', data:payload[before]},
+          {label:'10/02~10/08', data:payload[after]},
+        ],
+      },
+      options: {
+        indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        plugins: {
+          legend:{position:'top'},
+          tooltip:{callbacks:{label:ctx => ctx.raw == null ? '차트 내 자료 없음' :
+            `${ctx.dataset.label}: ${Number(ctx.raw).toLocaleString()}회`}}
+        },
+        scales: {
+          x:{beginAtZero:true, title:{display:true, text:label},
+              ticks:{callback:v => Number(v).toLocaleString()}},
+          y:{title:{display:true,text:'선택한 곡'}}
+        }
+      }
     });
   }
-  drawSeparateChart('spotifyWeeklyChart','Spotify Weekly Streams',spotifyWeekly);
-  drawSeparateChart('youtubeCumulativeChart','YouTube Video Lifetime Views',youtubeLifetime);
+  render('spotifyWeekTrend','Spotify 주간 스트리밍 (회)', 'spotify_previous','spotify_current');
+  render('youtubeWeekTrend','YouTube 공식 주간 곡 조회수 (회)', 'youtube_previous','youtube_current');
+})();
 </script>
-
-
-    {% endif %}
-
-
+{% endif %}
 </body>
 
 </html>

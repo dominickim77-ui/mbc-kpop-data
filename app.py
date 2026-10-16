@@ -103,6 +103,9 @@ app = FastAPI()
 from news.news_routes import router as news_router
 app.include_router(news_router)
 
+# KPOP_WEEKLY_CHARTS_STEP12: read official weekly CSVs for Compare/Accumulated Analysis
+from news.weekly_chart_analysis import build_weekly_rows, weekly_chart_data, ChartValidationError
+
 
 # --------------------------------------------------
 # 6. static 폴더 연결
@@ -204,30 +207,7 @@ def get_dashboard_data():
             y.youtube_views,
             y.youtube_likes,
             y.youtube_comments,
-            y.collected_at,
-
-            -- YouTube 누적 조회수 - Spotify 주간 스트리밍
-            (y.youtube_views - s.spotify_streams)
-                AS difference,
-
-            -- YouTube 조회수가 Spotify 스트리밍의
-            -- 몇 배인지 계산
-            ROUND(
-                y.youtube_views
-                / NULLIF(s.spotify_streams, 0),
-                2
-            ) AS ratio,
-
-            -- 단순 숫자 기준 더 큰 값을 표시
-            CASE
-                WHEN y.youtube_views > s.spotify_streams
-                    THEN 'YouTube'
-
-                WHEN y.youtube_views < s.spotify_streams
-                    THEN 'Spotify'
-
-                ELSE 'Same'
-            END AS larger_value
+            y.collected_at
 
         FROM tracks AS t
 
@@ -332,8 +312,8 @@ def home(
 
             search_message = (
                 f'"{artist}"는 현재 Spotify '
-                "Weekly Global Top 200에서 "
-                "찾을 수 없습니다."
+                "Weekly Global Top Songs 상위 200곡(10/01 종료 주)에서 "
+                "찾을 수 없습니다. YouTube 아티스트 차트의 순위와는 다른 자료입니다."
             )
 
     # --------------------------------------------------
@@ -383,17 +363,16 @@ def home(
     # Spotify 순위 순서 사용
     # --------------------------------------------------
 
-    comparison_data = spotify_data
-
-    # --------------------------------------------------
-    # Chart.js에 전달할 데이터 준비
-    # --------------------------------------------------
-
-    chart_labels = [f"{item['artist']} - {item['track']}" for item in comparison_data]
-
-    chart_spotify = [int(item["spotify_streams"]) for item in comparison_data]
-
-    chart_youtube = [int(item["youtube_views"]) for item in comparison_data]
+    # STEP 12: Article and graphs use the same current selected songs,
+    # but chart figures are recomputed from four *weekly raw CSV* files.
+    # DO NOT mix the old YouTube Data API video lifetime counts here.
+    try:
+        weekly_comparison = build_weekly_rows(analysis_data)
+        weekly_chart_error = None
+    except (ChartValidationError, OSError, ValueError) as exc:
+        weekly_comparison = []
+        weekly_chart_error = str(exc)
+    weekly_graph = weekly_chart_data(weekly_comparison)
 
     # --------------------------------------------------
     # Chart 데이터를 JSON 문자열로 변환
@@ -438,10 +417,9 @@ def home(
             # Dashboard
             "spotify_data": spotify_data,
             "youtube_data": youtube_data,
-            "comparison_data": comparison_data,
-            "chart_labels": chart_labels,
-            "chart_spotify": chart_spotify,
-            "chart_youtube": chart_youtube,
+            "weekly_comparison": weekly_comparison,
+            "weekly_chart_error": weekly_chart_error,
+            "weekly_chart_data": weekly_graph,
         },
     )
 
@@ -972,16 +950,20 @@ def compare_page(request: Request):
 
     dashboard_data = get_dashboard_data()
 
-    comparison_data = sorted(
-        dashboard_data,
-        key=lambda item: item["spotify_rank"],
-    )
+    selected = [row for row in dashboard_data if row['song_id'] in analysis_song_ids]
+    try:
+        weekly_comparison = build_weekly_rows(selected)
+        weekly_chart_error = None
+    except (ChartValidationError, OSError, ValueError) as exc:
+        weekly_comparison = []
+        weekly_chart_error = str(exc)
 
     return templates.TemplateResponse(
         request=request,
         name="compare.html",
         context={
-            "title": "Compare Data",
-            "comparisons": comparison_data,
+            "title": "Compare — Global Weekly Charts",
+            "weekly_comparison": weekly_comparison,
+            "weekly_chart_error": weekly_chart_error,
         },
     )

@@ -1,11 +1,36 @@
 <!DOCTYPE html>
 <html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ title }}</title><link rel="stylesheet" href="/static/style.css"></head><body>
-<header><h1>📊 Compare — 지표별 참조</h1><p>같은 기간이 아닌 자료는 배율을 계산하지 않아</p></header>
-<main class="data-page"><a class="back-link" href="/">← HOME</a>
-<div class="notice">Spotify는 10/01 종료 주간 스트리밍, YouTube는 개별 영상의 누적 조회수야. 서로 나누거나 뺄 수 없어.</div>
-<table><thead><tr><th>Artist</th><th>Track</th><th>Spotify Rank</th><th>Spotify Weekly Streams</th><th>YouTube Video Lifetime Views</th></tr></thead>
-<tbody>{% for item in comparisons %}<tr><td>{{ item.artist }}</td><td>{{ item.track }}</td>
-<td>#{{ item.spotify_rank }}</td><td>{{ "{:,}".format(item.spotify_streams) }}</td>
-<td>{{ "{:,}".format(item.youtube_views) }}</td></tr>{% endfor %}</tbody></table>
+<header><h1>📊 Compare · Global Weekly Top Songs</h1><p>2026.09.25~10.01 / 10.02~10.08</p></header>
+<main class="data-page"><a class="back-link" href="/">← K-POP DATA LAB 메인 화면</a>
+<div class="notice">Spotify 주간 스트리밍과 YouTube 공식 주간 곡 조회수는 서로 다른 지표야.
+같은 기간의 순위와 플랫폼 내부 증감만 확인하고, 수치끼리 빼거나 나누지 않아.</div>
+{% if weekly_chart_error %}<p class="weekly-error" role="alert">{{ weekly_chart_error }}</p>
+{% elif weekly_comparison %}<div class="weekly-table-scroll">
+  <table class="weekly-table">
+    <thead>
+      <tr>
+        <th>아티스트 / 곡</th>
+        <th>Spotify 순위<br><small>10/01 → 10/08</small></th>
+        <th>Spotify 주간 스트리밍<br><small>전주 → 금주 · 증감률</small></th>
+        <th>YouTube 곡 순위<br><small>10/01 → 10/08</small></th>
+        <th>YouTube 주간 조회수<br><small>전주 → 금주 · 증감률</small></th>
+        <th>검수 상태</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in weekly_comparison %}
+      <tr>
+        <td><strong>{{ item.artist }}</strong><br>{{ item.track }}</td>
+        <td>{{ item.spotify_rank_display }}</td>
+        <td class="weekly-nowrap">{{ item.spotify_amount_display }}</td>
+        <td>{{ item.youtube_rank_display }}</td>
+        <td class="weekly-nowrap">{{ item.youtube_amount_display }}</td>
+        <td><span class="weekly-review-badge review-{{ item.review_code }}">{{ item.review_status }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}<p>메인 화면 Current Analysis에서 곡을 선택해 줘.</p>{% endif %}
 </main></body></html>

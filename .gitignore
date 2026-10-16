@@ -1,1 +1,5 @@
+.env__pycache__/
+*.pyc
+.venv/
+kpop_step12_patch/
 .env
