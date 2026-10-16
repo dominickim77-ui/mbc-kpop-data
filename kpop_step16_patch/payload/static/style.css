@@ -1,0 +1,401 @@
+/* --------------------------------------------------
+   K-POP DATA LAB 기본 스타일
+-------------------------------------------------- */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f5f5f5;
+    color: #222;
+}
+
+
+/* 페이지 상단 제목 영역 */
+
+header {
+    text-align: center;
+    padding: 60px 20px;
+    background: #111;
+    color: white;
+}
+
+
+header h1 {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+
+/* 세 개의 메뉴 카드 영역 */
+
+main {
+    max-width: 1000px;
+    margin: 50px auto;
+    padding: 0 20px;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+
+/* 각각의 카드 */
+
+.card {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+}
+
+
+/* 링크 버튼 */
+
+.card a {
+    display: inline-block;
+    margin-top: 15px;
+    text-decoration: none;
+    font-weight: bold;
+    color: #111;
+}
+
+/* --------------------------------------------------
+   DATA TABLE 페이지
+-------------------------------------------------- */
+
+.data-page {
+    display: block;
+    max-width: 1100px;
+    margin: 40px auto;
+}
+
+
+/* HOME으로 돌아가는 링크 */
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 25px;
+    text-decoration: none;
+    color: #222;
+    font-weight: bold;
+}
+
+
+/* 데이터 표 */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+
+/* 표 제목과 데이터 칸 */
+
+th,
+td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+
+/* 표 제목 */
+
+th {
+    background: #111;
+    color: white;
+}
+
+/* --------------------------------------------------
+   비교 페이지 안내 박스
+-------------------------------------------------- */
+
+.notice {
+    margin-bottom: 25px;
+    padding: 18px 20px;
+
+    background: #fff3cd;
+    border-radius: 10px;
+
+    line-height: 1.6;
+}
+
+/* --------------------------------------------------
+   SINGLE DASHBOARD
+-------------------------------------------------- */
+
+.dashboard {
+    display: block;
+
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+
+/* --------------------------------------------------
+   ARTIST SEARCH
+-------------------------------------------------- */
+
+.search-panel {
+    background: white;
+
+    padding: 30px;
+    margin-bottom: 40px;
+
+    border-radius: 16px;
+}
+
+
+.search-form {
+    display: flex;
+
+    gap: 10px;
+    margin-top: 20px;
+}
+
+
+.search-form input {
+    flex: 1;
+
+    padding: 14px 16px;
+
+    font-size: 16px;
+
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+
+.search-form button {
+    padding: 14px 24px;
+
+    border: 0;
+    border-radius: 8px;
+
+    background: #111;
+    color: white;
+
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
+.search-results {
+    margin-top: 30px;
+}
+
+
+.search-message {
+    margin-top: 20px;
+
+    padding: 15px;
+
+    background: #f3f3f3;
+    border-radius: 8px;
+}
+
+
+.coming-next {
+    margin-top: 15px;
+
+    font-weight: bold;
+}
+
+
+/* --------------------------------------------------
+   DASHBOARD SECTIONS
+-------------------------------------------------- */
+
+.dashboard-section {
+    background: white;
+
+    padding: 30px;
+    margin-bottom: 40px;
+
+    border-radius: 16px;
+}
+
+
+.dashboard-section h2 {
+    margin-top: 0;
+}
+
+/* --------------------------------------------------
+   SUCCESS MESSAGE
+-------------------------------------------------- */
+
+.success-message {
+    max-width: 1200px;
+    margin: 0 auto 20px;
+    padding: 14px 18px;
+
+    background: #e8f7e8;
+    border-radius: 10px;
+
+    font-weight: bold;
+}
+
+
+/* --------------------------------------------------
+   CURRENT ANALYSIS
+-------------------------------------------------- */
+
+.analysis-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+}
+
+
+.selected-track-list {
+    display: grid;
+
+    gap: 10px;
+    margin-top: 20px;
+}
+
+
+.selected-track {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 14px 16px;
+
+    background: #f5f5f5;
+    border-radius: 8px;
+}
+
+
+.remove-button {
+    width: 32px;
+    height: 32px;
+
+    border: 0;
+    border-radius: 50%;
+
+    background: #111;
+    color: white;
+
+    font-size: 18px;
+    cursor: pointer;
+}
+
+
+.reset-button {
+    padding: 12px 16px;
+
+    border: 0;
+    border-radius: 8px;
+
+    background: #111;
+    color: white;
+
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* --------------------------------------------------
+   ACCUMULATED ANALYSIS CHART
+-------------------------------------------------- */
+
+.chart-container {
+    position: relative;
+
+    width: 100%;
+    height: 520px;
+
+    margin-top: 25px;
+}
+/* KPOP_NEWS_INLINE_V1 */
+
+/* --------------------------------------------------
+   NEWS ANALYSIS: 메인 페이지 안에서 기사 표시
+-------------------------------------------------- */
+.news-inline-panel { border: 1px solid #e8e2f4; background: #fff; }
+.news-panel-heading h2 { margin-top: 0; margin-bottom: 8px; }
+.news-panel-heading p { color: #555; margin-top: 0; line-height: 1.6; }
+.news-panel-note { color: #56525f; font-size: 14px; line-height: 1.65; }
+.news-panel-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0; }
+.news-panel-actions button { border: 0; border-radius: 10px; padding: 13px 18px; font-weight: 700; font-size: 15px; cursor: pointer; }
+.news-generate-button { color: white; background: #6635a0; }
+.news-saved-button { color: #30203e; background: #eeeaf5; }
+.news-panel-actions button:disabled { cursor: wait; opacity: 0.6; }
+.news-status { font-size: 14px; color: #55446a; line-height: 1.6; }
+.news-article-output { border-top: 1px solid #e8e2f4; margin-top: 18px; padding-top: 20px; }
+.news-article-output[hidden] { display: none; }
+.news-article-output h3 { color: #17121f; font-size: 23px; line-height: 1.35; margin: 0 0 22px; }
+.news-article-output p { color: #27222d; line-height: 1.85; white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 16px; }
+.news-result-source { font-size: 12px; color: #70667a; overflow-wrap: anywhere; }
+
+/* STEP11 */
+/* STEP 11: selected-song status, inside existing News panel. */
+.news-selection-summary { background: #f8f6fb; border-radius: 10px; padding: 14px 16px; margin: 18px 0; }
+.news-selection-summary > p { margin: 0 0 10px; font-weight: 700; }
+.news-selection-lists { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; }
+.news-selection-lists strong { font-size: 13px; }
+.news-selection-lists ul { padding-left: 18px; margin: 8px 0 0; font-size: 13px; line-height: 1.7; }
+.news-selection-lists li { overflow-wrap: anywhere; }
+.news-panel-actions button:disabled { opacity: .5; cursor: not-allowed; }
+.analysis-two-charts { display: grid; grid-template-columns: 1fr; gap: 22px; }
+.analysis-chart-standalone { min-height: 300px; }
+.analysis-chart-standalone .chart-container { height: 300px; }
+.analysis-chart-standalone h3 { font-size: 16px; margin: 12px 0; }
+.analysis-chart-hint { color: #5c5661; font-size: 13px; line-height: 1.65; }
+
+
+/* STEP 12 · Global weekly charts; legacy dashboard styles untouched. */
+.weekly-table-scroll { overflow-x: auto; width: 100%; }
+.weekly-table { min-width: 1000px; font-size: 13px; }
+.weekly-table th { line-height: 1.6; vertical-align: bottom; }
+.weekly-table th:nth-child(2), .weekly-table th:nth-child(4) { min-width: 105px; }
+.weekly-table th small { font-size: 11px; font-weight: normal; color: #dedede; }
+.weekly-table td { vertical-align: middle; line-height: 1.65; }
+.weekly-nowrap { min-width: 190px; }
+.weekly-review-badge { display: inline-block; max-width: 220px; border-radius: 6px;
+    background:#f3f3f5; font-size:12px; padding:5px 9px; }
+.review-reviewed { background:#e5f6e8; color:#165c2b; }
+.review-excluded, .review-mismatch, .review-ambiguous { background:#fff0d7; color:#814814; }
+.weekly-error { background:#fff1ec; color:#912f17; border-radius:8px; padding:14px 16px; line-height:1.5; }
+.weekly-footnote { font-size:12px; line-height:1.6; color:#5b5860; margin-top:14px; }
+.analysis-chart-standalone .chart-container { min-height: 340px; height: 340px; }
+@media (max-width: 640px) { .analysis-chart-standalone .chart-container { height: 400px; } }
+
+/* KPOP_WEEKLY_MANAGER_STEP13: native accessible date select */
+.week-manager {display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0 8px}
+.week-manager label {font-weight:700}
+.week-manager select {min-width:280px;max-width:100%;padding:9px;border:1px solid #bbb;border-radius:8px;background:#fff;color:#222}
+.week-manager button {padding:9px 14px;border:0;border-radius:8px;background:#111;color:#fff;cursor:pointer}
+.week-manager button:hover {background:#333}
+
+
+/* KPOP_ARTIST_WEEK_SYNC_STEP15: Search week uses same layout as Compare */
+.artist-week-manager { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-top:15px; }
+.artist-week-manager label { font-weight:700; font-size:14px; }
+.artist-week-manager select { max-width:100%; min-width:230px; padding:9px 10px; background:#fff;
+  border:1px solid #ddd; border-radius:7px; }
+.artist-week-manager button { padding:10px 14px; border:0; border-radius:7px; font-weight:700;
+  color:white; background:#111; cursor:pointer; }
+.artist-week-manager button:disabled { opacity:.5; cursor:default; }
+
+/* STEP16: read-only evidence queue beneath NEWS ANALYSIS actions. */
+.news-review-queue {border-top:1px solid #e8e2f4;padding-top:15px;margin-top:16px;line-height:1.55}
+.news-review-queue[hidden] {display:none}
+.news-review-queue h3 {font-size:18px;margin:4px 0 10px}
+.news-review-queue > p {font-size:13px;color:#554b61}
+.news-review-table-scroll {overflow-x:auto;max-width:100%}
+.news-review-table {width:100%;min-width:780px;border-collapse:collapse;font-size:12px;text-align:left}
+.news-review-table th {padding:10px;background:#17171a;color:#fff}
+.news-review-table td {padding:10px;vertical-align:top;border-bottom:1px solid #e4e4e4;overflow-wrap:anywhere}
+.news-review-table td:nth-child(1) {min-width:150px}
+.news-review-table td:nth-child(2),.news-review-table td:nth-child(3) {min-width:160px}
+.news-review-table td:nth-child(4) {min-width:240px}
+.news-review-table td p {margin:5px 0 0}
+.review-queue-hold {color:#925212}
+.review-queue-ok {color:#155e2f}
+.review-queue-link {display:inline-block;margin-right:12px;margin-top:6px}
+.review-queue-link a {color:#57348c}
+.news-review-caution {padding:12px;border-radius:8px;background:#f8f6fb}

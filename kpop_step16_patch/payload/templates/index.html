@@ -1,0 +1,641 @@
+<!-- KPOP_ARTIST_WEEK_SYNC_STEP15 -->
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ title }}</title>
+
+    <!--
+    static 폴더의 CSS 파일 연결
+    -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+
+<body>
+
+    <!-- ==================================================
+         PAGE HEADER
+    =================================================== -->
+
+    <header>
+        <h1>K-POP DATA LAB</h1>
+
+        <p>
+            Spotify + YouTube Data Journalism Dashboard
+        </p>
+    </header>
+
+
+    <main class="dashboard">
+
+        
+
+
+
+        <!-- ==================================================
+             1. ARTIST SEARCH
+        =================================================== -->
+
+        <section class="search-panel">
+
+            <h2>🔎 Artist Search</h2>
+
+            <!-- STEP15 · Artist Search and Compare share the SAME period -->
+            <form class="artist-week-manager" method="get" action="/">
+              <label for="artist-week-selector">📅 검색 기준 주차</label>
+              <select id="artist-week-selector" name="week_end" aria-label="Spotify 검색 주차">
+                {% for item in week_options %}
+                <option value="{{ item.end }}" {% if item.end == selected_week_end %}selected{% endif %}>{{ item.label }}</option>
+                {% endfor %}
+              </select>
+              <input type="hidden" name="artist" value="{{ search_artist }}">
+              <button type="submit" {% if not week_options %}disabled{% endif %}>주차 적용</button>
+            </form>
+            <p class="weekly-footnote">선택한 비교 기간의 <strong>금주 종료일</strong>을 기준으로 Spotify Top 200을 검색해.
+              선택한 곡은 유지하며, 다른 주차에 없는 곡의 수치는 <strong>—</strong>로 표시해.
+              YouTube 기존 영상 누적 데이터는 별도 지표야.</p>
+
+            <p>
+                Spotify Weekly Global Top 200에서
+                아티스트를 검색합니다.
+            </p>
+
+
+            <!--
+            GET 방식으로 Artist 이름을 HOME에 전달한다.
+
+            예:
+            /?artist=BTS
+            -->
+
+            <form class="search-form" method="get" action="/">
+                <input type="hidden" name="week_end" value="{{ selected_week_end }}">
+
+                <input type="text" name="artist" value="{{ search_artist }}" placeholder="예: BLACKPINK" required>
+
+                <button type="submit">
+                    Search
+                </button>
+
+            </form>
+
+
+            <!-- 검색 결과가 없는 경우 안내 -->
+
+            {% if search_message %}
+
+            <div class="search-message">
+                {{ search_message }}
+            </div>
+
+            {% endif %}
+
+
+            <!-- ==================================================
+                 SEARCH RESULTS
+            =================================================== -->
+
+            {% if search_results %}
+
+            <div class="search-results">
+
+                <h3>
+                    Search Results —
+                    {{ search_results|length }}곡
+                </h3>
+
+
+                <!--
+                체크한 Spotify Rank들을
+                /add-analysis로 전달한다.
+                -->
+
+                <form method="post" action="/add-analysis">
+
+                    <!--
+                    어떤 Artist의 검색 결과인지
+                    함께 FastAPI에 전달한다.
+                    -->
+
+                    <input type="hidden" name="search_artist" value="{{ search_artist }}">
+                    <input type="hidden" name="week_end" value="{{ selected_week_end }}">
+
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Rank</th>
+                                <th>Artist</th>
+                                <th>Track</th>
+                                <th>Weekly Streams</th>
+                            </tr>
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for song in search_results %}
+
+                            <tr>
+
+                                <td>
+                                    <input type="checkbox" name="selected_ranks" value="{{ song.rank }}">
+                                </td>
+
+                                <td>
+                                    #{{ song.rank }}
+                                </td>
+
+                                <td>
+                                    {{ song.artist_names }}
+                                </td>
+
+                                <td>
+                                    {{ song.track_name }}
+                                </td>
+
+                                <td>
+                                    {{ "{:,}".format(song.streams) }}
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+
+                    <button class="add-analysis-button" type="submit">
+                        Add Selected to Analysis
+                    </button>
+
+                </form>
+
+            </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- ==================================================
+             2. SUCCESS / INFO MESSAGE
+        =================================================== -->
+
+        {% if message %}
+
+        <div class="success-message">
+            ✅ {{ message }}
+        </div>
+
+        {% endif %}
+
+
+        <!-- ==================================================
+             3. CURRENT ANALYSIS
+        =================================================== -->
+
+        <section class="dashboard-section">
+
+            <div class="analysis-header">
+
+                <div>
+
+                    <h2>🎯 Current Analysis</h2>
+
+                    <p>
+                        Artists:
+                        <strong>
+                            {{ artist_count }} / {{ max_artists }}
+                        </strong>
+
+                        &nbsp;&nbsp;
+
+                        Tracks:
+                        <strong>
+                            {{ track_count }} / {{ max_tracks }}
+                        </strong>
+                    </p>
+
+                </div>
+
+
+                <!--
+                현재 분석 목록 전체 초기화.
+
+                중요:
+                MySQL 데이터는 삭제하지 않는다.
+                -->
+
+                {% if current_analysis %}
+
+                <form method="post" action="/reset-analysis">
+                    <input type="hidden" name="week_end" value="{{ selected_week_end }}">
+
+                    <button class="reset-button" type="submit">
+                        RESET ANALYSIS
+                    </button>
+
+                </form>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- 최대 Track 도달 안내 -->
+
+            {% if track_count >= max_tracks %}
+
+            <div class="notice">
+                최대 {{ max_tracks }}곡까지 비교할 수 있습니다.
+                곡을 추가하려면 기존 곡을 제거해 주세요.
+            </div>
+
+            {% endif %}
+
+
+            <!-- 최대 Artist 도달 안내 -->
+
+            {% if artist_count >= max_artists %}
+
+            <div class="notice">
+                최대 {{ max_artists }}명의 Artist까지
+                비교할 수 있습니다.
+            </div>
+
+            {% endif %}
+
+
+            <!-- 선택된 곡 목록 -->
+
+            {% if current_analysis %}
+
+            <div class="selected-track-list">
+
+                {% for item in current_analysis %}
+
+                <div class="selected-track">
+
+                    <div>
+
+                        <strong>
+                            {{ item.artist }}
+                        </strong>
+
+                        —
+
+                        {{ item.track }}
+
+                    </div>
+
+
+                    <!--
+                    이 곡만 Current Analysis에서 제거.
+
+                    MySQL 데이터는 유지한다.
+                    -->
+
+                    <form method="post" action="/remove-analysis/{{ item.song_id }}">
+                        <input type="hidden" name="week_end" value="{{ selected_week_end }}">
+
+                        <button class="remove-button" type="submit" title="Remove from Analysis">
+                            ×
+                        </button>
+
+                    </form>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            {% else %}
+
+            <p>
+                아직 분석에 추가된 곡이 없습니다.
+                위 Artist Search에서 곡을 선택해 주세요.
+            </p>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- ==================================================
+             4. SPOTIFY DATA
+        =================================================== -->
+
+        <section class="dashboard-section">
+
+            <h2>🎵 Spotify Data</h2>
+
+            <p>선택된 종료 주 <strong>{{ selected_week_end or '없음' }}</strong>의 Spotify Global Top 200 원본 CSV를 표시해.
+              해당 주차에 없는 곡은 <strong>—</strong>로 표시하며, MySQL의 다른 주차 숫자로 대체하지 않아.</p>
+
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Artist</th>
+                        <th>Track</th>
+                        <th>Weekly Streams</th>
+                        <th>Chart Date</th>
+                    </tr>
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in spotify_data %}
+
+                    <tr>
+
+                        <td>
+                            {% if item.spotify_rank is not none %}#{{ item.spotify_rank }}{% else %}—{% endif %}
+                        </td>
+
+                        <td>
+                            {{ item.artist }}
+                        </td>
+
+                        <td>
+                            {{ item.track }}
+                        </td>
+
+                        <td>
+                            {% if item.spotify_streams is not none %}{{ "{:,}".format(item.spotify_streams) }}{% else %}—{% endif %}
+                        </td>
+
+                        <td>
+                            {{ item.chart_date or '—' }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+
+        <!-- ==================================================
+             5. YOUTUBE DATA
+        =================================================== -->
+
+        <section class="dashboard-section">
+
+            <h2>▶ YouTube Data</h2>
+
+            <p>
+                현재 Analysis에 선택된 곡의
+                YouTube 누적 데이터
+            </p>
+
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Artist</th>
+                        <th>Track</th>
+                        <th>Views</th>
+                        <th>Likes</th>
+                        <th>Comments</th>
+                        <th>Channel</th>
+                    </tr>
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in youtube_data %}
+
+                    <tr>
+
+                        <td>
+                            {{ item.artist }}
+                        </td>
+
+                        <td>
+                            {{ item.track }}
+                        </td>
+
+                        <td>
+                            {{ "{:,}".format(
+                            item.youtube_views
+                            ) }}
+                        </td>
+
+                        <td>
+                            {{ "{:,}".format(
+                            item.youtube_likes
+                            ) }}
+                        </td>
+
+                        <td>
+                            {{ "{:,}".format(
+                            item.youtube_comments
+                            ) }}
+                        </td>
+
+                        <td>
+                            {{ item.youtube_channel }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+
+        <!-- STEP12 · CURRENT SELECTION, VERIFIED GLOBAL WEEKLY CSV -->
+        <!-- KPOP_WEEKLY_CHARTS_STEP12 -->
+<section class="dashboard-section">
+  <h2>📊 Compare — 동일 기간 Global 주간 곡 차트</h2>
+<!-- KPOP_WEEKLY_MANAGER_STEP13: select an existing, paired chart period -->
+  <form class="week-manager" method="get" action="/">
+    <label for="week-selector">📅 주간 비교 기간</label>
+    <select id="week-selector" name="week_end" aria-label="비교 주차 선택" required>
+      {% for item in week_options %}
+      <option value="{{ item.end }}" {% if item.end == selected_week_end %}selected{% endif %}>{{ item.label }}</option>
+      {% endfor %}
+    </select>
+    <input type="hidden" name="artist" value="{{ search_artist }}">
+    <button type="submit">주차 적용</button>
+  </form>
+  {% for note in week_catalog_notes %}<p class="weekly-footnote">⚠ {{ note }}</p>{% endfor %}
+  <p class="weekly-footnote">CSV 파일명으로 주차를 찾고 열·순위·값을 검사해. 공식 출처·곡 버전·기사 승인은 별도 검수가 필요해.</p>
+
+  <p>Spotify Global Weekly Top Songs(상위 200곡)와 YouTube Global Weekly Top Songs(상위 100곡),
+    <strong>{{ selected_period_label }}</strong> 데이터를 비교해.</p>
+  <div class="notice">Spotify는 <strong>주간 스트리밍 수</strong>, YouTube는
+    <strong>공식 곡 차트의 주간 조회수</strong>야. 같은 기간이지만 지표·집계 방식이 다르므로
+    두 숫자의 차이·배율·우위를 계산하지 않아. 주간 조회수는 단일 MV 누적 조회수가 아니야.</div>
+  {% if weekly_chart_error %}
+    <p class="weekly-error" role="alert">⚠ 원본 차트 검사 실패: {{ weekly_chart_error }}. 임의의 수치로 대체하지 않았어.</p>
+  {% elif weekly_comparison %}
+    <div class="weekly-table-scroll">
+  <table class="weekly-table">
+    <thead>
+      <tr>
+        <th>아티스트 / 곡</th>
+        <th>Spotify 순위<br><small>{{ previous_week_end }} → {{ current_week_end }}</small></th>
+        <th>Spotify 주간 스트리밍<br><small>전주 → 금주 · 증감률</small></th>
+        <th>YouTube 곡 순위<br><small>{{ previous_week_end }} → {{ current_week_end }}</small></th>
+        <th>YouTube 주간 조회수<br><small>전주 → 금주 · 증감률</small></th>
+        <th>검수 상태</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in weekly_comparison %}
+      <tr>
+        <td><strong>{{ item.artist }}</strong><br>{{ item.track }}</td>
+        <td>{{ item.spotify_rank_display }}</td>
+        <td class="weekly-nowrap">{{ item.spotify_amount_display }}</td>
+        <td>{{ item.youtube_rank_display }}</td>
+        <td class="weekly-nowrap">{{ item.youtube_amount_display }}</td>
+        <td><span class="weekly-review-badge review-{{ item.review_code }}">{{ item.review_status }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+    <p class="weekly-footnote">— 표시는 제공된 Top 200/Top 100 파일에서 해당 곡을 확인하지 못했다는 뜻이며,
+      재생 수가 0이라는 의미는 아니야. 자동 매칭 후보는 곡 버전 검수가 필요하며 기사 승인과 별개야.</p>
+  {% else %}
+    <p class="weekly-footnote">Current Analysis에 곡을 추가하면 선택된 곡의 2주간 데이터를 표시해.</p>
+  {% endif %}
+</section>
+
+        <section class="dashboard-section">
+  <h2>📈 Accumulated Analysis — 플랫폼별 2주 변화</h2>
+  <p>현재 선택한 곡의 <strong>Spotify 주간 스트리밍</strong>과
+    <strong>YouTube 공식 Top Songs 주간 조회수</strong>를 별도의 그래프로 그려.
+    두 플랫폼 수치의 크기는 직접 비교하지 않아.</p>
+  {% if weekly_chart_error %}
+    <p class="weekly-error" role="alert">⚠ 원본 주간 차트가 검증되지 않아 그래프를 그리지 않았어.</p>
+  {% elif weekly_comparison %}
+    <script id="weeklyChartPayload" type="application/json">{{ weekly_chart_data | tojson }}</script>
+    <div class="analysis-two-charts">
+      <div class="analysis-chart-standalone">
+        <h3>Spotify · Global Weekly Top Songs · 스트리밍 수 (상위 200곡)</h3>
+        <div class="chart-container"><canvas id="spotifyWeekTrend" role="img" aria-label="Spotify 주간 스트리밍 횟수 2주 비교"></canvas></div>
+      </div>
+      <div class="analysis-chart-standalone">
+        <h3>YouTube · Global Weekly Top Songs · 주간 조회수 (상위 100곡)</h3>
+        <div class="chart-container"><canvas id="youtubeWeekTrend" role="img" aria-label="YouTube 공식 곡 차트 주간 조회수 2주 비교"></canvas></div>
+      </div>
+    </div>
+    <p class="weekly-footnote">회색 또는 빈 값은 누락 데이터야. 조회수가 0이라는 뜻이 아니야.
+      두 그래프는 서로 다른 단위와 축을 사용해. 두 주의 집계 기간은 같아도 플랫폼 간 소비량을 나누거나 빼면 안 돼.</p>
+  {% else %}
+    <p>먼저 Current Analysis에 분석할 곡을 추가해 줘.</p>
+  {% endif %}
+</section>
+
+        <!-- KPOP_NEWS_INLINE_V1 -->
+<!-- K-POP NEWS ANALYSIS: 메인 페이지 인라인 기사 생성 -->
+<!-- KPOP_NEWS_SELECTED_STEP11: show only approved selected tracks -->
+<section id="news-inline-panel" class="dashboard-section news-inline-panel" aria-labelledby="news-panel-title" data-chart-week-end="{{ selected_week_end }}" data-news-week-compatible="{{ 'true' if news_week_compatible else 'false' }}">
+  <div class="news-panel-heading">
+    <h2 id="news-panel-title">📰 K-POP NEWS ANALYSIS</h2>
+    <p>Current Analysis에서 선택한 곡 → 검수된 Fact Sheet → 기사 초안</p>
+  </div>
+  {% if not news_week_compatible %}
+  <p class="weekly-error" role="status">⚠ 현재 차트 주차({{ selected_period_label }})는 기존 기사 Fact Sheet(10/08 종료 주)와 달라.
+    최신 주차의 곡 검수와 Fact Sheet 승인이 끝날 때까지 <strong>새 기사 생성은 중단</strong>하고, 기존 기사 예시만 열람할 수 있어.</p>
+  {% endif %}
+  <p class="news-panel-note">이 페이지의 예전 YouTube 영상 누적 조회수와 공식 주간 Top Songs 조회수는 서로 달라. 기사에는 <strong>검수된 같은 주차의 주간 차트 자료만</strong> 사용할게.</p>
+  <div class="news-selection-summary" aria-live="polite">
+    <p id="news-selected-count">선택한 곡을 확인하는 중…</p>
+    <div class="news-selection-lists">
+      <div><strong>기사에 사용할 검수 완료 곡</strong><ul id="news-approved-list"></ul></div>
+      <div><strong>현재 근거 부족 · 기사 제외</strong><ul id="news-excluded-list"></ul></div>
+    </div>
+  </div>
+  <div class="news-panel-actions">
+    <button type="button" id="news-preview-btn" class="news-saved-button" disabled>🔎 선택한 곡 기사 미리보기 (무료)</button>
+    <button type="button" id="news-generate-btn" class="news-generate-button" disabled>✨ 선택한 곡 AI 기사 생성 (유료)</button>
+    <button type="button" id="news-saved-btn" class="news-saved-button">📄 기존 2곡 수정 기사 예시 (무료)</button>
+    <button type="button" id="news-review-queue-btn" class="news-saved-button">📋 검수 대기곡 근거 확인 (무료)</button>
+  </div>
+  <p id="news-status" class="news-status" role="status" aria-live="polite">승인된 곡이 없으면 생성하지 않아. 기사 출력은 출고 미승인 상태야.</p>
+  <div id="news-review-queue" class="news-review-queue" hidden aria-live="polite"></div>
+  <div id="news-article-output" class="news-article-output" hidden></div>
+  <p id="news-result-source" class="news-result-source"></p>
+</section>
+<script src="/static/news_panel.js" defer></script>
+
+    </main>
+
+
+    <!-- ==================================================
+         Chart.js
+    =================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% if weekly_comparison and not weekly_chart_error %}
+<script>
+(() => {
+  'use strict';
+  const el = document.getElementById('weeklyChartPayload');
+  if (!el || typeof Chart === 'undefined') return;
+  let payload;
+  try { payload = JSON.parse(el.textContent); } catch { return; }
+  function render(canvasId, label, before, after) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: payload.labels,
+        datasets: [
+          {label:'{{ previous_week_start_display }}~{{ previous_week_end }}', data:payload[before]},
+          {label:'{{ current_week_start_display }}~{{ current_week_end }}', data:payload[after]},
+        ],
+      },
+      options: {
+        indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        plugins: {
+          legend:{position:'top'},
+          tooltip:{callbacks:{label:ctx => ctx.raw == null ? '차트 내 자료 없음' :
+            `${ctx.dataset.label}: ${Number(ctx.raw).toLocaleString()}회`}}
+        },
+        scales: {
+          x:{beginAtZero:true, title:{display:true, text:label},
+              ticks:{callback:v => Number(v).toLocaleString()}},
+          y:{title:{display:true,text:'선택한 곡'}}
+        }
+      }
+    });
+  }
+  render('spotifyWeekTrend','Spotify 주간 스트리밍 (회)', 'spotify_previous','spotify_current');
+  render('youtubeWeekTrend','YouTube 공식 주간 곡 조회수 (회)', 'youtube_previous','youtube_current');
+})();
+</script>
+{% endif %}
+</body>
+
+</html>
