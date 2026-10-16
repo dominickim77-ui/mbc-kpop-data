@@ -1,0 +1,5 @@
+Global 두 주간 차트: Animal·SaWaDiKa, Spotify는 200곡·YouTube는 100곡
+
+Global Spotify Charts 기준 2026-09-25~2026-10-01에서 2026-10-02~2026-10-08로 넘어가며 KATSEYE의 ‘Animal’은 Spotify 50위→48위, 주간 스트리밍 12,676,531→12,339,335로 -2.66% 감소했다. LISA의 ‘SaWaDiKa’는 106위→152위, 9,627,318→8,704,202로 -9.59% 줄었다. 출처: Spotify Charts.
+
+YouTube Charts에서는 ‘Animal’이 14위→14위로 유지됐고, 주간 조회수 21,431,122→16,431,213으로 -23.33% 감소했다. ‘SaWaDiKa’는 10위→17위, 23,644,316→15,541,762로 -34.27% 줄었다. Spotify 주간 스트리밍과 YouTube 주간 곡 차트 조회수는 서로 다른 지표이며, 차트 범위도 Spotify 상위 200곡·YouTube 상위 100곡으로 다르다. 출처: YouTube Charts.

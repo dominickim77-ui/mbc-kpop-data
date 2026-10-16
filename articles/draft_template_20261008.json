@@ -1,0 +1,11 @@
+{
+  "mode": "template",
+  "ai_generated": false,
+  "model": null,
+  "review_required": true,
+  "publication_approved": false,
+  "article_status": "DRAFT_NOT_FOR_PUBLICATION",
+  "fact_sheet": "facts/article_ready_fact_sheet_20261008.json",
+  "created_at_utc": "2026-10-16T05:27:58.735860+00:00",
+  "article": "[사전 점검용 고정 기사 · AI 미호출]\n순위 변화와 소비량 변화는 다르다: K-POP 관련 곡의 글로벌 차트 비교\n\n2026년 9월 25일~10월 1일과 10월 2일~8일의 글로벌 주간 차트를 비교했다. KATSEYE의 'Animal'은 Spotify 50→48위(주간 스트리밍 12,676,531→12,339,335회, -2.66%), YouTube 14→14위(주간 조회 21,431,122→16,431,213회, -23.33%)를 기록했다.\n\nLISA의 'SaWaDiKa'는 Spotify 106→152위(주간 스트리밍 9,627,318→8,704,202회, -9.59%), YouTube 10→17위(주간 조회 23,644,316→15,541,762회, -34.27%)를 기록했다. Spotify는 상위 200곡, YouTube는 상위 100곡 차트이며 스트리밍과 조회수는 서로 다른 집계 지표다. 두 곡으로 K-POP 전체의 추세나 원인을 단정할 수 없다. 출처: Spotify Charts(https://charts.spotify.com/), YouTube Charts(https://charts.youtube.com/)."
+}
