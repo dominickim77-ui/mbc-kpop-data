@@ -34,10 +34,11 @@ from pathlib import Path
 from urllib.parse import quote_plus
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, Depends
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from security.analysis_origin import require_local_analysis_origin
 
 # --------------------------------------------------
 # 1. 기본 설정
@@ -506,7 +507,7 @@ def home(
 # --------------------------------------------------
 
 
-@app.post("/add-analysis")
+@app.post("/add-analysis", dependencies=[Depends(require_local_analysis_origin)])
 def add_analysis(
     selected_ranks: list[int] = Form(default=[]),
     search_artist: str = Form(default=""),
@@ -798,7 +799,7 @@ def _add_analysis(selected_ranks: list[int], search_artist: str, week_end: str):
 # --------------------------------------------------
 
 
-@app.post("/remove-analysis/{song_id}")
+@app.post("/remove-analysis/{song_id}", dependencies=[Depends(require_local_analysis_origin)])
 def remove_analysis(song_id: int, week_end: str = Form(default="")):
 
     with _analysis_write_lock:
@@ -819,7 +820,7 @@ def remove_analysis(song_id: int, week_end: str = Form(default="")):
 # --------------------------------------------------
 
 
-@app.post("/reset-analysis")
+@app.post("/reset-analysis", dependencies=[Depends(require_local_analysis_origin)])
 def reset_analysis(week_end: str = Form(default="")):
 
     with _analysis_write_lock:
