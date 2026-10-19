@@ -1,0 +1,15 @@
+{
+  "expected_blob_sha": {
+    "news/news_routes.py": "9770a509c650a2018700d4948984b627af634488",
+    "static/news_panel.js": "45a6951b85fc4e825de0e2885ebdab7d5ce87bec",
+    "templates/index.html": "6d1e87619eb66b68f45c1ceeb5a160ed9e8c9719"
+  },
+  "new_files": [
+    "news/spotify_only_preview.py"
+  ],
+  "modified_files": [
+    "news/news_routes.py",
+    "static/news_panel.js",
+    "templates/index.html"
+  ]
+}

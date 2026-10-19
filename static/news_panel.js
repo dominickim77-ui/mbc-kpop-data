@@ -8,6 +8,7 @@
   const btnPaid = document.getElementById('news-generate-btn');
   const btnSaved = document.getElementById('news-saved-btn');
   const btnReview = document.getElementById('news-review-queue-btn');
+  const btnSpotifyOnly = document.getElementById('news-spotify-only-preview-btn');
   const reviewBox = document.getElementById('news-review-queue');
   const countEl = document.getElementById('news-selected-count');
   const approvedList = document.getElementById('news-approved-list');
@@ -27,6 +28,7 @@
     btnPaid.disabled = flag || !newsWeekCompatible || !selection || !selection.can_generate;
     btnSaved.disabled = flag;
     if (btnReview) btnReview.disabled = flag;
+    if (btnSpotifyOnly) btnSpotifyOnly.disabled = flag;
   }
   function addLine(list, text) {
     const li = document.createElement('li');
@@ -96,7 +98,7 @@
   function showReviewQueue(report) {
     reviewBox.replaceChildren();
     const heading = document.createElement('h3');
-    heading.textContent = `검수 후보표 · ${report.comparison_period.current_end} 종료 주`; 
+    heading.textContent = `검수 후보표 · ${report.comparison_period.current_end} 종료 주`;
     reviewBox.appendChild(heading);
     const note = document.createElement('p');
     note.textContent = `현재 선택 ${report.selected_count}곡 · 원본 CSV 근거 · 자동 승인/유료 호출 없음`;
@@ -177,6 +179,19 @@
       showReviewQueue(report);
       statusEl.textContent = '검수 후보표를 표시했어. 아직 새 곡을 승인하거나 기사에 추가하지 않았어.';
     } catch (e) { statusEl.textContent = `검수 후보 확인 실패: ${e.message}`; }
+    finally { setBusy(false); }
+  });
+  // STEP17A: Spotify-only editorial candidate preview. No AI, no approval.
+  if (btnSpotifyOnly) btnSpotifyOnly.addEventListener('click', async () => {
+    if (busy) return;
+    setBusy(true);
+    statusEl.textContent = 'Spotify 단독 검수 후보의 2주간 수치를 확인하는 중…';
+    try {
+      const result = await requestJson('/api/news/spotify-only-preview' + weekQuery);
+      renderArticle(result.article);
+      sourceEl.textContent = `검수 대기 Fact Sheet: ${result.source} · 유료 AI 미호출 · 최종 출고 미승인`;
+      statusEl.textContent = `Spotify 단독 검수 후보 ${result.candidate_count}곡의 무료 초안을 표시했어. 곡·버전·K-POP 분류 확인 전에는 기사 출고 또는 유료 AI 생성 불가.`;
+    } catch (e) { statusEl.textContent = `Spotify 단독 검수 초안: ${e.message}`; }
     finally { setBusy(false); }
   });
   btnPreview.addEventListener('click', () => runFree('preview'));

@@ -52,6 +52,28 @@ def _public_selection(snapshot):
     }
 
 
+# STEP17A_SPOTIFY_ONLY_PREVIEW: verified-format chart values, draft only.
+@router.get('/spotify-only-preview')
+def spotify_only_preview(week_end: str = ''):
+    from news.chart_data_manager import choose_pair, CatalogError
+    from news.weekly_chart_analysis import ChartValidationError
+    from news.spotify_only_preview import make_spotify_only_preview, SpotifyOnlyPreviewError
+    try:
+        pair, _, _ = choose_pair(root=ROOT, week_end=week_end)
+        if pair is None:
+            raise HTTPException(409, '연속 2주간의 Spotify·YouTube 공식 차트 파일이 준비되지 않았어.')
+        selected = read_current_selection()  # browser cannot inject artist names
+        return make_spotify_only_preview(selected, pair, root=ROOT)
+    except (CatalogError, ChartValidationError, SpotifyOnlyPreviewError) as exc:
+        raise HTTPException(422, str(exc)) from None
+    except HTTPException:
+        raise
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(422, f'Spotify 검수 자료 오류: {exc}') from None
+    except Exception:
+        raise HTTPException(503, '선택곡을 읽지 못했어. MySQL 연결을 확인해 줘.') from None
+
+
 @router.get('/review-candidates')
 def current_review_candidates(week_end: str = ''):
     # STEP16 · read-only candidate evidence; no AI requests or approvals.
