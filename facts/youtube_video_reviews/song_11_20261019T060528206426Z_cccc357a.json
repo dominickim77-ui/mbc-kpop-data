@@ -1,0 +1,32 @@
+{
+  "status": "VIDEO_IDENTITY_REVIEW",
+  "db_status": "DB_STORED",
+  "song_id": 11,
+  "artist": "The Weeknd, JENNIE, Lily-Rose Depp",
+  "track": "One Of The Girls (with JENNIE, Lily Rose Depp)",
+  "video_id": "Mx92lTYxrJQ",
+  "video_title": "The Weeknd, JENNIE, Lily-Rose Depp - One Of The Girls (Official Video)",
+  "youtube_channel": "TheWeekndVEVO",
+  "channel_id": "UCF_fDSgPpBQuh1MsUTgIARQ",
+  "approved_at_utc": "2026-10-19T06:05:28.206426+00:00",
+  "week_end": "2026-10-08",
+  "manually_checked_channel": true,
+  "manually_checked_track_version": true,
+  "cumulative_view_count": 383883052,
+  "youtube_metric": "INDIVIDUAL_VIDEO_LIFETIME",
+  "publication_approved": false,
+  "original_candidate": {
+    "video_id": "Mx92lTYxrJQ",
+    "title": "The Weeknd, JENNIE, Lily-Rose Depp - One Of The Girls (Official Video)",
+    "channel_title": "TheWeekndVEVO",
+    "channel_id": "UCF_fDSgPpBQuh1MsUTgIARQ",
+    "published_at": "2023-07-06T14:00:13Z",
+    "cumulative_views": 383883052,
+    "cumulative_likes": 3242826,
+    "cumulative_comments": 47056,
+    "video_url": "https://www.youtube.com/watch?v=Mx92lTYxrJQ",
+    "source": "SEARCH_RESULT",
+    "review_hint": "버전·채널 확인 필요",
+    "status": "PENDING_HUMAN_REVIEW"
+  }
+}
