@@ -734,14 +734,20 @@ def _add_analysis(selected_ranks: list[int], search_artist: str, week_end: str):
                 ),
             )
 
-            # KPOP_YOUTUBE_VIDEO_HUMAN_REVIEW_STEP17B
-            # A search hit cannot prove official video identity.
-            # Spotify chart/track writes remain unchanged. YouTube is PENDING.
-            # The operator searches/approves candidates separately in YouTube Data.
-            pending_messages.append(
-                f"{artist} - {track}: YouTube 영상은 아직 검수 전이야. "
-                "YouTube Data에서 후보를 직접 확인해 줘."
-            )
+            # Keep the notice consistent with the existing STEP18 ACTIVE authority.
+            # This read never collects statistics or changes approval records.
+            from news.youtube_approval_lock import latest_approved
+            active_approval = latest_approved(BASE_DIR / "facts" / "youtube_video_reviews", song_id)
+            if active_approval is not None:
+                pending_messages.append(
+                    f"{artist} - {track}: 기존 ACTIVE 승인 영상"
+                    f"({active_approval['video_id']})을 유지했어."
+                )
+            else:
+                pending_messages.append(
+                    f"{artist} - {track}: YouTube 영상은 아직 검수 전이야. "
+                    "YouTube Data에서 후보를 직접 확인해 줘."
+                )
 
             # --------------------------------------------------
             # Current Analysis에 곡 추가

@@ -189,6 +189,50 @@ class AnalysisTransactionTests(OfflineCase):
         with patch.object(site, 'get_db_connection', return_value=db):
             return site.add_analysis(selected_ranks=ranks, search_artist='', week_end='2026-10-08')
 
+    def test_active_approval_notice_matches_existing_video(self):
+        db = FakeDB()
+        db.ids[('Artist1', 'Track1')] = 5
+        active = {'video_id': 'm7k9UMcHbr0'}
+        with patch('news.youtube_approval_lock.latest_approved', return_value=active):
+            result = self.add(db, [1])
+        message = unquote_plus(result.headers['location'])
+        self.assertTrue(db.committed)
+        self.assertEqual(site.analysis_song_ids, [7, 5])
+        self.assertIn('기존 ACTIVE 승인 영상(m7k9UMcHbr0)을 유지했어', message)
+        self.assertNotIn('YouTube 영상은 아직 검수 전이야', message)
+
+    def test_unapproved_track_retains_existing_review_notice(self):
+        db = FakeDB()
+        with patch('news.youtube_approval_lock.latest_approved', return_value=None):
+            result = self.add(db, [1])
+        message = unquote_plus(result.headers['location'])
+        self.assertTrue(db.committed)
+        self.assertIn('YouTube 영상은 아직 검수 전이야', message)
+        self.assertIn('YouTube Data에서 후보를 직접 확인해 줘', message)
+        self.assertNotIn('기존 ACTIVE 승인 영상', message)
+
+    def test_corrupt_active_history_rolls_back_without_publishing_notice(self):
+        from news.youtube_approval_lock import ApprovalIntegrityError
+        db = FakeDB()
+        with patch('news.youtube_approval_lock.latest_approved',
+                   side_effect=ApprovalIntegrityError('TEST CORRUPT APPROVAL')):
+            result = self.add(db, [1])
+        self.assertTrue(db.rolled_back)
+        self.assertFalse(db.committed)
+        self.assertEqual(site.analysis_song_ids, [7])
+        message = unquote_plus(result.headers['location'])
+        self.assertNotIn('기존 ACTIVE 승인 영상', message)
+        self.assertNotIn('Analysis에 추가했습니다', message)
+
+    def test_failed_commit_does_not_publish_active_approval_notice(self):
+        db = FakeDB(fail_commit=True)
+        with patch('news.youtube_approval_lock.latest_approved',
+                   return_value={'video_id': 'm7k9UMcHbr0'}):
+            result = self.add(db, [1])
+        self.assertTrue(db.rolled_back)
+        self.assertEqual(site.analysis_song_ids, [7])
+        self.assertNotIn('기존 ACTIVE 승인 영상', unquote_plus(result.headers['location']))
+
     def test_commit_failure_preserves_selection_and_no_success_message(self):
         db = FakeDB(fail_commit=True)
         result = self.add(db, [1, 2])
