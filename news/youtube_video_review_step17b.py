@@ -199,6 +199,12 @@ def video_review_status(song_id: int, current_video_id: str | None) -> str:
 def get_candidates(request: Request, song_id: int, week_end: str = ''):
     _require_local_request(request)
     track = _get_selected_track(song_id)
+    # STEP18_APPROVAL_LOCK_V1: show lock without querying YouTube again.
+    from news.youtube_approval_lock import latest_approved, ApprovalIntegrityError
+    try:
+        existing_approval = latest_approved(REVIEW_DIR, song_id)
+    except ApprovalIntegrityError as exc:
+        raise HTTPException(409, str(exc)) from None
     from news.chart_data_manager import choose_pair, CatalogError
     try:
         pair, _, _ = choose_pair(root=ROOT, week_end=week_end)
@@ -217,7 +223,9 @@ def get_candidates(request: Request, song_id: int, week_end: str = ''):
             if obj['song_id'] == song_id and obj['week_end'] == week_end:
                 return dict(song_id=song_id, artist=track['artist'], track=track['track'],
                             review_token=token, candidates=obj['candidates'], cached=True,
-                            approval_required=True, statistics_kind='INDIVIDUAL_VIDEO_LIFETIME')
+                            approval_required=True, statistics_kind='INDIVIDUAL_VIDEO_LIFETIME',
+                            approval_locked=existing_approval is not None,
+                            approved_video_id=existing_approval['video_id'] if existing_approval else None)
     query = f"{track['artist']} {track['track']} official music video"
     search = _youtube_json('search', {'part': 'snippet', 'q': query,
                                       'type': 'video', 'maxResults': 5, 'key': key})
@@ -247,7 +255,9 @@ def get_candidates(request: Request, song_id: int, week_end: str = ''):
                                 candidates=candidates)
     return dict(song_id=song_id, artist=track['artist'], track=track['track'],
                 review_token=token, candidates=candidates, cached=False,
-                approval_required=True, statistics_kind='INDIVIDUAL_VIDEO_LIFETIME')
+                approval_required=True, statistics_kind='INDIVIDUAL_VIDEO_LIFETIME',
+                            approval_locked=existing_approval is not None,
+                            approved_video_id=existing_approval['video_id'] if existing_approval else None)
 
 
 class ApproveRequest(BaseModel):
@@ -268,6 +278,18 @@ def approve_video(request: Request, body: ApproveRequest):
         raise HTTPException(422, '공식 채널·곡 버전·누적 조회수 조건을 직접 확인해야 합니다.')
     if not VIDEO_ID.fullmatch(body.video_id):
         raise HTTPException(422, '유효하지 않은 YouTube Video ID입니다.')
+    # STEP18_APPROVAL_LOCK_V1: never silently replace a manually approved Video ID.
+    from news.youtube_approval_lock import latest_approved, ApprovalIntegrityError
+    try:
+        approved = latest_approved(REVIEW_DIR, body.song_id)
+    except ApprovalIntegrityError as exc:
+        raise HTTPException(409, str(exc)) from None
+    if approved is not None:
+        if approved['video_id'] == body.video_id:
+            raise HTTPException(409, '이 Video ID는 이미 승인됐어. 중복 저장하지 않아.')
+        raise HTTPException(409,
+            f"이미 승인된 영상({approved['video_id']}; {approved['channel']})이 있어. "
+            '다른 영상으로 바꾸려면 기존 승인을 정정하는 별도 검수 절차가 필요해.')
     with _cache_lock:
         _prune_cache(time.monotonic())
         session = _sessions.get(body.review_token)

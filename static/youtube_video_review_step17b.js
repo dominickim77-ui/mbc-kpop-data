@@ -34,6 +34,7 @@
   function show(data) {
     box.replaceChildren(); session = data;
     box.append(textElement('p', `${data.artist} — ${data.track} | 영상 후보 ${data.candidates.length}개 | 자동 승인 없음`));
+    if (data.approval_locked) box.append(textElement('p', `🔒 이미 승인된 Video ID: ${data.approved_video_id}. 다른 후보의 신규 승인은 잠겨 있어. 정정 절차가 필요해.`, 'yt17-warning'));
     box.append(textElement('p', '아래의 누적 조회수는 개별 영상의 현재 누적 수치이며 YouTube 주간 곡 차트 조회수가 아닙니다.', 'yt17-warning'));
     const choices = document.createElement('div'); choices.className = 'yt17-choices';
     for (const [idx, entry] of data.candidates.entries()) {
@@ -59,6 +60,7 @@
     box.append(checks);
     const approve = document.createElement('button'); approve.type = 'button'; approve.textContent = '✅ 확인한 Video ID 승인·저장';
     approve.className = 'yt17-approve';
+    approve.disabled = Boolean(data.approval_locked);
     approve.addEventListener('click', async () => {
       if (busy) return;
       const checked = box.querySelector('input[name="yt17-video"]:checked');
