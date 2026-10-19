@@ -24,6 +24,7 @@
 import os
 import html
 import requests
+import threading
 
 import pandas as pd
 import mysql.connector
@@ -71,6 +72,7 @@ CHART_DATE = "2026-10-01"
 # --------------------------------------------------
 
 analysis_song_ids = []
+_analysis_write_lock = threading.Lock()
 
 
 # --------------------------------------------------
@@ -510,6 +512,12 @@ def add_analysis(
     search_artist: str = Form(default=""),
     week_end: str = Form(default=""),
 ):
+    # Serialize selection mutations until the DB transaction is resolved.
+    with _analysis_write_lock:
+        return _add_analysis(selected_ranks, search_artist, week_end)
+
+
+def _add_analysis(selected_ranks: list[int], search_artist: str, week_end: str):
 
     # --------------------------------------------------
     # 12-1. 아무 곡도 선택하지 않은 경우
@@ -576,6 +584,8 @@ def add_analysis(
         current_artists = {row["artist"] for row in cursor.fetchall()}
 
     messages = []
+    pending_song_ids = []
+    pending_messages = []
 
     try:
 
@@ -589,7 +599,7 @@ def add_analysis(
             # Track 최대 10곡 제한
             # --------------------------------------------------
 
-            if len(analysis_song_ids) >= MAX_TRACKS:
+            if len(analysis_song_ids) + len(pending_song_ids) >= MAX_TRACKS:
 
                 messages.append("Track은 최대 10곡까지 " "비교할 수 있습니다.")
 
@@ -660,7 +670,7 @@ def add_analysis(
             # 이미 Current Analysis에 있는 곡
             # --------------------------------------------------
 
-            if song_id in analysis_song_ids:
+            if song_id in analysis_song_ids or song_id in pending_song_ids:
 
                 messages.append(f"{artist} - {track}은 " "이미 Analysis에 있습니다.")
 
@@ -726,7 +736,7 @@ def add_analysis(
             # A search hit cannot prove official video identity.
             # Spotify chart/track writes remain unchanged. YouTube is PENDING.
             # The operator searches/approves candidates separately in YouTube Data.
-            messages.append(
+            pending_messages.append(
                 f"{artist} - {track}: YouTube 영상은 아직 검수 전이야. "
                 "YouTube Data에서 후보를 직접 확인해 줘."
             )
@@ -735,17 +745,19 @@ def add_analysis(
             # Current Analysis에 곡 추가
             # --------------------------------------------------
 
-            analysis_song_ids.append(song_id)
+            pending_song_ids.append(song_id)
 
             current_artists.add(artist)
 
-            messages.append(f"{artist} - {track}을 " "Analysis에 추가했습니다.")
+            pending_messages.append(f"{artist} - {track}을 " "Analysis에 추가했습니다.")
 
         # --------------------------------------------------
         # DB 최종 저장
         # --------------------------------------------------
 
         connection.commit()
+        analysis_song_ids.extend(pending_song_ids)
+        messages.extend(pending_messages)
 
     except Exception as error:
 
@@ -789,9 +801,9 @@ def add_analysis(
 @app.post("/remove-analysis/{song_id}")
 def remove_analysis(song_id: int, week_end: str = Form(default="")):
 
-    if song_id in analysis_song_ids:
-
-        analysis_song_ids.remove(song_id)
+    with _analysis_write_lock:
+        if song_id in analysis_song_ids:
+            analysis_song_ids.remove(song_id)
 
     return RedirectResponse(
         url='/?week_end=' + quote_plus(week_end),
@@ -810,7 +822,8 @@ def remove_analysis(song_id: int, week_end: str = Form(default="")):
 @app.post("/reset-analysis")
 def reset_analysis(week_end: str = Form(default="")):
 
-    analysis_song_ids.clear()
+    with _analysis_write_lock:
+        analysis_song_ids.clear()
 
     return RedirectResponse(
         url='/?week_end=' + quote_plus(week_end),

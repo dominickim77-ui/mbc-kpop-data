@@ -60,7 +60,44 @@ def selected_snapshot(selected_rows: list[dict], facts: dict) -> dict:
 def load_verified_facts() -> dict:
     facts = json.loads(FACT_PATH.read_text(encoding='utf-8'))
     check_fact_sheet(facts)
+    _check_source_charts(facts)
     return facts
+
+
+def _check_source_charts(facts: dict) -> None:
+    """Recheck approved article evidence against all four read-only weekly CSVs."""
+    from news.chart_data_manager import choose_pair
+    from news.weekly_chart_analysis import read_chart, song_key
+
+    try:
+        pair, _, _ = choose_pair(root=ROOT, week_end=facts['week_current']['end'])
+        if pair is None or (
+            facts['week_previous'] != {
+                'start': pair.previous_start.isoformat(), 'end': pair.previous_end.isoformat()}
+            or facts['week_current'] != {
+                'start': pair.current_start.isoformat(), 'end': pair.current_end.isoformat()}
+        ):
+            raise SelectionError('기사 기간과 일치하는 연속 2주 원본 차트가 없습니다.')
+        sources = {
+            name: read_chart(ROOT, path, 'spotify' if name.startswith('spotify') else 'youtube')
+            for name, path in pair.files.items()
+        }
+        for track in facts['analysis_tracks']:
+            key = song_key(track['artist'], track['track_name'])
+            for platform, metric in (('spotify', 'streams'), ('youtube', 'views')):
+                for period in ('previous', 'current'):
+                    hits = sources[f'{platform}_{period}'].get(key, [])
+                    approved = track[platform]
+                    if (len(hits) != 1
+                        or hits[0]['rank'] != approved[f'{period}_rank']
+                        or hits[0]['amount'] != approved[f'{period}_week_{metric}']):
+                        raise SelectionError(
+                            f"{track['track_name']}: {platform} {period} 원본 CSV와 "
+                            '기사 Fact Sheet가 일치하지 않거나 곡을 하나로 식별할 수 없습니다.')
+    except SelectionError:
+        raise
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise SelectionError(f'기사 원본 차트 검증 실패: {exc}') from None
 
 
 def read_current_selection() -> list[dict]:
@@ -86,6 +123,8 @@ def read_current_selection() -> list[dict]:
 def evidence_for_selected(facts: dict, snapshot: dict) -> dict:
     if not snapshot['approved_tracks']:
         raise SelectionError('선택된 곡 중 검증된 주간 양쪽 차트 근거가 없습니다. 검수가 완료된 Animal 또는 SaWaDiKa를 선택해 주세요.')
+    # Shared preview/paid boundary: do not rely on a browser warning to block generation.
+    _check_source_charts(facts)
     return {
         'region': facts['region'],
         'week_previous': facts['week_previous'],

@@ -134,7 +134,10 @@ class Step17BTests(unittest.TestCase):
                 self.assertTrue(fake_db.committed)
                 self.assertEqual(len(fake_db.cursor_obj.calls),1)
                 self.assertEqual(review.video_review_status(7,'m7k9UMcHbr0'),'MANUALLY_APPROVED')
-                self.assertEqual(review.video_review_status(7,'AAAAAAAAAAA'),'LEGACY_UNVERIFIED')
+                # A different video is superseded when this song has an ACTIVE approval.
+                self.assertEqual(review.video_review_status(7,'AAAAAAAAAAA'),'SUPERSEDED_REVIEW')
+                # A song without any approval retains the legacy unverified state.
+                self.assertEqual(review.video_review_status(8,'AAAAAAAAAAA'),'LEGACY_UNVERIFIED')
                 files=list(Path(folder).glob('*.json'))
                 self.assertEqual(len(files),1)
                 self.assertFalse(json.loads(files[0].read_text(encoding='utf-8'))['publication_approved'])
