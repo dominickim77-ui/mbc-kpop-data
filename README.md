@@ -861,3 +861,5 @@ Windows AMD64 / CPython 3.14.7 기준이며 기존 환경을 덮어쓰지 않는
 - [현행 회귀 테스트와 과거 설치 검증 구분](docs/testing.md)
 - [DB 스키마 재현](docs/database_reproduction.md)
 - [분석 요청 출처 보호](docs/analysis_request_origin.md)
+- [STEP19 최종 통합 점검 결과와 남은 과제](docs/step19_final_audit.md)
+- [STEP20 인수인계와 후속 검증 순서](docs/step20_handover.md)
