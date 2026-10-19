@@ -53,6 +53,10 @@ def latest_approved(review_dir: Path, song_id: int) -> dict | None:
         except (OSError, ValueError, TypeError, KeyError) as exc:
             raise ApprovalIntegrityError(f"검수 기록 {path.name}에 문제가 있어 승인 변경을 중단했어: {exc}") from None
     if not candidates:
-        return None
-    _, _, video_id, channel, title = max(candidates)
-    return dict(video_id=video_id, channel=channel, title=title)
+        original_latest = None
+    else:
+        _, _, video_id, channel, title = max(candidates)
+        original_latest = dict(video_id=video_id, channel=channel, title=title)
+    # STEP18_CORRECTION: append-only human correction is the shared authority.
+    from news.youtube_active_corrections import resolve_active_approval
+    return resolve_active_approval(root, song_id, original_latest)

@@ -180,19 +180,19 @@ def _detail_list(video_ids: list[str], api_key: str) -> list[dict]:
 
 
 def video_review_status(song_id: int, current_video_id: str | None) -> str:
-    """An old DB row is not approved merely because it exists."""
+    """Only the ACTIVE reviewed video may be displayed as MANUALLY_APPROVED."""
     if not current_video_id or not VIDEO_ID.fullmatch(str(current_video_id)):
         return 'PENDING_NO_VIDEO'
-    if not REVIEW_DIR.is_dir():
+    from news.youtube_approval_lock import latest_approved, ApprovalIntegrityError
+    try:
+        active = latest_approved(REVIEW_DIR, int(song_id))
+    except ApprovalIntegrityError:
+        return 'REVIEW_RECORD_ERROR'
+    if active is None:
         return 'LEGACY_UNVERIFIED'
-    for path in sorted(REVIEW_DIR.glob(f'song_{song_id}_*.json'), reverse=True):
-        try:
-            record = json.loads(path.read_text(encoding='utf-8'))
-            if record.get('db_status') == 'DB_STORED' and record.get('video_id') == current_video_id:
-                return 'MANUALLY_APPROVED'
-        except (OSError, ValueError):
-            continue
-    return 'LEGACY_UNVERIFIED'
+    if active['video_id'] == str(current_video_id):
+        return 'MANUALLY_APPROVED'
+    return 'SUPERSEDED_REVIEW'
 
 
 @router.get('/candidates')

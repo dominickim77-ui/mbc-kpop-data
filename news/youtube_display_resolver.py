@@ -12,94 +12,28 @@ from pathlib import Path
 
 
 def apply_approved_youtube_videos(rows, cursor, root):
+    """Show only the single currently ACTIVE reviewed Video ID (no writes)."""
+    from news.youtube_approval_lock import latest_approved
+
     review_dir = Path(root) / "facts" / "youtube_video_reviews"
-    approvals = {}
-
-    # 1. Read manual review records
-    for path in review_dir.glob("song_*.json"):
-        try:
-            record = json.loads(
-                path.read_text(encoding="utf-8")
-            )
-
-            if record.get("status") != "VIDEO_IDENTITY_REVIEW":
-                continue
-
-            if record.get("db_status") != "DB_STORED":
-                continue
-
-            if record.get("manually_checked_channel") is not True:
-                continue
-
-            if record.get("manually_checked_track_version") is not True:
-                continue
-
-            song_id = int(record["song_id"])
-            video_id = record["video_id"]
-
-            if not re.fullmatch(r"[A-Za-z0-9_-]{11}", video_id):
-                continue
-
-            candidate = record.get("original_candidate") or {}
-
-            if candidate.get("video_id") != video_id:
-                continue
-
-            if candidate.get("channel_id") != record.get("channel_id"):
-                continue
-
-            approved_at = datetime.fromisoformat(
-                record["approved_at_utc"].replace("Z", "+00:00")
-            )
-
-            if approved_at.tzinfo is None:
-                continue
-
-            approved_at = approved_at.astimezone(timezone.utc)
-
-            previous = approvals.get(song_id)
-
-            if previous is None or approved_at > previous[0]:
-                approvals[song_id] = (approved_at, video_id)
-
-        except (OSError, ValueError, TypeError, KeyError):
-            continue
-
-    # 2. Resolve the approved video for each selected song
     for row in rows:
         row["youtube_video_review_status"] = "UNREVIEWED"
-
-        approved = approvals.get(int(row["song_id"]))
-
-        if approved is None:
+        active = latest_approved(review_dir, int(row["song_id"]))
+        if active is None:
             continue
-
-        approved_video_id = approved[1]
-
-        # Read-only SQL: no INSERT, UPDATE, or DELETE
         cursor.execute(
-            """
-            SELECT
-                youtube_video_id,
-                youtube_title,
-                youtube_channel,
-                youtube_views,
-                youtube_likes,
-                youtube_comments,
-                collected_at
-            FROM youtube_stats
-            WHERE song_id = %s
-              AND youtube_video_id = %s
-            ORDER BY youtube_id DESC
-            LIMIT 1
-            """,
-            (row["song_id"], approved_video_id),
+            """SELECT youtube_video_id, youtube_title, youtube_channel,
+                      youtube_views, youtube_likes, youtube_comments, collected_at
+               FROM youtube_stats
+               WHERE song_id = %s AND youtube_video_id = %s
+               ORDER BY youtube_id DESC LIMIT 1""",
+            (int(row["song_id"]), active["video_id"]),
         )
-
-        matching_video = cursor.fetchone()
-
-        if matching_video is not None:
-            row.update(matching_video)
-            row["youtube_video_review_status"] = "APPROVED"
-
+        matched = cursor.fetchone()
+        if matched is None or matched["youtube_video_id"] != active["video_id"]:
+            # Keep historical row for diagnosis, but never label it approved.
+            row["youtube_video_review_status"] = "REVIEW_DATA_MISMATCH"
+            continue
+        row.update(matched)
+        row["youtube_video_review_status"] = "APPROVED"
     return rows

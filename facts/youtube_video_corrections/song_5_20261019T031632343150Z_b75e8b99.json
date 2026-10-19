@@ -1,0 +1,20 @@
+{
+  "status": "ACTIVE_VIDEO_CORRECTION",
+  "song_id": 5,
+  "recorded_at_utc": "2026-10-19T03:16:32.343150+00:00",
+  "human_confirmed": true,
+  "previous_active_video_id": "SyLtYUk9Ogg",
+  "active_video_id": "m7k9UMcHbr0",
+  "active_channel": "HYBE LABELS",
+  "active_channel_id": "UC3IZKseVpdzPSBaWxBxundA",
+  "active_title": "KATSEYE (캣츠아이) \"Animal\" Official MV",
+  "source_approval_file": "song_5_20261019T014249264489Z_9920b8e0.json",
+  "source_approval_sha256": "76403403e544bfe5853287812dc8dc49e9eef0b2e1282fa7f38792268380b59f",
+  "invalidated_video_ids": [
+    "SyLtYUk9Ogg",
+    "j84h0XW8rMs"
+  ],
+  "reason": "잘못 승인된 가사 영상 둘을 무효화하고 HYBE LABELS 공식 MV를 ACTIVE로 복원",
+  "db_modified": false,
+  "publication_approved": false
+}
