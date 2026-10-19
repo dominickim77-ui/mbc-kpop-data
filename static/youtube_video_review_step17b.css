@@ -1,0 +1,17 @@
+/* STEP 17B: local manual verification surface (inherits project typography). */
+#youtube-review-step17b { margin-top: 1.5rem; padding: 1.1rem; border:1px solid #ddd8e8; border-radius:12px; background:#faf9fd; }
+#youtube-review-step17b h3 { margin: 0 0 .5rem; }
+#youtube-review-step17b p { line-height:1.6; }
+#youtube-review-step17b .yt17-toolbar { display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; margin:1rem 0; }
+#youtube-review-step17b select { max-width:100%; padding:.55rem; border:1px solid #d6d3df; border-radius:6px; }
+#youtube-review-step17b button { background:#191919; color:white; border:0; border-radius:7px; padding:.55rem .85rem; cursor:pointer; }
+#youtube-review-step17b button:disabled { opacity:.5; cursor:wait; }
+#youtube-review-step17b .yt17-candidate { display:flex; gap:.65rem; padding:.8rem; border:1px solid #dedce7; margin:.45rem 0; border-radius:8px; background:white; }
+#youtube-review-step17b .yt17-candidate div { min-width:0; display:flex; flex-direction:column; gap:.3rem; }
+#youtube-review-step17b .yt17-candidate strong { overflow-wrap:anywhere; }
+#youtube-review-step17b .yt17-candidate small { color:#565467; line-height:1.5; }
+#youtube-review-step17b .yt17-checks { display:grid; gap:.55rem; margin:1rem 0; }
+#youtube-review-step17b .yt17-check { display:flex; gap:.5rem; align-items:flex-start; }
+#youtube-review-step17b .yt17-warning { color:#8a4c13; }
+#youtube-review-step17b .yt17-success { color:#137345; }
+#youtube-review-step17b .yt17-approve { background:#60359a; }

@@ -104,6 +104,8 @@ app = FastAPI()
 # KPOP_NEWS_INLINE_V1: 새 뉴스 라우터만 추가 (기존 라우트 변경 없음)
 from news.news_routes import router as news_router
 app.include_router(news_router)
+from news.youtube_video_review_step17b import router as youtube_identity_router
+app.include_router(youtube_identity_router)  # KPOP_YOUTUBE_VIDEO_HUMAN_REVIEW_STEP17B
 
 # KPOP_WEEKLY_CHARTS_STEP12: read official weekly CSVs for Compare/Accumulated Analysis
 from news.weekly_chart_analysis import build_weekly_rows, weekly_chart_data, ChartValidationError, song_key
@@ -239,7 +241,7 @@ def get_dashboard_data():
             )
 
         -- 각 곡의 가장 최근 YouTube 기록
-        JOIN youtube_stats AS y
+        LEFT JOIN youtube_stats AS y
             ON t.song_id = y.song_id
 
             AND y.collected_at = (
@@ -252,6 +254,10 @@ def get_dashboard_data():
         """)
 
     dashboard_data = cursor.fetchall()
+    from news.youtube_video_review_step17b import video_review_status
+    for _record in dashboard_data:
+        _record["youtube_review_status"] = video_review_status(
+            int(_record["song_id"]), _record.get("youtube_video_id"))
 
     cursor.close()
     connection.close()
@@ -361,7 +367,7 @@ def home(
 
     youtube_data = sorted(
         analysis_data,
-        key=lambda item: item["youtube_views"],
+        key=lambda item: int(item.get("youtube_views") or -1),
         reverse=True,
     )
 
@@ -706,153 +712,13 @@ def add_analysis(
                 ),
             )
 
-            # --------------------------------------------------
-            # YouTube 검색
-            # --------------------------------------------------
-
-            query = f"{artist} " f"{track} " "official"
-
-            search_response = requests.get(
-                "https://www.googleapis.com/youtube/v3/search",
-                params={
-                    "part": "snippet",
-                    "q": query,
-                    "type": "video",
-                    "maxResults": 1,
-                    "key": YOUTUBE_API_KEY,
-                },
-                timeout=10,
-            )
-
-            search_data = search_response.json()
-
-            # --------------------------------------------------
-            # YouTube 검색 결과가 없는 경우
-            # --------------------------------------------------
-
-            if not search_data.get("items"):
-
-                messages.append(
-                    f"{artist} - {track}: " "YouTube 영상을 찾지 못했습니다."
-                )
-
-                continue
-
-            video = search_data["items"][0]
-
-            youtube_video_id = video["id"]["videoId"]
-
-            youtube_title = html.unescape(video["snippet"]["title"])
-
-            youtube_channel = video["snippet"]["channelTitle"]
-
-            # --------------------------------------------------
-            # YouTube 영상 통계 요청
-            # --------------------------------------------------
-
-            stats_response = requests.get(
-                "https://www.googleapis.com/youtube/v3/videos",
-                params={
-                    "part": "statistics",
-                    "id": youtube_video_id,
-                    "key": YOUTUBE_API_KEY,
-                },
-                timeout=10,
-            )
-
-            stats_data = stats_response.json()
-
-            if not stats_data.get("items"):
-
-                messages.append(
-                    f"{artist} - {track}: " "YouTube 통계를 찾지 못했습니다."
-                )
-
-                continue
-
-            stats = stats_data["items"][0]["statistics"]
-
-            youtube_views = int(
-                stats.get(
-                    "viewCount",
-                    0,
-                )
-            )
-
-            youtube_likes = int(
-                stats.get(
-                    "likeCount",
-                    0,
-                )
-            )
-
-            youtube_comments = int(
-                stats.get(
-                    "commentCount",
-                    0,
-                )
-            )
-
-            # --------------------------------------------------
-            # YouTube DB 저장
-            #
-            # 같은 video_id + collected_at이면
-            # 기존 행을 UPDATE한다.
-            #
-            # 새로운 시간에 다시 검색하면
-            # 새로운 시점의 기록으로 저장된다.
-            # --------------------------------------------------
-
-            cursor.execute(
-                """
-                INSERT INTO youtube_stats (
-                    song_id,
-                    youtube_video_id,
-                    youtube_title,
-                    youtube_channel,
-                    youtube_views,
-                    youtube_likes,
-                    youtube_comments,
-                    collected_at
-                )
-
-                VALUES (
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s
-                )
-
-                ON DUPLICATE KEY UPDATE
-                    youtube_title =
-                        VALUES(youtube_title),
-
-                    youtube_channel =
-                        VALUES(youtube_channel),
-
-                    youtube_views =
-                        VALUES(youtube_views),
-
-                    youtube_likes =
-                        VALUES(youtube_likes),
-
-                    youtube_comments =
-                        VALUES(youtube_comments)
-                """,
-                (
-                    song_id,
-                    youtube_video_id,
-                    youtube_title,
-                    youtube_channel,
-                    youtube_views,
-                    youtube_likes,
-                    youtube_comments,
-                    collected_at,
-                ),
+            # KPOP_YOUTUBE_VIDEO_HUMAN_REVIEW_STEP17B
+            # A search hit cannot prove official video identity.
+            # Spotify chart/track writes remain unchanged. YouTube is PENDING.
+            # The operator searches/approves candidates separately in YouTube Data.
+            messages.append(
+                f"{artist} - {track}: YouTube 영상은 아직 검수 전이야. "
+                "YouTube Data에서 후보를 직접 확인해 줘."
             )
 
             # --------------------------------------------------
@@ -983,8 +849,8 @@ def youtube_page(request: Request):
     dashboard_data = get_dashboard_data()
 
     youtube_data = sorted(
-        dashboard_data,
-        key=lambda item: item["youtube_views"],
+        [item for item in dashboard_data if item.get("youtube_video_id")],
+        key=lambda item: int(item.get("youtube_views") or -1),
         reverse=True,
     )
 

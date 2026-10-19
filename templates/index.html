@@ -13,6 +13,7 @@
     static 폴더의 CSS 파일 연결
     -->
     <link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/youtube_video_review_step17b.css">
 </head>
 
 
@@ -419,6 +420,7 @@
                         <th>Likes</th>
                         <th>Comments</th>
                         <th>Channel</th>
+                        <th>영상 확인</th>
                     </tr>
                 </thead>
 
@@ -438,27 +440,30 @@
                         </td>
 
                         <td>
-                            {{ "{:,}".format(
-                            item.youtube_views
-                            ) }}
+                            {{ "{:,}".format(item.youtube_views) if item.youtube_views is not none else "—" }}
                         </td>
 
                         <td>
-                            {{ "{:,}".format(
-                            item.youtube_likes
-                            ) }}
+                            {{ "{:,}".format(item.youtube_likes) if item.youtube_likes is not none else "—" }}
                         </td>
 
                         <td>
-                            {{ "{:,}".format(
-                            item.youtube_comments
-                            ) }}
+                            {{ "{:,}".format(item.youtube_comments) if item.youtube_comments is not none else "—" }}
                         </td>
 
                         <td>
-                            {{ item.youtube_channel }}
+                            {{ item.youtube_channel or "—" }}
                         </td>
 
+                        <td>
+                            {% if item.youtube_review_status == 'MANUALLY_APPROVED' %}
+                            ✅ 확인한 영상
+                            {% elif item.youtube_video_id %}
+                            ⚠ 기존 자동 연결 · 미검수
+                            {% else %}
+                            검수 대기
+                            {% endif %}
+                        </td>
                     </tr>
 
                     {% endfor %}
@@ -467,7 +472,25 @@
 
             </table>
 
-        </section>
+        
+        <!-- KPOP_YOUTUBE_VIDEO_HUMAN_REVIEW_STEP17B -->
+        <div id="youtube-review-step17b" data-week-end="{{ selected_week_end }}">
+            <h3>🔍 YouTube 영상 ID · 공식 채널 검수</h3>
+            <p>기존 자동 검색 영상은 공식 MV로 승인된 것이 아니야. 새로 추가한 곡은 YouTube 연결을 보류해. 직접 확인한 영상만 승인·기록할 수 있어.</p>
+            <p class="yt17-warning">영상 후보 조회 시 YouTube Data API 할당량이 사용돼. 이 영상의 누적 조회수는 YouTube Global Weekly Top Songs의 주간 조회수가 아니야.</p>
+            <div class="yt17-toolbar">
+                <label for="yt17-song">검수할 곡</label>
+                <select id="yt17-song" aria-label="YouTube 영상 후보를 확인할 선택곡">
+                    {% for item in current_analysis %}
+                    <option value="{{ item.song_id }}">{{ item.artist }} — {{ item.track }}</option>
+                    {% endfor %}
+                </select>
+                <button type="button" id="yt17-search" {% if not current_analysis %}disabled{% endif %}>영상 후보 확인 (API 할당량 사용)</button>
+            </div>
+            <p id="yt17-status" role="status" aria-live="polite">자동 승인 없음. 공식 채널·곡 버전을 직접 확인하기 전에는 저장하지 않아.</p>
+            <div id="yt17-candidates" hidden></div>
+        </div>
+</section>
 
 
         <!-- STEP12 · CURRENT SELECTION, VERIFIED GLOBAL WEEKLY CSV -->
@@ -637,6 +660,7 @@
 })();
 </script>
 {% endif %}
+<script src="/static/youtube_video_review_step17b.js" defer></script>
 </body>
 
 </html>
