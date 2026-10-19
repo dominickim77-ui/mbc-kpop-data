@@ -1,0 +1,32 @@
+{
+  "status": "VIDEO_IDENTITY_REVIEW",
+  "db_status": "DB_STORED",
+  "song_id": 5,
+  "artist": "KATSEYE",
+  "track": "Animal",
+  "video_id": "SyLtYUk9Ogg",
+  "video_title": "KATSEYE - Animal (Lyrics)",
+  "youtube_channel": "Vibe Music",
+  "channel_id": "UChO8h2G8UjOVc081rgYU8XQ",
+  "approved_at_utc": "2026-10-19T02:27:10.616238+00:00",
+  "week_end": "2026-10-08",
+  "manually_checked_channel": true,
+  "manually_checked_track_version": true,
+  "cumulative_view_count": 5854490,
+  "youtube_metric": "INDIVIDUAL_VIDEO_LIFETIME",
+  "publication_approved": false,
+  "original_candidate": {
+    "video_id": "SyLtYUk9Ogg",
+    "title": "KATSEYE - Animal (Lyrics)",
+    "channel_title": "Vibe Music",
+    "channel_id": "UChO8h2G8UjOVc081rgYU8XQ",
+    "published_at": "2026-07-28T18:02:28Z",
+    "cumulative_views": 5854490,
+    "cumulative_likes": 27193,
+    "cumulative_comments": 2221,
+    "video_url": "https://www.youtube.com/watch?v=SyLtYUk9Ogg",
+    "source": "SEARCH_RESULT",
+    "review_hint": "가사 영상 가능성",
+    "status": "PENDING_HUMAN_REVIEW"
+  }
+}

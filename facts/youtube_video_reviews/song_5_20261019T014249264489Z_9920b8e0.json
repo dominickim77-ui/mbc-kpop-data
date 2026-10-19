@@ -1,0 +1,32 @@
+{
+  "status": "VIDEO_IDENTITY_REVIEW",
+  "db_status": "DB_STORED",
+  "song_id": 5,
+  "artist": "KATSEYE",
+  "track": "Animal",
+  "video_id": "m7k9UMcHbr0",
+  "video_title": "KATSEYE (캣츠아이) \"Animal\" Official MV",
+  "youtube_channel": "HYBE LABELS",
+  "channel_id": "UC3IZKseVpdzPSBaWxBxundA",
+  "approved_at_utc": "2026-10-19T01:42:49.264489+00:00",
+  "week_end": "2026-10-08",
+  "manually_checked_channel": true,
+  "manually_checked_track_version": true,
+  "cumulative_view_count": 140311419,
+  "youtube_metric": "INDIVIDUAL_VIDEO_LIFETIME",
+  "publication_approved": false,
+  "original_candidate": {
+    "video_id": "m7k9UMcHbr0",
+    "title": "KATSEYE (캣츠아이) \"Animal\" Official MV",
+    "channel_title": "HYBE LABELS",
+    "channel_id": "UC3IZKseVpdzPSBaWxBxundA",
+    "published_at": "2026-07-24T03:59:06Z",
+    "cumulative_views": 140311419,
+    "cumulative_likes": 1805429,
+    "cumulative_comments": 140315,
+    "video_url": "https://www.youtube.com/watch?v=m7k9UMcHbr0",
+    "source": "WEEKLY_CHART_REFERENCE",
+    "review_hint": "버전·채널 확인 필요",
+    "status": "PENDING_HUMAN_REVIEW"
+  }
+}

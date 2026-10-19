@@ -254,6 +254,16 @@ def get_dashboard_data():
         """)
 
     dashboard_data = cursor.fetchall()
+
+        # STEP 17B: 사람이 승인한 YouTube 영상을 우선 표시
+    from news.youtube_display_resolver import (
+        apply_approved_youtube_videos,
+    )
+
+    dashboard_data = apply_approved_youtube_videos(
+        dashboard_data, cursor, Path(__file__).resolve().parent
+    )
+    
     from news.youtube_video_review_step17b import video_review_status
     for _record in dashboard_data:
         _record["youtube_review_status"] = video_review_status(

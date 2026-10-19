@@ -1,0 +1,32 @@
+{
+  "status": "VIDEO_IDENTITY_REVIEW",
+  "db_status": "DB_STORED",
+  "song_id": 3,
+  "artist": "LISA",
+  "track": "SaWaDiKa",
+  "video_id": "FyS5dAywkEo",
+  "video_title": "LISA - SaWaDiKa (Official Music Video)",
+  "youtube_channel": "LISAOfficialVEVO",
+  "channel_id": "UCg3ymxYCmURj5BFtbgMt-Og",
+  "approved_at_utc": "2026-10-19T01:37:49.748122+00:00",
+  "week_end": "2026-10-08",
+  "manually_checked_channel": true,
+  "manually_checked_track_version": true,
+  "cumulative_view_count": 211982202,
+  "youtube_metric": "INDIVIDUAL_VIDEO_LIFETIME",
+  "publication_approved": false,
+  "original_candidate": {
+    "video_id": "FyS5dAywkEo",
+    "title": "LISA - SaWaDiKa (Official Music Video)",
+    "channel_title": "LISAOfficialVEVO",
+    "channel_id": "UCg3ymxYCmURj5BFtbgMt-Og",
+    "published_at": "2026-09-04T00:00:05Z",
+    "cumulative_views": 211982202,
+    "cumulative_likes": 3105858,
+    "cumulative_comments": 279253,
+    "video_url": "https://www.youtube.com/watch?v=FyS5dAywkEo",
+    "source": "WEEKLY_CHART_REFERENCE",
+    "review_hint": "버전·채널 확인 필요",
+    "status": "PENDING_HUMAN_REVIEW"
+  }
+}
