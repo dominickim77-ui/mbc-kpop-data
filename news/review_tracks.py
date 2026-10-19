@@ -12,8 +12,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
-from match_charts import build_matches, normalize
-from weekly_changes import calculate
+# Keep both the historical file command and package/module imports working.
+import sys
+if __package__ in (None, ''):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from news.match_charts import build_matches, normalize
+from news.weekly_changes import calculate
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT_CSV = ROOT / 'data/processed/track_review_queue_20261008.csv'
@@ -144,5 +149,12 @@ def main():
     print('⚠️ 자동 승인 없음: 링크와 곡 정보를 직접 확인하고 사람이 검수해야 합니다.')
 
 
-if __name__ == '__main__':
+def cli():
+    import argparse
+    parser = argparse.ArgumentParser(description='명시적 실행 시 기존 결과 파일을 생성하는 오프라인 도구')
+    parser.parse_args()
     main()
+
+
+if __name__ == '__main__':
+    cli()

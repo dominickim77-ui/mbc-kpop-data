@@ -1,6 +1,10 @@
-.env__pycache__/
-*.pyc
-.venv/
-kpop_step12_patch/
 .env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.venv/
+.venv-*/
+.reports/
+kpop_step12_patch/
 kpop_step13_patch/

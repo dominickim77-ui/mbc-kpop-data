@@ -1,0 +1,3 @@
+# Current TestClient HTTP implementation; tests otherwise use unittest.
+-r requirements.txt
+httpx2==2.13.1

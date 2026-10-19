@@ -718,15 +718,16 @@ __pycache__/
 
 ## Install
 
-```bash
-pip install pandas requests python-dotenv mysql-connector-python
-pip install fastapi uvicorn jinja2 python-multipart
+```powershell
+py -3.14 -m venv .venv-new
+.\.venv-new\Scripts\python.exe -m pip --require-virtualenv install -r requirements-dev.txt -c constraints-win-py314.txt
+.\.venv-new\Scripts\python.exe -m pip check
 ```
 
 ## Run
 
-```bash
-uvicorn app:app --reload
+```powershell
+.\.venv-new\Scripts\python.exe scripts/run_local.py
 ```
 
 ## Browser
@@ -850,3 +851,13 @@ Black Formatter
 # 🧩 One-Line Summary
 
 > **K-POP DATA LAB은 Spotify와 YouTube 데이터를 수집·저장·비교·시각화하면서, 숫자의 크기보다 “그 숫자가 무엇을 의미하는가”를 이해하기 위해 만든 데이터 저널리즘 학습 프로젝트다.**
+
+## STEP19 재현·검증 기준
+
+Windows AMD64 / CPython 3.14.7 기준이며 기존 환경을 덮어쓰지 않는다.
+기본 회귀 검증: `python -B scripts/run_checks.py` (실제 DB/API 호출 차단).
+
+- [환경 재현](docs/environment_reproduction.md)
+- [현행 회귀 테스트와 과거 설치 검증 구분](docs/testing.md)
+- [DB 스키마 재현](docs/database_reproduction.md)
+- [분석 요청 출처 보호](docs/analysis_request_origin.md)

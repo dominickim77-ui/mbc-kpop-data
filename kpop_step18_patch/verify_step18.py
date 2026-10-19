@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import ast
+import sys
 import json
 import tempfile
 from datetime import datetime, timedelta, timezone
@@ -9,6 +10,8 @@ from pathlib import Path
 import importlib.util
 
 ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 MOD = ROOT / 'news' / 'youtube_approval_lock.py'
 ROUTES = ROOT / 'news' / 'youtube_video_review_step17b.py'
 JS = ROOT / 'static' / 'youtube_video_review_step17b.js'

@@ -10,7 +10,12 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from match_charts import build_matches, normalize, primary_artist, read_chart, positive_integer
+# Keep both the historical file command and package/module imports working.
+import sys
+if __package__ in (None, ''):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from news.match_charts import build_matches, normalize, primary_artist, read_chart, positive_integer
 
 ROOT = Path(__file__).resolve().parent.parent
 SPOTIFY_OLD = ROOT / "data/charts/spotify/regional-global-weekly-2026-10-01.csv"
@@ -158,5 +163,12 @@ def main():
     print("⚠️ 검수 전 초안: 동일 곡 버전 및 K-POP 분류 확인 필요")
 
 
-if __name__ == "__main__":
+def cli():
+    import argparse
+    parser = argparse.ArgumentParser(description='명시적 실행 시 기존 결과 파일을 생성하는 오프라인 도구')
+    parser.parse_args()
     main()
+
+
+if __name__ == '__main__':
+    cli()

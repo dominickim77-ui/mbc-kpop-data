@@ -45,6 +45,7 @@ from security.analysis_origin import require_local_analysis_origin
 # --------------------------------------------------
 
 # 현재 Dashboard에서 비교 가능한 최대 Artist 수
+BASE_DIR = Path(__file__).resolve().parent
 MAX_ARTISTS = 10
 
 # 현재 Dashboard에서 비교 가능한 최대 Track 수
@@ -80,7 +81,7 @@ _analysis_write_lock = threading.Lock()
 # 3. .env 파일 읽기
 # --------------------------------------------------
 
-load_dotenv()
+load_dotenv(dotenv_path=BASE_DIR / ".env", override=False)
 
 
 # --------------------------------------------------
@@ -124,7 +125,7 @@ from news.chart_data_manager import choose_pair, CatalogError
 
 app.mount(
     "/static",
-    StaticFiles(directory="static"),
+    StaticFiles(directory=BASE_DIR / "static"),
     name="static",
 )
 
@@ -135,7 +136,7 @@ app.mount(
 # HTML 파일들이 들어 있는 폴더다.
 # --------------------------------------------------
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
 
 # --------------------------------------------------
