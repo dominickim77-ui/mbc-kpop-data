@@ -1,0 +1,17 @@
+'use strict';
+(async () => {
+  const r = await fetch('/api/auth/me');
+  if (!r.ok) return;
+  const user = await r.json();
+  const bar = document.createElement('nav');
+  bar.style.cssText = 'padding:12px;background:#14203a;color:white;display:flex;gap:18px;align-items:center';
+  const label = document.createElement('span'); label.textContent = user.username + ' · ' + user.role;
+  const link = document.createElement('a'); link.href='/editorial'; link.textContent='기사 · 검수 관리'; link.style.color='#95dfff';
+  const dashboard = document.createElement('a'); dashboard.href='/'; dashboard.textContent='Dashboard'; dashboard.style.color='#95dfff';
+  const logout = document.createElement('button'); logout.textContent='로그아웃';
+  logout.onclick = async () => {const out = await fetch('/api/auth/logout',{method:'POST'}); if(out.ok) location.href='/account';};
+  bar.append(label, dashboard, link, logout); document.body.prepend(bar);
+  if(user.role==='READER') {
+    document.querySelectorAll('button[onclick*="News"],button[onclick*="news"]').forEach(el=>el.hidden=true);
+  }
+})();

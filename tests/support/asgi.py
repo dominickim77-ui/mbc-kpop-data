@@ -27,7 +27,11 @@ async def asgi_request(path, method='GET', payload=None):
     async def send(event):
         events.append(event)
 
-    await site.app(scope, receive, send)
+    # Existing route regressions supply a server-authenticated editor fixture.
+    # STEP23 tests exercise real login, cookies, and RBAC separately.
+    from unittest.mock import patch
+    with patch('security.auth.session_user', return_value={'id': 999, 'username': 'regression-editor', 'role': 'EDITOR'}):
+        await site.app(scope, receive, send)
     status = next(e['status'] for e in events if e['type'] == 'http.response.start')
     body = b''.join(e.get('body', b'') for e in events if e['type'] == 'http.response.body')
     return status, json.loads(body)
@@ -57,7 +61,11 @@ async def form_request(path, headers=None, form=None, method='POST', scheme='htt
     async def send(event):
         events.append(event)
 
-    await site.app(scope, receive, send)
+    # Existing route regressions supply a server-authenticated editor fixture.
+    # STEP23 tests exercise real login, cookies, and RBAC separately.
+    from unittest.mock import patch
+    with patch('security.auth.session_user', return_value={'id': 999, 'username': 'regression-editor', 'role': 'EDITOR'}):
+        await site.app(scope, receive, send)
     start = next(e for e in events if e['type'] == 'http.response.start')
     body = b''.join(e.get('body', b'') for e in events if e['type'] == 'http.response.body')
     return start['status'], dict((k.decode(), v.decode()) for k, v in start['headers']), body

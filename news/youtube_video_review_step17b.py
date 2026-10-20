@@ -21,6 +21,7 @@ from urllib.parse import parse_qs, urlparse
 
 import requests
 from fastapi import APIRouter, HTTPException, Request
+from security.auth import current_user
 from pydantic import BaseModel, ConfigDict, Field
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -220,7 +221,7 @@ def get_candidates(request: Request, song_id: int, week_end: str = ''):
     with _cache_lock:
         _prune_cache(now)
         for token, obj in _sessions.items():
-            if obj['song_id'] == song_id and obj['week_end'] == week_end:
+            if obj['song_id'] == song_id and obj['week_end'] == week_end and obj.get('user_id') == (current_user.get() or {}).get('id'):
                 return dict(song_id=song_id, artist=track['artist'], track=track['track'],
                             review_token=token, candidates=obj['candidates'], cached=True,
                             approval_required=True, statistics_kind='INDIVIDUAL_VIDEO_LIFETIME',
@@ -251,7 +252,7 @@ def get_candidates(request: Request, song_id: int, week_end: str = ''):
     token = uuid.uuid4().hex
     with _cache_lock:
         _prune_cache(now)
-        _sessions[token] = dict(at=now, song_id=song_id, week_end=week_end,
+        _sessions[token] = dict(at=now, song_id=song_id, week_end=week_end, user_id=(current_user.get() or {}).get('id'),
                                 candidates=candidates)
     return dict(song_id=song_id, artist=track['artist'], track=track['track'],
                 review_token=token, candidates=candidates, cached=False,
@@ -293,7 +294,7 @@ def approve_video(request: Request, body: ApproveRequest):
     with _cache_lock:
         _prune_cache(time.monotonic())
         session = _sessions.get(body.review_token)
-        if session is None or session['song_id'] != body.song_id:
+        if session is None or session['song_id'] != body.song_id or session.get('user_id') != (current_user.get() or {}).get('id'):
             raise HTTPException(409, '검수 세션이 만료됐습니다. 후보를 다시 검색해 주세요.')
         matches = [x for x in session['candidates'] if x['video_id'] == body.video_id]
         if len(matches) != 1:
@@ -313,6 +314,7 @@ def approve_video(request: Request, body: ApproveRequest):
     collected_at_utc = now.replace(tzinfo=None)
     approval_id = now.strftime('%Y%m%dT%H%M%S%fZ') + '_' + uuid.uuid4().hex[:8]
     record = dict(status='VIDEO_IDENTITY_REVIEW', db_status='PENDING_DB_WRITE',
+                  reviewer_id=(current_user.get() or {}).get('id'),
                   song_id=body.song_id, artist=track['artist'], track=track['track'],
                   video_id=body.video_id, video_title=new['title'],
                   youtube_channel=new['channel_title'], channel_id=new['channel_id'],

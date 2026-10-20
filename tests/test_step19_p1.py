@@ -173,6 +173,9 @@ class ArticleEvidenceTests(OfflineCase):
 class AnalysisTransactionTests(OfflineCase):
     def setUp(self):
         super().setUp()
+        selection_patch = patch.object(site, 'analysis_song_ids', [])
+        selection_patch.start()
+        self.addCleanup(selection_patch.stop)
         self.prior = list(site.analysis_song_ids)
         site.analysis_song_ids[:] = [7]
         self.addCleanup(lambda: site.analysis_song_ids.__setitem__(slice(None), self.prior))

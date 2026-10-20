@@ -73,7 +73,8 @@ CHART_DATE = "2026-10-01"
 # FastAPI 서버를 완전히 종료하면 초기화된다.
 # --------------------------------------------------
 
-analysis_song_ids = []
+from security.auth import UserSelection
+analysis_song_ids = UserSelection()
 _analysis_write_lock = threading.Lock()
 
 
@@ -104,6 +105,22 @@ MYSQL_DATABASE = os.getenv("MYSQL_DATABASE")
 # --------------------------------------------------
 
 app = FastAPI()
+from security.auth import AuthMiddleware, router as auth_router
+from news.editorial import router as editorial_router
+app.add_middleware(AuthMiddleware)
+app.include_router(auth_router)
+app.include_router(editorial_router)
+
+@app.get('/account')
+def account_page():
+    from fastapi.responses import FileResponse
+    return FileResponse(BASE_DIR / 'templates/account.html')
+
+@app.get('/editorial')
+def editorial_page():
+    from fastapi.responses import FileResponse
+    return FileResponse(BASE_DIR / 'templates/editorial.html')
+
 
 # KPOP_NEWS_INLINE_V1: 새 뉴스 라우터만 추가 (기존 라우트 변경 없음)
 from news.news_routes import router as news_router

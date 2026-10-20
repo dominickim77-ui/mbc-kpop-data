@@ -140,6 +140,16 @@ def validate_reviewed(facts, root=ROOT):
 
 
 def load_reviewed(root, week):
+    # Authenticated data reviews are append-only in the separate editorial store.
+    # Legacy file reviews remain unchanged and continue to be validated.
+    from security.editorial_store import database_path, connect
+    if Path(root).resolve() == ROOT.resolve() and database_path().is_file():
+        with connect() as db:
+            row = db.execute('SELECT facts FROM fact_reviews WHERE week_end=? ORDER BY id DESC LIMIT 1', (week,)).fetchone()
+        if row:
+            facts = json.loads(row['facts'])
+            validate_reviewed(facts, root)
+            return facts
     facts = json.loads(fact_path(root, week).read_text(encoding='utf-8'))
     if facts.get('week_current', {}).get('end') != week:
         raise ValueError('선택 주차와 Fact Sheet 주차가 다릅니다.')

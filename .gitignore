@@ -14,3 +14,8 @@ data/chart_registry/weeks/
 data/chart_registry/import.lock
 # STEP22 runtime drafts and human review records are not source code.
 facts/weekly/
+
+# STEP23 private authentication/article store
+data/private/
+*.sqlite3
+*.sqlite3-*

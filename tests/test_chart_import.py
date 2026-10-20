@@ -306,6 +306,9 @@ class IntakeTests(unittest.TestCase):
                      'youtube_views': None, 'youtube_likes': None, 'youtube_comments': None,
                      'youtube_video_id': None, 'youtube_title': None, 'youtube_channel': None,
                      'collected_at': None}]
+        selection_patch = patch.object(site, 'analysis_song_ids', [])
+        selection_patch.start()
+        self.addCleanup(selection_patch.stop)
         prior = list(site.analysis_song_ids)
         site.analysis_song_ids[:] = [999]
         try:
