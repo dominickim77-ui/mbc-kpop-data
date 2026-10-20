@@ -57,7 +57,10 @@ def selected_snapshot(selected_rows: list[dict], facts: dict) -> dict:
     }
 
 
-def load_verified_facts() -> dict:
+def load_verified_facts(week_end: str = '') -> dict:
+    if week_end and week_end != '2026-10-08':
+        from news.weekly_facts import load_reviewed
+        return load_reviewed(ROOT, week_end)
     facts = json.loads(FACT_PATH.read_text(encoding='utf-8'))
     check_fact_sheet(facts)
     _check_source_charts(facts)
@@ -66,6 +69,13 @@ def load_verified_facts() -> dict:
 
 def _check_source_charts(facts: dict) -> None:
     """Recheck approved article evidence against all four read-only weekly CSVs."""
+    if facts.get('schema_version') == 22:
+        from news.weekly_facts import validate_reviewed
+        try:
+            validate_reviewed(facts, ROOT)
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            raise SelectionError(str(exc)) from None
+        return
     from news.chart_data_manager import choose_pair
     from news.weekly_chart_analysis import read_chart, song_key
 
@@ -121,6 +131,8 @@ def read_current_selection() -> list[dict]:
 
 
 def evidence_for_selected(facts: dict, snapshot: dict) -> dict:
+    # Reconstruct the selection from reviewed facts; callers cannot inject approved rows.
+    snapshot = selected_snapshot(snapshot['selected_tracks'], facts)
     if not snapshot['approved_tracks']:
         raise SelectionError('선택된 곡 중 검증된 주간 양쪽 차트 근거가 없습니다. 검수가 완료된 Animal 또는 SaWaDiKa를 선택해 주세요.')
     # Shared preview/paid boundary: do not rely on a browser warning to block generation.
@@ -136,6 +148,8 @@ def evidence_for_selected(facts: dict, snapshot: dict) -> dict:
         'method': facts['method'],
         'cautions': facts['cautions'],
         'article_publication_approved': False,
+        **({'source_refs': facts['source_refs'], 'draft_sha256': facts['draft_sha256']}
+           if facts.get('schema_version') == 22 else {}),
     }
 
 

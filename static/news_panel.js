@@ -42,7 +42,9 @@
     const all = data.selected_tracks.length;
     const approved = data.approved_tracks.length;
     countEl.textContent = `현재 선택 ${all}곡 · 교차 검수 완료 ${approved}곡 · 검수 대기 ${data.excluded_tracks.length}곡`;
-    if (!approved) addLine(approvedList, '없음 — 검수된 Animal 또는 SaWaDiKa를 Current Analysis에 추가해 줘.');
+    if (!approved) addLine(approvedList, '없음 — 선택 주차의 곡·버전·편집 분류 검수를 완료해 줘.');
+    const factStatus = document.getElementById('news-fact-status');
+    if (factStatus) factStatus.textContent = `Fact Sheet ${data.fact_week_end || requestedWeekEnd}: ${data.fact_status || '확인 필요'} · 출고 미승인` + (data.week_warning ? ` · ${data.week_warning}` : '');
     for (const row of data.approved_tracks) addLine(approvedList, `${row.artist} — ${row.track} (${row.editorial_category})`);
     if (!data.excluded_tracks.length) addLine(excludedList, '없음');
     for (const row of data.excluded_tracks) addLine(excludedList, `${row.artist} — ${row.track}: ${row.reason}`);
@@ -219,7 +221,7 @@
     finally { setBusy(false); }
   });
   refreshSelection().then(() => {
-    if (!newsWeekCompatible) statusEl.textContent = '현재 선택 주차는 기존 검수 완료 Fact Sheet와 달라. 먼저 신규 주차 곡 검수를 진행해 줘.';
+    if (!selection.can_generate) statusEl.textContent = selection.week_warning || '선택 주차의 검수 완료 곡이 필요해. 검수 대기곡 근거 확인에서 원본을 확인해 줘.';
   }).catch(e => {
     countEl.textContent = '선택 목록을 불러오지 못했어.';
     statusEl.textContent = `오류: ${e.message}`;

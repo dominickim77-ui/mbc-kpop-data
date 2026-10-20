@@ -109,6 +109,13 @@ def _format_amount(prior: int | None, current: int | None, pct: float | None) ->
 
 
 def _verified_tracks(root: Path, pair=None) -> tuple[dict, set]:
+    if pair is not None and str(pair.current_end) != '2026-10-08':
+        from news.weekly_facts import load_reviewed
+        try:
+            obj = load_reviewed(root, str(pair.current_end))
+            return {song_key(t['artist'], t['track_name']): t for t in obj['analysis_tracks']}, set()
+        except (OSError, ValueError, KeyError, TypeError):
+            return {}, set()
     path = root / 'facts/article_ready_fact_sheet_20261008.json'
     if not path.is_file():
         return {}, set()

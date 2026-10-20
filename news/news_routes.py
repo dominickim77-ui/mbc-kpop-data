@@ -29,15 +29,17 @@ def _same_origin(request: Request) -> bool:
     return origin in (f'http://{host}', f'https://{host}') and host.split(':')[0] in {'localhost', '127.0.0.1'}
 
 
-def _selection():
+def _selection(week_end=''):
     try:
-        facts = load_verified_facts()
+        facts = load_verified_facts(week_end) if week_end and week_end != '2026-10-08' else load_verified_facts()
         snapshot = selected_snapshot(read_current_selection(), facts)
         return facts, snapshot
     except FileNotFoundError:
-        raise HTTPException(404, '기존 검수 완료 Fact Sheet를 찾지 못했습니다.') from None
+        raise HTTPException(409 if week_end and week_end != '2026-10-08' else 404,
+                            '선택 주차의 Fact Sheet 검수가 완료되지 않았습니다. 원본·곡·버전 검수를 진행하세요.') from None
     except (ValueError, KeyError, TypeError) as e:
-        raise HTTPException(422, f'근거 검증 실패: {e}') from None
+        raise HTTPException(409 if week_end and week_end != '2026-10-08' else 422,
+                            f'근거 검증 실패: {e}') from None
     except Exception:
         raise HTTPException(503, 'Current Analysis의 MySQL 데이터를 읽지 못했습니다. 연결을 확인하세요.') from None
 
@@ -98,10 +100,30 @@ def current_review_candidates(week_end: str = ''):
 
 @router.get('/selection')
 def current_news_selection(week_end: str = ''):
-    facts, snapshot = _selection()
+    if week_end and week_end != '2026-10-08':
+        from news.weekly_facts import build_draft
+        try:
+            facts, snapshot = _selection(week_end)
+        except HTTPException as exc:
+            if exc.status_code not in (409, 422):
+                raise
+            try:
+                draft = build_draft(ROOT, week_end)
+            except (OSError, ValueError, KeyError, TypeError):
+                raise HTTPException(409, '등록 원본·기간·SHA-256 확인이 필요합니다.') from None
+            selected = read_current_selection()
+            return {'selected_tracks': selected, 'approved_tracks': [],
+                    'excluded_tracks': [{'artist': r['artist'], 'track': r['track'],
+                                         'reason': '해당 주차 곡·버전·편집 분류 검수 필요'} for r in selected],
+                    'can_generate': False, 'fact_week_end': week_end, 'fact_status': 'DRAFT',
+                    'week_warning': str(exc.detail), 'candidate_count': len(draft['candidates']),
+                    'publication_approved': False}
+    else:
+        facts, snapshot = _selection()
     response = _public_selection(snapshot)
     fact_week_end = facts['week_current']['end']
     response['fact_week_end'] = fact_week_end
+    response['fact_status'] = facts['review_stage']
     if week_end and week_end != fact_week_end:
         response['can_generate'] = False
         response['week_warning'] = '선택한 차트 주차의 교차 검수된 Fact Sheet가 아직 없어.'
@@ -110,7 +132,7 @@ def current_news_selection(week_end: str = ''):
 
 @router.get('/preview')
 def preview_selected_article(week_end: str = ''):
-    facts, snapshot = _selection()
+    facts, snapshot = _selection(week_end) if week_end and week_end != '2026-10-08' else _selection()
     if week_end and week_end != facts['week_current']['end']:
         raise HTTPException(409, '현재 비교 주차의 Fact Sheet 검수가 완료되지 않아 기사 생성을 중단했어.')
     try:
@@ -122,14 +144,17 @@ def preview_selected_article(week_end: str = ''):
         'mode': 'template',
         'ai_generated_now': False,
         'selection': _public_selection(snapshot),
-        'source': 'facts/article_ready_fact_sheet_20261008.json',
+        'source': ('facts/article_ready_fact_sheet_20261008.json' if facts['week_current']['end'] == '2026-10-08'
+                   else f"facts/weekly/{facts['week_current']['end']}/reviewed.json"),
         'review_required': True,
         'publication_approved': False,
     }
 
 
 @router.get('/article')
-def get_saved_article(variant: str = 'edited'):
+def get_saved_article(variant: str = 'edited', week_end: str = '2026-10-08'):
+    if week_end != '2026-10-08':
+        raise HTTPException(409, '이 저장 기사 예시는 10/08 주차 전용입니다. 선택 주차의 무료 미리보기를 사용하세요.')
     paths = {
         'edited': ARTICLES / 'revised_editorial_v1_20261008.md',
         'ai': ARTICLES / 'draft_openai_20261008.md',
@@ -163,7 +188,7 @@ def generate_selected_article(request: Request, body: GenerateRequest):
     if not _lock.acquire(blocking=False):
         raise HTTPException(429, '이미 기사 생성이 진행 중입니다.')
     try:
-        facts, snapshot = _selection()
+        facts, snapshot = _selection(body.week_end) if body.week_end and body.week_end != '2026-10-08' else _selection()
         if body.week_end and body.week_end != facts['week_current']['end']:
             raise HTTPException(409, '현재 비교 주차와 기사 Fact Sheet 기간이 달라 유료 호출을 차단했어.')
         try:
@@ -178,7 +203,7 @@ def generate_selected_article(request: Request, body: GenerateRequest):
             raise HTTPException(502, '모델 요청 실패: 과금 기록 확인 후 다시 판단하세요.') from None
 
         timestamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
-        stem = 'draft_openai_selected_' + timestamp
+        stem = 'draft_openai_selected_' + facts['week_current']['end'].replace('-', '') + '_' + timestamp
         ARTICLES.mkdir(parents=True, exist_ok=True)
         md_file, json_file = ARTICLES / (stem + '.md'), ARTICLES / (stem + '.json')
         record = {

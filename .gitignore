@@ -12,3 +12,5 @@ kpop_step13_patch/
 data/chart_imports/
 data/chart_registry/weeks/
 data/chart_registry/import.lock
+# STEP22 runtime drafts and human review records are not source code.
+facts/weekly/

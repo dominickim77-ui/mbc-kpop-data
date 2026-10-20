@@ -429,8 +429,8 @@ def home(
     previous_week_start_display = pair.previous_start.strftime('%m/%d') if pair else ''
     current_week_start_display = pair.current_start.strftime('%m/%d') if pair else ''
     selected_period_label = pair.label if pair else '등록된 주차 없음'
-    # The news Fact Sheet approved on 10/08 is NOT approved for future weeks.
-    news_week_compatible = selected_week_end == '2026-10-08' 
+    # The panel verifies the selected week's Fact Sheet through /api/news/selection.
+    news_week_compatible = bool(pair)
 
     # --------------------------------------------------
     # Chart 데이터를 JSON 문자열로 변환

@@ -17,6 +17,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+if __package__ in (None, ''):
+    import sys
+    sys.path.insert(0, str(ROOT))
 FACT_PATH = ROOT / 'facts' / 'article_ready_fact_sheet_20261008.json'
 OUTPUT_DIR = ROOT / 'articles'
 DEFAULT_MODEL = 'gpt-5.4-mini-2026-03-17'
@@ -28,6 +31,10 @@ class FactSheetError(ValueError):
 
 def check_fact_sheet(facts: dict) -> None:
     """구조, 검수 상태 및 주요 수치를 검사합니다. 자동 팩트체크 완료를 뜻하지 않습니다."""
+    if facts.get('schema_version') == 22:
+        from news.weekly_facts import validate_reviewed
+        validate_reviewed(facts, ROOT)
+        return
     if facts.get('status') != 'DRAFT_NOT_FOR_PUBLICATION':
         raise FactSheetError('Fact Sheet 상태가 예상과 다릅니다. 임의로 승인 처리하지 마세요.')
     if facts.get('review_stage') != 'TRACK_IDENTITY_AND_EDITORIAL_CATEGORY_APPROVED':
@@ -91,6 +98,9 @@ def fmt(n):
 
 def template_article(facts: dict) -> str:
     """고정 기사 문장. 생성형 AI를 호출하지 않습니다."""
+    if facts.get('schema_version') == 22:
+        from news.selected_news import preview_text
+        return preview_text(facts)
     entries = {t['track_name']: t for t in facts['analysis_tracks']}
     a, l = entries['Animal'], entries['SaWaDiKa']
 
@@ -122,6 +132,10 @@ def curated_facts(facts: dict) -> dict:
 
 def generate_openai_article(facts: dict) -> tuple[str, str]:
     """선택 실행용 유료 호출. 자동 재시도/자동 게시하지 않습니다."""
+    if facts.get('schema_version') == 22:
+        from news.selected_news import generate_paid_article
+        check_fact_sheet(facts)
+        return generate_paid_article(curated_facts(facts))
     try:
         from dotenv import load_dotenv
         load_dotenv(dotenv_path=ROOT / '.env', override=False)
@@ -179,20 +193,21 @@ def main():
     parser = argparse.ArgumentParser(description='K-POP 차트 기사 초안 생성 (기본값: 무료 템플릿)')
     parser.add_argument('--mode', choices=('template', 'openai'), default='template')
     parser.add_argument('--confirm-paid', action='store_true', help='OpenAI 유료 호출 의사 명시')
+    parser.add_argument('--week-end', default='2026-10-08')
     args = parser.parse_args()
     if args.mode == 'openai' and not args.confirm_paid:
         raise SystemExit('실제 유료 API를 호출하려면 --confirm-paid를 추가해야 합니다.')
 
-    if not FACT_PATH.is_file():
-        raise SystemExit(f'기사용 Fact Sheet가 없습니다: {FACT_PATH}')
-    with FACT_PATH.open(encoding='utf-8') as fp:
-        facts = json.load(fp)
-    check_fact_sheet(facts)
+    from news.selected_news import load_verified_facts
+    from news.weekly_facts import fact_path
+    facts = load_verified_facts(args.week_end)
+    selected_fact_path = fact_path(ROOT, args.week_end)
 
     # 기존 결과를 덮어쓰지 않습니다. 날짜는 원자료 주차 기준으로 고정됩니다.
     prefix = 'draft_template' if args.mode == 'template' else 'draft_openai'
-    out_md = OUTPUT_DIR / f'{prefix}_20261008.md'
-    out_json = OUTPUT_DIR / f'{prefix}_20261008.json'
+    stamp = args.week_end.replace('-', '')
+    out_md = OUTPUT_DIR / f'{prefix}_{stamp}.md'
+    out_json = OUTPUT_DIR / f'{prefix}_{stamp}.json'
     if out_md.exists() or out_json.exists():
         raise SystemExit('기사 초안 파일이 이미 있습니다. 이전 결과를 보존하도록 실행을 중단합니다.')
 
@@ -209,7 +224,7 @@ def main():
         'review_required': True,
         'publication_approved': False,
         'article_status': 'DRAFT_NOT_FOR_PUBLICATION',
-        'fact_sheet': str(FACT_PATH.relative_to(ROOT)).replace('\\', '/'),
+        'fact_sheet': selected_fact_path.relative_to(ROOT).as_posix(),
         'created_at_utc': datetime.now(timezone.utc).isoformat(),
         'article': article,
     }

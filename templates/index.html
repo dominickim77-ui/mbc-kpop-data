@@ -587,11 +587,11 @@
     <p>Current Analysis에서 선택한 곡 → 검수된 Fact Sheet → 기사 초안</p>
   </div>
   {% if not news_week_compatible %}
-  <p class="weekly-error" role="status">⚠ 현재 차트 주차({{ selected_period_label }})는 기존 기사 Fact Sheet(10/08 종료 주)와 달라.
-    최신 주차의 곡 검수와 Fact Sheet 승인이 끝날 때까지 <strong>새 기사 생성은 중단</strong>하고, 기존 기사 예시만 열람할 수 있어.</p>
+  <p class="weekly-error" role="status">⚠ 등록된 연속 2주 원본을 확인한 뒤 Fact Sheet 검수를 진행해 주세요.</p>
   {% endif %}
   <p class="news-panel-note">이 페이지의 예전 YouTube 영상 누적 조회수와 공식 주간 Top Songs 조회수는 서로 달라. 기사에는 <strong>검수된 같은 주차의 주간 차트 자료만</strong> 사용할게.</p>
   <div class="news-selection-summary" aria-live="polite">
+    <p id="news-fact-status">선택 주차의 Fact Sheet 상태 확인 중…</p>
     <p id="news-selected-count">선택한 곡을 확인하는 중…</p>
     <div class="news-selection-lists">
       <div><strong>기사에 사용할 검수 완료 곡</strong><ul id="news-approved-list"></ul></div>
