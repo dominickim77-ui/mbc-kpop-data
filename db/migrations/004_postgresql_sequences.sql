@@ -1,0 +1,9 @@
+SELECT setval(pg_get_serial_sequence('tracks','song_id'), COALESCE((SELECT MAX(song_id) FROM tracks),1), EXISTS(SELECT 1 FROM tracks));
+SELECT setval(pg_get_serial_sequence('spotify_chart','spotify_id'), COALESCE((SELECT MAX(spotify_id) FROM spotify_chart),1), EXISTS(SELECT 1 FROM spotify_chart));
+SELECT setval(pg_get_serial_sequence('youtube_stats','youtube_id'), COALESCE((SELECT MAX(youtube_id) FROM youtube_stats),1), EXISTS(SELECT 1 FROM youtube_stats));
+SELECT setval(pg_get_serial_sequence('users','id'), COALESCE((SELECT MAX(id) FROM users),1), EXISTS(SELECT 1 FROM users));
+SELECT setval(pg_get_serial_sequence('fact_reviews','id'), COALESCE((SELECT MAX(id) FROM fact_reviews),1), EXISTS(SELECT 1 FROM fact_reviews));
+SELECT setval(pg_get_serial_sequence('articles','id'), COALESCE((SELECT MAX(id) FROM articles),1), EXISTS(SELECT 1 FROM articles));
+SELECT setval(pg_get_serial_sequence('revisions','id'), COALESCE((SELECT MAX(id) FROM revisions),1), EXISTS(SELECT 1 FROM revisions));
+SELECT setval(pg_get_serial_sequence('reviews','id'), COALESCE((SELECT MAX(id) FROM reviews),1), EXISTS(SELECT 1 FROM reviews));
+SELECT setval(pg_get_serial_sequence('audit','id'), COALESCE((SELECT MAX(id) FROM audit),1), EXISTS(SELECT 1 FROM audit));

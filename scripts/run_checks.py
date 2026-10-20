@@ -11,6 +11,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main(argv=None):
+    # Windows redirected output can default to cp949 even though workers use UTF-8.
+    # Keep a successful check from crashing while printing its Korean/emoji report.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, 'reconfigure'):
+            stream.reconfigure(encoding='utf-8', errors='backslashreplace')
     parser = argparse.ArgumentParser(description='기본 오프라인 회귀 / 명시적 읽기 전용 DB 또는 분리 DB 검증')
     parser.add_argument('--mode', choices=('offline', 'db-readonly', 'test-db'), default='offline')
     parser.add_argument('--database')
