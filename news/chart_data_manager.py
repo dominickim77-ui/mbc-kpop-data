@@ -56,7 +56,7 @@ def _inventory(root: Path) -> tuple[dict[date, dict[str, str]], list[str]]:
     try:
         return registered_inventory(Path(root).resolve())
     except (ValueError, OSError, KeyError, TypeError) as exc:
-        raise CatalogError('등록 목록을 확인할 수 없어 주차 선택을 중단했어: ' + type(exc).__name__) from exc
+        raise CatalogError('기간 목록을 확인할 수 없습니다: ' + type(exc).__name__) from exc
 
 
 def scan_chart_weeks(root: Path = ROOT) -> tuple[list[WeekPair], list[str]]:
@@ -77,9 +77,9 @@ def scan_chart_weeks(root: Path = ROOT) -> tuple[list[WeekPair], list[str]]:
         pairs.append(WeekPair(previous_end, current_end, before['spotify'], after['spotify'],
                               before['youtube'], after['youtube']))
     if inventory and not pairs:
-        notes.append('비교 가능한 연속 2주 데이터가 없어. 양쪽 플랫폼 CSV를 주차별로 준비해 줘.')
+        notes.append('비교 가능한 연속 2주 자료가 없습니다. 운영 담당자의 자료 등록이 필요합니다.')
     if not inventory:
-        notes.append('data/charts/spotify 및 data/charts/youtube에 인식 가능한 CSV가 없어.')
+        notes.append('등록된 Spotify·YouTube 차트 자료가 없습니다.')
     return pairs, notes
 
 

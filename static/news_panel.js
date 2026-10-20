@@ -42,7 +42,7 @@
     const all = data.selected_tracks.length;
     const approved = data.approved_tracks.length;
     countEl.textContent = `현재 선택 ${all}곡 · 교차 검수 완료 ${approved}곡 · 검수 대기 ${data.excluded_tracks.length}곡`;
-    if (!approved) addLine(approvedList, '없음 — 선택 주차의 곡·버전·편집 분류 검수를 완료해 줘.');
+    if (!approved) addLine(approvedList, '검수 완료된 곡이 없습니다. 곡·버전·분류 검수가 필요합니다.');
     const factStatus = document.getElementById('news-fact-status');
     if (factStatus) factStatus.textContent = `Fact Sheet ${data.fact_week_end || requestedWeekEnd}: ${data.fact_status || '확인 필요'} · 출고 미승인` + (data.week_warning ? ` · ${data.week_warning}` : '');
     for (const row of data.approved_tracks) addLine(approvedList, `${row.artist} — ${row.track} (${row.editorial_category})`);
@@ -54,7 +54,11 @@
     const res = await fetch(url, {cache:'no-store', ...options});
     let data;
     try { data = await res.json(); } catch { throw new Error('서버 응답을 읽을 수 없습니다.'); }
-    if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+    if (!res.ok) {
+      const error = new Error(typeof data.detail === 'string' ? data.detail : '입력 내용을 확인해 주세요.');
+      error.status = res.status;
+      throw error;
+    }
     return data;
   }
   function renderArticle(text) {
@@ -73,11 +77,11 @@
     renderArticle(data.article);
     sourceEl.textContent = `근거/저장 위치: ${data.source || '없음'} · 최종 검수 필요 · 출고 미승인`;
     if (data.mode === 'saved_example') {
-      statusEl.textContent = '기존 2곡 예시야. 현재 선택과는 관계없으며 추가 API 비용은 없어.';
+      statusEl.textContent = '현재 선택과 별개인 2곡 예시이며, 추가 비용은 없습니다.';
     } else if (data.ai_generated_now) {
-      statusEl.textContent = '현재 선택에서 검수된 곡만으로 AI 초안을 생성했어. 숫자와 출처를 직접 검수해 줘.';
+      statusEl.textContent = '검수된 곡으로 AI 초안을 생성했습니다. 수치와 출처를 확인해 주세요.';
     } else {
-      statusEl.textContent = '현재 선택의 무료 Template이야. OpenAI를 호출하지 않았어.';
+      statusEl.textContent = '선택한 곡의 무료 초안이며, 유료 AI는 사용하지 않았습니다.';
     }
   }
   async function refreshSelection() {
@@ -88,7 +92,7 @@
   async function runFree(kind) {
     if (busy) return;
     setBusy(true);
-    statusEl.textContent = kind === 'preview' ? '현재 선택 곡을 검증하는 중…' : '기존 예시를 읽는 중…';
+    statusEl.textContent = kind === 'preview' ? '선택한 곡을 검증하고 있습니다.' : '기사 예시를 불러오고 있습니다.';
     try {
       if (kind === 'preview') await refreshSelection();
       const data = await requestJson(kind === 'preview' ? '/api/news/preview' + weekQuery : '/api/news/article?variant=edited');
@@ -107,7 +111,7 @@
     reviewBox.appendChild(note);
     if (!report.candidates.length) {
       const empty = document.createElement('p');
-      empty.textContent = 'Current Analysis에 곡을 추가하면 근거를 확인할 수 있어.';
+      empty.textContent = '분석할 곡을 선택하시면 검증 자료를 확인할 수 있습니다.';
       reviewBox.appendChild(empty);
     } else {
       const wrap = document.createElement('div');
@@ -168,7 +172,7 @@
       table.appendChild(tbody); wrap.appendChild(table); reviewBox.appendChild(wrap);
     }
     const caution = document.createElement('p'); caution.className = 'news-review-caution';
-    caution.textContent = 'Top 200/100에서 미확인 = 조회수 0이 아님. 곡 버전·K-POP 분류는 사람이 검수해야 하고, 기존 승인도 새 주차로 자동 이전되지 않아.';
+    caution.textContent = 'Top 200/100에서 미확인 = 조회수 0이 아님. 곡 버전·K-POP 분류는 사람이 검수해야 하고, 기존 승인은 새 주차에 자동 적용되지 않습니다.';
     reviewBox.appendChild(caution);
     reviewBox.hidden = false;
     reviewBox.scrollIntoView({behavior:'smooth', block:'nearest'});
@@ -179,7 +183,7 @@
     try {
       const report = await requestJson('/api/news/review-candidates' + weekQuery);
       showReviewQueue(report);
-      statusEl.textContent = '검수 후보표를 표시했어. 아직 새 곡을 승인하거나 기사에 추가하지 않았어.';
+      statusEl.textContent = '검수 후보를 표시했습니다. 기사 이용 전 승인이 필요합니다.';
     } catch (e) { statusEl.textContent = `검수 후보 확인 실패: ${e.message}`; }
     finally { setBusy(false); }
   });
@@ -192,7 +196,7 @@
       const result = await requestJson('/api/news/spotify-only-preview' + weekQuery);
       renderArticle(result.article);
       sourceEl.textContent = `검수 대기 Fact Sheet: ${result.source} · 유료 AI 미호출 · 최종 출고 미승인`;
-      statusEl.textContent = `Spotify 단독 검수 후보 ${result.candidate_count}곡의 무료 초안을 표시했어. 곡·버전·K-POP 분류 확인 전에는 기사 출고 또는 유료 AI 생성 불가.`;
+      statusEl.textContent = `Spotify 단독 검수 후보 ${result.candidate_count}곡의 무료 초안을 표시했습니다. 곡·버전·K-POP 분류 확인 전에는 기사 출고 또는 유료 AI 생성 불가.`;
     } catch (e) { statusEl.textContent = `Spotify 단독 검수 초안: ${e.message}`; }
     finally { setBusy(false); }
   });
@@ -204,26 +208,33 @@
     try {
       // Refresh on click: no stale client selection sent in request body.
       const fresh = await refreshSelection();
-      if (!fresh.can_generate) throw new Error('선택된 곡 중 검수 완료된 곡이 없어 기사 생성을 중단했어.');
+      if (!fresh.can_generate) throw new Error('검수 완료된 곡이 없어 기사를 생성할 수 없습니다.');
       const names = fresh.approved_tracks.map(t => `${t.artist} — ${t.track}`).join(', ');
       const excluded = fresh.excluded_tracks.length;
-      const msg = `현재 검수된 ${fresh.approved_tracks.length}곡(${names})만으로 OpenAI 유료 호출 1회를 할까?` +
-        (excluded ? `\n검수 대기 ${excluded}곡은 제외돼.` : '') + '\n승인되지 않은 기사가 자동 게시되지는 않아.';
-      if (!window.confirm(msg)) { statusEl.textContent = '유료 생성이 취소됐어.'; return; }
-      statusEl.textContent = 'OpenAI 1회 호출 중… 완료될 때까지 다시 누르지 마.';
+      const msg = `현재 검수된 ${fresh.approved_tracks.length}곡(${names})으로 유료 AI 초안을 생성하시겠습니까? (OpenAI 1회 호출)` +
+        (excluded ? `\n검수 대기 ${excluded}곡은 제외됩니다.` : '') + '\n기사는 사람의 승인 후 게시할 수 있습니다.';
+      if (!window.confirm(msg)) { statusEl.textContent = '유료 생성을 취소했습니다.'; return; }
+      statusEl.textContent = '유료 AI 초안을 생성하고 있습니다.';
       const data = await requestJson('/api/news/generate', {
         method:'POST',
         headers:{'Content-Type':'application/json','X-Requested-With':'KpopNewsPanel'},
         body:JSON.stringify({confirm_paid:true, week_end: requestedWeekEnd})
       });
       displayArticle(data);
-    } catch (e) { statusEl.textContent = `오류: ${e.message} · 유료 요청이 있었을 수 있으니 재시도 전 사용량을 확인해 줘.`; }
+    } catch (e) { statusEl.textContent = `오류: ${e.message} · 유료 요청이 처리되었을 수 있습니다. 재시도 전 사용량을 확인해 주세요.`; }
     finally { setBusy(false); }
   });
   refreshSelection().then(() => {
-    if (!selection.can_generate) statusEl.textContent = selection.week_warning || '선택 주차의 검수 완료 곡이 필요해. 검수 대기곡 근거 확인에서 원본을 확인해 줘.';
+    if (!selection.can_generate) statusEl.textContent = selection.week_warning || '선택한 기간의 곡 검수가 필요합니다. 검증 자료를 확인해 주세요.';
   }).catch(e => {
-    countEl.textContent = '선택 목록을 불러오지 못했어.';
+    countEl.textContent = '선택한 곡을 불러올 수 없습니다.';
+    if (e.status === 403) {
+      countEl.textContent = 'AI News 이용 권한이 필요합니다.';
+      [btnPreview, btnPaid, btnSaved, btnReview, btnSpotifyOnly].forEach(button => {
+        if (button) button.disabled = true;
+      });
+      document.getElementById('news-fact-status').textContent = '권한이 없어 데이터 검증 상태를 확인할 수 없습니다.';
+    }
     statusEl.textContent = `오류: ${e.message}`;
   });
 })();

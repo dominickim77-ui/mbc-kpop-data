@@ -202,8 +202,8 @@ class AnalysisTransactionTests(OfflineCase):
         message = unquote_plus(result.headers['location'])
         self.assertTrue(db.committed)
         self.assertEqual(site.analysis_song_ids, [7, 5])
-        self.assertIn('기존 ACTIVE 승인 영상(m7k9UMcHbr0)을 유지했어', message)
-        self.assertNotIn('YouTube 영상은 아직 검수 전이야', message)
+        self.assertIn('기존 ACTIVE 승인 영상(m7k9UMcHbr0)을 유지했습니다', message)
+        self.assertNotIn('YouTube 영상 검수가 필요합니다', message)
 
     def test_unapproved_track_retains_existing_review_notice(self):
         db = FakeDB()
@@ -211,8 +211,8 @@ class AnalysisTransactionTests(OfflineCase):
             result = self.add(db, [1])
         message = unquote_plus(result.headers['location'])
         self.assertTrue(db.committed)
-        self.assertIn('YouTube 영상은 아직 검수 전이야', message)
-        self.assertIn('YouTube Data에서 후보를 직접 확인해 줘', message)
+        self.assertIn('YouTube 영상 검수가 필요합니다', message)
+        self.assertIn('YouTube Data에서 후보를 확인해 주세요', message)
         self.assertNotIn('기존 ACTIVE 승인 영상', message)
 
     def test_corrupt_active_history_rolls_back_without_publishing_notice(self):
@@ -226,7 +226,7 @@ class AnalysisTransactionTests(OfflineCase):
         self.assertEqual(site.analysis_song_ids, [7])
         message = unquote_plus(result.headers['location'])
         self.assertNotIn('기존 ACTIVE 승인 영상', message)
-        self.assertNotIn('Analysis에 추가했습니다', message)
+        self.assertNotIn('분석 목록에 추가했습니다', message)
 
     def test_failed_commit_does_not_publish_active_approval_notice(self):
         db = FakeDB(fail_commit=True)
@@ -243,7 +243,7 @@ class AnalysisTransactionTests(OfflineCase):
         self.assertEqual(site.analysis_song_ids, [7])
         self.assertTrue(db.rolled_back)
         self.assertTrue(db.closed and db.cur.closed)
-        self.assertNotIn('Analysis에 추가했습니다', unquote_plus(result.headers['location']))
+        self.assertNotIn('분석 목록에 추가했습니다', unquote_plus(result.headers['location']))
 
     def test_second_insert_failure_discards_all_pending(self):
         db = FakeDB(fail_write=2)
@@ -258,7 +258,7 @@ class AnalysisTransactionTests(OfflineCase):
         self.assertTrue(db.committed)
         self.assertEqual(db.selection_at_commit, [7])
         self.assertEqual(site.analysis_song_ids, [7, 100, 101])
-        self.assertIn('Analysis에 추가했습니다', unquote_plus(result.headers['location']))
+        self.assertIn('분석 목록에 추가했습니다', unquote_plus(result.headers['location']))
 
     def test_duplicate_rank_is_added_once(self):
         db = FakeDB()

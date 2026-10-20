@@ -45,7 +45,10 @@ async function refresh(){
   const published=await api('/api/editorial/published'); $('#published').replaceChildren();
   if(!published.length) $('#published').textContent='승인된 기사가 없습니다.';
   for(const row of published){const el=document.createElement('article'), h=document.createElement('h3'), p=document.createElement('pre');h.textContent=row.title;p.textContent=row.body;el.append(h,p);$('#published').append(el);}
-  if(me.role==='READER') return;
+  if(me.role==='READER') {
+    $('#message').textContent='일반 회원은 승인된 기사를 볼 수 있습니다. 작성은 JOURNALIST·EDITOR·ADMIN, 검수·승인은 EDITOR·ADMIN 권한이 필요합니다.';
+    return;
+  }
   $('#workspace').hidden=false; $('#list').replaceChildren();
   for(const row of await api('/api/editorial/articles')){const b=document.createElement('button');b.dataset.status=row.status;b.textContent=`${row.status} · ${row.title} · v${row.version}`;b.onclick=()=>run(()=>openArticle(row.id));$('#list').append(b);}
 }

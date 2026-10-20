@@ -29,6 +29,45 @@
     });
   }
   sidebar?.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+  // Keep form errors inside the Dashboard, including expired sessions and bad input.
+  document.querySelectorAll('form[action="/select-analysis"],form[action="/reset-analysis"],form[action^="/remove-analysis/"]').forEach(form => {
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (form.dataset.pending) return;
+      const button = event.submitter;
+      if (button?.hasAttribute('data-collect-confirm') &&
+          !confirm('선택한 곡의 원본 데이터를 저장하시겠습니까? 개인 분석 선택만 하시려면 취소해 주세요.')) return;
+      let status = document.querySelector('#analysis-form-status');
+      if (!status) {
+        status = document.createElement('p');
+        status.id = 'analysis-form-status';
+        status.className = 'search-message';
+        status.setAttribute('role', 'alert');
+        status.tabIndex = -1;
+      }
+      form.append(status);
+      status.textContent = '선택 목록을 처리하고 있습니다.';
+      form.dataset.pending = 'true';
+      if (button) button.disabled = true;
+      try {
+        const response = await fetch(button?.getAttribute('formaction') || form.action, {
+          method: 'POST', body: new FormData(form), headers: {'Accept': 'application/json'}
+        });
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(typeof data.detail === 'string' ? data.detail : '입력 내용을 확인해 주세요.');
+        }
+        if (response.redirected) location.assign(response.url);
+        else location.reload();
+      } catch (error) {
+        status.textContent = error instanceof TypeError ? '서버에 연결할 수 없습니다. 연결 상태를 확인해 주세요.' : error.message;
+        status.focus();
+      } finally {
+        delete form.dataset.pending;
+        if (button) button.disabled = false;
+      }
+    });
+  });
   addEventListener('hashchange', activeLink); activeLink();
   // Tables retain their existing form controls and become keyboard-scrollable.
   document.querySelectorAll('.dashboard-table-scroll,.weekly-table-scroll').forEach(el => {

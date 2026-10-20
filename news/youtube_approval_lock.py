@@ -51,7 +51,7 @@ def latest_approved(review_dir: Path, song_id: int) -> dict | None:
             candidates.append((timestamp.astimezone(timezone.utc), path.name, video_id,
                                record.get("youtube_channel") or "", record.get("video_title") or ""))
         except (OSError, ValueError, TypeError, KeyError) as exc:
-            raise ApprovalIntegrityError(f"검수 기록 {path.name}에 문제가 있어 승인 변경을 중단했어: {exc}") from None
+            raise ApprovalIntegrityError(f"검수 기록 {path.name}에 문제가 있어 승인 변경을 중단했습니다: {exc}") from None
     if not candidates:
         original_latest = None
     else:

@@ -30,7 +30,7 @@
 <div class="sidebar-note"><span class="status-dot"></span> Verified data.<br>Human editorial control.</div>
 <div id="lab-account" class="lab-account"><a href="/account">계정 확인</a></div>
 </aside>
-<div class="lab-topbar"><button class="menu-toggle" aria-controls="lab-navigation" aria-expanded="false" aria-label="메뉴 열기">☰</button><a class="top-search" href="/#discover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0"/></svg><span>아티스트를 검색하고 분석을 시작하세요</span><kbd>DISCOVER</kbd></a><a class="top-account" href="/account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0M4 21v-3a8 8 0 0 1 16 0v3"/></svg><span>Account</span></a></div>
+<div class="lab-topbar"><button class="menu-toggle" aria-controls="lab-navigation" aria-expanded="false" aria-label="메뉴 열기">☰</button><a class="top-search" href="/#discover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0"/></svg><span>아티스트를 검색해 주세요</span><kbd>DISCOVER</kbd></a><a class="top-account" href="/account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0M4 21v-3a8 8 0 0 1 16 0v3"/></svg><span>Account</span></a></div>
 
     <!-- ==================================================
          PAGE HEADER
@@ -40,7 +40,7 @@
 
 
     <main id="main-content" class="dashboard"><section class="overview-grid" aria-label="분석 요약">
-<div class="hero glass"><span class="eyebrow">K-POP DATA LAB / OVERVIEW</span><h1>Global Music<br><span>Intelligence</span></h1><p>Discover the data behind K-POP.</p><a class="primary-link" href="#discover">Start Analysis <span aria-hidden="true">→</span></a><div class="hero-orbit" aria-hidden="true"></div></div>
+<div class="hero glass"><span class="eyebrow">K-POP DATA LAB / OVERVIEW</span><h1>Global Music<br><span>Intelligence</span></h1><p>Discover the data behind K-POP.</p><a class="primary-link" href="#discover">분석 시작하기 <span aria-hidden="true">→</span></a><div class="hero-orbit" aria-hidden="true"></div></div>
 <div class="summary-card glass"><span class="summary-icon violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0M4 21v-3a8 8 0 0 1 16 0v3"/></svg></span><h2>Selected Artists</h2><p class="metric">{{ artist_count }}<small> / {{ max_artists }}</small></p><meter min="0" max="{{ max_artists }}" value="{{ artist_count }}" aria-label="선택 아티스트 수"></meter><p class="micro">선택한 아티스트</p></div>
 <div class="summary-card glass"><span class="summary-icon coral">♫</span><h2>Selected Tracks</h2><p class="metric">{{ track_count }}<small> / {{ max_tracks }}</small></p><meter min="0" max="{{ max_tracks }}" value="{{ track_count }}" aria-label="선택 곡 수"></meter><p class="micro">현재 분석 중인 곡</p></div>
 <div class="summary-card glass"><span class="summary-icon violet">▦</span><h2>Chart Period</h2><p class="period">{{ selected_week_end or '등록된 주차 없음' }}</p><p class="micro">선택 차트 종료일</p><a href="#comparison">비교 기간 확인 →</a></div>
@@ -48,10 +48,10 @@
 </section><section id="trends" class="dashboard-section">
   <h2>📈 Accumulated Analysis — 플랫폼별 2주 변화</h2>
   <p>현재 선택한 곡의 <strong>Spotify 주간 스트리밍</strong>과
-    <strong>YouTube 공식 Top Songs 주간 조회수</strong>를 별도의 그래프로 그려.
-    두 플랫폼 수치의 크기는 직접 비교하지 않아.</p>
+    <strong>YouTube 공식 Top Songs 주간 조회수</strong>를 별도 그래프로 보여 드립니다.
+    두 플랫폼의 수치를 직접 비교할 수 없습니다.</p>
   {% if weekly_chart_error %}
-    <p class="weekly-error" role="alert">⚠ 원본 주간 차트가 검증되지 않아 그래프를 그리지 않았어.</p>
+    <p class="weekly-error" role="alert">⚠ 원본 데이터 검증 후 그래프를 확인할 수 있습니다.</p>
   {% elif weekly_comparison %}
     <script id="weeklyChartPayload" type="application/json">{{ weekly_chart_data | tojson }}</script>
     <div class="analysis-two-charts">
@@ -64,10 +64,10 @@
         <div class="chart-container"><canvas id="youtubeWeekTrend" role="img" aria-label="YouTube 공식 곡 차트 주간 조회수 2주 비교"></canvas></div>
       </div>
     </div>
-    <p class="weekly-footnote">회색 또는 빈 값은 누락 데이터야. 조회수가 0이라는 뜻이 아니야.
-      축의 M은 100만 회야. 긴 곡 이름과 정확한 수치는 Tooltip과 비교 표에서 확인해. 두 그래프는 서로 다른 단위와 축을 사용해. 두 주의 집계 기간은 같아도 플랫폼 간 소비량을 나누거나 빼면 안 돼.</p>
+    <p class="weekly-footnote">회색 또는 빈 값은 관측 자료가 없다는 뜻이며, 조회수 0을 의미하지 않습니다.
+      M은 100만 회입니다. 곡 이름과 정확한 수치는 그래프에 커서를 올리거나 표에서 확인해 주세요. 두 그래프는 단위와 축이 달라 수치의 차이·배율을 비교할 수 없습니다.</p>
   {% else %}
-    <p>먼저 Current Analysis에 분석할 곡을 추가해 줘.</p>
+    <p>분석할 곡을 선택해 주세요.</p>
   {% endif %}
 </section>
 
@@ -94,13 +94,12 @@
               <input type="hidden" name="artist" value="{{ search_artist }}">
               <button type="submit" {% if not week_options %}disabled{% endif %}>주차 적용</button>
             </form>
-            <p class="weekly-footnote">선택한 비교 기간의 <strong>금주 종료일</strong>을 기준으로 Spotify Top 200을 검색해.
-              선택한 곡은 유지하며, 다른 주차에 없는 곡의 수치는 <strong>—</strong>로 표시해.
-              YouTube 기존 영상 누적 데이터는 별도 지표야.</p>
+            <p class="weekly-footnote">선택한 비교 기간의 <strong>금주 종료일</strong> 기준 Spotify Top 200에서 검색합니다.
+              선택한 곡은 유지하며, 다른 주차에 없는 곡의 수치는 <strong>—</strong>로 표시합니다.
+              YouTube 기존 영상 누적 데이터는 별도 지표입니다.</p>
 
             <p>
-                Spotify Weekly Global Top 200에서
-                아티스트를 검색합니다.
+                아티스트 이름을 검색해 주세요.
             </p>
 
 
@@ -117,7 +116,7 @@
                 <input type="text" name="artist" value="{{ search_artist }}" placeholder="아티스트 이름으로 검색" aria-label="아티스트 이름" required>
 
                 <button type="submit">
-                    Search
+                    검색하기
                 </button>
 
             </form>
@@ -153,7 +152,7 @@
                 /add-analysis로 전달한다.
                 -->
 
-                <form method="post" action="/add-analysis">
+                <form method="post" action="/select-analysis">
 
                     <!--
                     어떤 Artist의 검색 결과인지
@@ -213,9 +212,16 @@
 
 
                     <button class="add-analysis-button" type="submit">
-                        Add Selected to Analysis
+                        선택곡 분석에 추가
                     </button>
 
+                    {% if request.state.user.role in ['JOURNALIST', 'EDITOR', 'ADMIN'] %}
+                    <details><summary>원본 데이터 관리</summary>
+                    <p>기존 STAFF 기능입니다. 선택한 곡의 원본 데이터를 저장하며, 개인 선택과 구분됩니다.</p>
+                    <button type="submit" formaction="/add-analysis" data-collect-confirm>원본 저장 후 추가</button>
+                    </details>
+                    {% endif %}
+                    <p>저장된 곡만 개인 분석에 추가할 수 있으며, 없는 곡은 운영 담당자의 확인이 필요합니다.</p>
                 </form>
 
             </div>
@@ -231,8 +237,8 @@
 
         {% if message %}
 
-        <div class="success-message">
-            ✅ {{ message }}
+        <div class="success-message" role="status" tabindex="-1">
+            {{ message }}
         </div>
 
         {% endif %}
@@ -280,7 +286,7 @@
                     <input type="hidden" name="week_end" value="{{ selected_week_end }}">
 
                     <button class="reset-button" type="submit">
-                        RESET ANALYSIS
+                        선택 목록 초기화
                     </button>
 
                 </form>
@@ -363,7 +369,7 @@
 
             <p>
                 아직 분석에 추가된 곡이 없습니다.
-                위 Artist Search에서 곡을 선택해 주세요.
+                Discover에서 곡을 선택해 주세요.
             </p>
 
             {% endif %}
@@ -379,8 +385,8 @@
 
             <h2>🎵 Spotify Data</h2>
 
-            <p>선택된 종료 주 <strong>{{ selected_week_end or '없음' }}</strong>의 Spotify Global Top 200 원본 CSV를 표시해.
-              해당 주차에 없는 곡은 <strong>—</strong>로 표시하며, MySQL의 다른 주차 숫자로 대체하지 않아.</p>
+            <p>선택된 종료 주 <strong>{{ selected_week_end or '없음' }}</strong>의 Spotify Global Top 200 원본 차트 자료입니다.
+              해당 주차에 없는 곡은 <strong>—</strong>로 표시하며, 다른 기간의 수치로 대체하지 않습니다.</p>
 
 
             <div class="dashboard-table-scroll"><table>
@@ -513,8 +519,8 @@
         <!-- KPOP_YOUTUBE_VIDEO_HUMAN_REVIEW_STEP17B -->
         <div id="youtube-review-step17b" data-week-end="{{ selected_week_end }}">
             <h3>🔍 YouTube 영상 ID · 공식 채널 검수</h3>
-            <p>기존 자동 검색 영상은 공식 MV로 승인된 것이 아니야. 새로 추가한 곡은 YouTube 연결을 보류해. 직접 확인한 영상만 승인·기록할 수 있어.</p>
-            <p class="yt17-warning">영상 후보 조회 시 YouTube Data API 할당량이 사용돼. 이 영상의 누적 조회수는 YouTube Global Weekly Top Songs의 주간 조회수가 아니야.</p>
+            <p>자동 검색 영상은 미승인 상태이며, 직접 확인한 영상만 승인할 수 있습니다.</p>
+            <p class="yt17-warning">후보 검색에는 YouTube Data API 할당량이 사용됩니다. 영상 누적 조회수는 공식 주간 곡 조회수와 다릅니다.</p>
             <div class="yt17-toolbar">
                 <label for="yt17-song">검수할 곡</label>
                 <select id="yt17-song" aria-label="YouTube 영상 후보를 확인할 선택곡">
@@ -522,9 +528,9 @@
                     <option value="{{ item.song_id }}">{{ item.artist }} — {{ item.track }}</option>
                     {% endfor %}
                 </select>
-                <button type="button" id="yt17-search" {% if not current_analysis %}disabled{% endif %}>영상 후보 확인 (API 할당량 사용)</button>
+                <button type="button" id="yt17-search" {% if not current_analysis %}disabled{% endif %}>영상 후보 확인</button>
             </div>
-            <p id="yt17-status" role="status" aria-live="polite">자동 승인 없음. 공식 채널·곡 버전을 직접 확인하기 전에는 저장하지 않아.</p>
+            <p id="yt17-status" role="status" aria-live="polite">EDITOR·ADMIN이 공식 채널과 곡 버전을 확인한 뒤 승인할 수 있습니다.</p>
             <div id="yt17-candidates" hidden></div>
         </div>
 </section>
@@ -546,15 +552,14 @@
     <button type="submit">주차 적용</button>
   </form>
   {% for note in week_catalog_notes %}<p class="weekly-footnote">⚠ {{ note }}</p>{% endfor %}
-  <p class="weekly-footnote">등록된 원본의 무결성과 차트 형식을 확인한 주차만 표시해. 새 주차는 출처 확인이 필요하고, 곡 버전·기사 승인은 별도 검수해.</p>
+  <p class="weekly-footnote">출처와 형식이 확인된 기간만 표시하며, 곡 버전과 기사는 별도 검수가 필요합니다.</p>
 
   <p>Spotify Global Weekly Top Songs(상위 200곡)와 YouTube Global Weekly Top Songs(상위 100곡),
-    <strong>{{ selected_period_label }}</strong> 데이터를 비교해.</p>
+    <strong>{{ selected_period_label }}</strong> 데이터를 비교합니다.</p>
   <div class="notice">Spotify는 <strong>주간 스트리밍 수</strong>, YouTube는
-    <strong>공식 곡 차트의 주간 조회수</strong>야. 같은 기간이지만 지표·집계 방식이 다르므로
-    두 숫자의 차이·배율·우위를 계산하지 않아. 주간 조회수는 단일 MV 누적 조회수가 아니야.</div>
+    <strong>공식 곡 차트의 주간 조회수</strong>입니다. 집계 기준이 달라 수치를 직접 비교할 수 없습니다. 주간 곡 조회수는 개별 영상 누적 조회수와 다릅니다.</div>
   {% if weekly_chart_error %}
-    <p class="weekly-error" role="alert">⚠ 원본 차트 검사 실패: {{ weekly_chart_error }}. 임의의 수치로 대체하지 않았어.</p>
+    <p class="weekly-error" role="alert">⚠ 원본 차트 검사 실패: {{ weekly_chart_error }}. 데이터 검증 후 이용할 수 있습니다.</p>
   {% elif weekly_comparison %}
     <div class="weekly-table-scroll">
   <table class="weekly-table">
@@ -583,9 +588,9 @@
   </table>
 </div>
     <p class="weekly-footnote">— 표시는 제공된 Top 200/Top 100 파일에서 해당 곡을 확인하지 못했다는 뜻이며,
-      재생 수가 0이라는 의미는 아니야. 자동 매칭 후보는 곡 버전 검수가 필요하며 기사 승인과 별개야.</p>
+      재생 수가 0이라는 뜻은 아닙니다. 자동 연결된 곡은 버전 검수와 기사 승인이 별도로 필요합니다.</p>
   {% else %}
-    <p class="weekly-footnote">Current Analysis에 곡을 추가하면 선택된 곡의 2주간 데이터를 표시해.</p>
+    <p class="weekly-footnote">분석할 곡을 선택하시면 2주간 데이터를 확인할 수 있습니다.</p>
   {% endif %}
 </section>
 
@@ -602,23 +607,23 @@
   {% if not news_week_compatible %}
   <p class="weekly-error" role="status">⚠ 등록된 연속 2주 원본을 확인한 뒤 Fact Sheet 검수를 진행해 주세요.</p>
   {% endif %}
-  <p class="news-panel-note">이 페이지의 예전 YouTube 영상 누적 조회수와 공식 주간 Top Songs 조회수는 서로 달라. 기사에는 <strong>검수된 같은 주차의 주간 차트 자료만</strong> 사용할게.</p>
+  <p class="news-panel-note">영상 누적 조회수와 주간 곡 조회수는 다릅니다. 기사에는 <strong>같은 기간의 검수된 주간 차트 자료만</strong> 사용합니다.</p>
   <div class="news-selection-summary" aria-live="polite">
-    <p id="news-fact-status">선택 주차의 Fact Sheet 상태 확인 중…</p>
-    <p id="news-selected-count">선택한 곡을 확인하는 중…</p>
+    <p id="news-fact-status">데이터 검증 상태를 확인하고 있습니다.</p>
+    <p id="news-selected-count">선택한 곡을 확인하고 있습니다.</p>
     <div class="news-selection-lists">
       <div><strong>기사에 사용할 검수 완료 곡</strong><ul id="news-approved-list"></ul></div>
-      <div><strong>현재 근거 부족 · 기사 제외</strong><ul id="news-excluded-list"></ul></div>
+      <div><strong>검증이 필요한 곡</strong><ul id="news-excluded-list"></ul></div>
     </div>
   </div>
   <div class="news-panel-actions">
-    <button type="button" id="news-preview-btn" class="news-saved-button" disabled>🔎 선택한 곡 기사 미리보기 (무료)</button>
-    <button type="button" id="news-generate-btn" class="news-generate-button" disabled>✨ 선택한 곡 AI 기사 생성 (유료)</button>
-    <button type="button" id="news-saved-btn" class="news-saved-button">📄 기존 2곡 수정 기사 예시 (무료)</button>
-    <button type="button" id="news-review-queue-btn" class="news-saved-button">📋 검수 대기곡 근거 확인 (무료)</button>
-     <button type="button" id="news-spotify-only-preview-btn" class="news-saved-button">🎵 Spotify 단독 검수 초안 (무료)</button>
+    <button type="button" id="news-preview-btn" class="news-saved-button" disabled>🔎 기사 미리보기 (무료)</button>
+    <button type="button" id="news-generate-btn" class="news-generate-button" disabled>✨ AI 초안 생성 (유료)</button>
+    <button type="button" id="news-saved-btn" class="news-saved-button">📄 2곡 기사 예시 (무료)</button>
+    <button type="button" id="news-review-queue-btn" class="news-saved-button">📋 검증 자료 확인 (무료)</button>
+     <button type="button" id="news-spotify-only-preview-btn" class="news-saved-button">🎵 Spotify 초안 확인 (무료)</button>
   </div>
-  <p id="news-status" class="news-status" role="status" aria-live="polite">승인된 곡이 없으면 생성하지 않아. 기사 출력은 출고 미승인 상태야.</p>
+  <p id="news-status" class="news-status" role="status" aria-live="polite">검수된 곡으로만 초안을 생성하며, 기사 출고에는 사람의 승인이 필요합니다.</p>
   <div id="news-review-queue" class="news-review-queue" hidden aria-live="polite"></div>
   <div id="news-article-output" class="news-article-output" hidden></div>
   <p id="news-result-source" class="news-result-source"></p>

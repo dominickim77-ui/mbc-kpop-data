@@ -14,10 +14,10 @@
 # 7. Spotify / YouTube / Compare를 한 Dashboard에서 확인
 # 8. Artist 최대 10명 / Track 최대 10곡
 # 9. 개별 곡 제거
-# 10. RESET ANALYSIS
+# 10. 선택 목록 초기화
 #
 # 중요:
-# RESET ANALYSIS는 MySQL 데이터를 삭제하지 않는다.
+# 선택 목록 초기화는 MySQL 데이터를 삭제하지 않는다.
 # 현재 화면에서 비교 중인 곡 목록만 초기화한다.
 # --------------------------------------------------
 
@@ -155,6 +155,67 @@ app.mount(
 
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
+from fastapi.exceptions import RequestValidationError
+from fastapi.exception_handlers import request_validation_exception_handler
+
+
+@app.exception_handler(RequestValidationError)
+async def form_validation_error(request, exc):
+    if request.url.path.startswith(('/select-analysis', '/add-analysis', '/remove-analysis/', '/reset-analysis')):
+        from fastapi.responses import JSONResponse
+        message = '입력값이 올바르지 않습니다. 곡과 비교 기간을 다시 선택해 주세요.'
+        if 'text/html' in request.headers.get('accept', ''):
+            return RedirectResponse('/?message=' + quote_plus(message), status_code=303)
+        return JSONResponse({'detail': message}, status_code=422)
+    return await request_validation_exception_handler(request, exc)
+
+
+@app.post('/select-analysis', dependencies=[Depends(require_local_analysis_origin)])
+def select_analysis(selected_ranks: list[int] = Form(default=[]),
+                    search_artist: str = Form(default=''), week_end: str = Form(default='')):
+    """Personal selection only: validated chart + existing records, no collection."""
+    from security.auth import require_role
+    require_role()
+    message = ''
+    with _analysis_write_lock:
+        try:
+            if not selected_ranks:
+                raise ValueError('분석할 곡을 선택해 주세요.')
+            ranks = set(selected_ranks)
+            if len(ranks) > MAX_TRACKS:
+                raise ValueError('곡은 최대 10곡까지 선택할 수 있습니다.')
+            chart = load_spotify_csv(week_end)
+            chosen = chart[chart['rank'].isin(ranks)]
+            if len(chosen) != len(ranks):
+                raise ValueError('선택한 곡을 해당 기간의 차트에서 확인할 수 없습니다.')
+            rows = get_dashboard_data()  # Read-only. No MySQL commit or external API.
+            catalog = {}
+            for row in rows:
+                catalog.setdefault((row['artist'], row['track']), set()).add(row['song_id'])
+            additions = []
+            for row in chosen.to_dict('records'):
+                candidates = catalog.get((str(row['artist_names']), str(row['track_name'])), set())
+                if len(candidates) != 1:
+                    raise ValueError('선택한 곡의 저장된 데이터를 확인할 수 없습니다. 운영 담당자의 데이터 확인 후 이용해 주세요. 선택 목록은 변경하지 않았습니다.')
+                song_id = next(iter(candidates))
+                if song_id not in additions:
+                    additions.append(song_id)
+            def merge(ids):
+                merged = list(dict.fromkeys([*ids, *additions]))
+                artists = {r['artist'] for r in rows if r['song_id'] in merged}
+                if len(merged) > MAX_TRACKS or len(artists) > MAX_ARTISTS:
+                    raise ValueError('아티스트는 최대 10명, 곡은 최대 10곡까지 선택할 수 있습니다.')
+                ids[:] = merged
+            # Read, enforce limits, and save under SQLite's cross-process write lock.
+            analysis_song_ids._change(merge)
+            message = '선택한 곡을 개인 분석에 추가했습니다.'
+        except (CatalogError, ChartValidationError, OSError, ValueError) as exc:
+            message = str(exc)
+        except mysql.connector.Error:
+            message = '저장된 데이터에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.'
+    return RedirectResponse('/?artist=' + quote_plus(search_artist) + '&week_end=' +
+                            quote_plus(week_end) + '&message=' + quote_plus(message), status_code=303)
+
 
 # --------------------------------------------------
 # 8. MySQL 연결 함수
@@ -192,7 +253,7 @@ def load_spotify_csv(week_end: str = ""):
     """
     pair, _, _ = choose_pair(week_end=week_end)
     if pair is None:
-        raise CatalogError('비교 가능한 연속 2주 CSV가 없어 Spotify 검색을 중단했어.')
+        raise CatalogError('연속 2주의 차트 자료가 없어 검색할 수 없습니다.')
     from news.weekly_chart_analysis import read_chart, ROOT as CHART_ROOT
     index = read_chart(CHART_ROOT, pair.spotify_current, 'spotify')
     return pd.DataFrame([
@@ -333,7 +394,7 @@ def home(
             spotify_csv = load_spotify_csv(week_end)
         except (CatalogError, ChartValidationError, OSError, ValueError) as exc:
             spotify_csv = None
-            search_message = f'선택한 주차의 Spotify CSV를 사용할 수 없어: {exc}'
+            search_message = f'선택한 기간의 Spotify 자료를 사용할 수 없습니다: {exc}'
 
         # artist_names 컬럼에서 검색어를 찾는다.
         #
@@ -355,11 +416,7 @@ def home(
 
         # 검색 결과가 없는 경우
         if not search_results and not search_message:
-            search_message = (
-                f'"{artist}"는 선택한 {week_end or "최신 비교 가능"} 종료 주의 '
-                'Spotify Global Weekly Top 200 곡 차트에서 찾지 못했어. '
-                'YouTube 아티스트 순위와는 별개의 차트야.'
-            )
+            search_message = '검색 결과가 없습니다. 다른 이름으로 검색해 주세요. 검색 범위는 선택한 기간의 Spotify Global Top 200입니다.'
 
     # --------------------------------------------------
     # 11-2. MySQL 데이터 가져오기
@@ -416,7 +473,7 @@ def home(
         pair, week_pairs, week_notes = choose_pair(week_end=week_end)
         if pair is None:
             weekly_comparison = []
-            weekly_chart_error = "동일 기간의 연속 2주 Spotify·YouTube CSV가 준비되지 않았어"
+            weekly_chart_error = "동일 기간의 연속 2주 Spotify·YouTube 자료가 없습니다."
         else:
             weekly_comparison = build_weekly_rows(analysis_data, pair=pair)
             weekly_chart_error = None
@@ -561,7 +618,7 @@ def _add_analysis(selected_ranks: list[int], search_artist: str, week_end: str):
     try:
         pair, _, _ = choose_pair(week_end=week_end)
         if pair is None:
-            raise CatalogError('선택 가능한 비교 주차가 없어')
+            raise CatalogError('선택할 수 있는 비교 기간이 없습니다.')
         spotify_csv = load_spotify_csv(pair.current_end.isoformat())
         week_end = pair.current_end.isoformat()
     except (CatalogError, ChartValidationError, OSError, ValueError) as exc:
@@ -620,7 +677,7 @@ def _add_analysis(selected_ranks: list[int], search_artist: str, week_end: str):
 
             if len(analysis_song_ids) + len(pending_song_ids) >= MAX_TRACKS:
 
-                messages.append("Track은 최대 10곡까지 " "비교할 수 있습니다.")
+                messages.append("곡은 최대 10곡까지 " "비교할 수 있습니다.")
 
                 break
 
@@ -691,7 +748,7 @@ def _add_analysis(selected_ranks: list[int], search_artist: str, week_end: str):
 
             if song_id in analysis_song_ids or song_id in pending_song_ids:
 
-                messages.append(f"{artist} - {track}은 " "이미 Analysis에 있습니다.")
+                messages.append(f"{artist} - {track}은 " "이미 분석 목록에 있습니다.")
 
                 continue
 
@@ -703,7 +760,7 @@ def _add_analysis(selected_ranks: list[int], search_artist: str, week_end: str):
 
             if artist not in current_artists and len(current_artists) >= MAX_ARTISTS:
 
-                messages.append("Artist는 최대 10명까지 " "비교할 수 있습니다.")
+                messages.append("아티스트는 최대 10명까지 " "비교할 수 있습니다.")
 
                 continue
 
@@ -758,12 +815,12 @@ def _add_analysis(selected_ranks: list[int], search_artist: str, week_end: str):
             if active_approval is not None:
                 pending_messages.append(
                     f"{artist} - {track}: 기존 ACTIVE 승인 영상"
-                    f"({active_approval['video_id']})을 유지했어."
+                    f"({active_approval['video_id']})을 유지했습니다."
                 )
             else:
                 pending_messages.append(
-                    f"{artist} - {track}: YouTube 영상은 아직 검수 전이야. "
-                    "YouTube Data에서 후보를 직접 확인해 줘."
+                    f"{artist} - {track}: YouTube 영상 검수가 필요합니다. "
+                    "YouTube Data에서 후보를 확인해 주세요."
                 )
 
             # --------------------------------------------------
@@ -774,7 +831,7 @@ def _add_analysis(selected_ranks: list[int], search_artist: str, week_end: str):
 
             current_artists.add(artist)
 
-            pending_messages.append(f"{artist} - {track}을 " "Analysis에 추가했습니다.")
+            pending_messages.append(f"{artist} - {track}을 " "분석 목록에 추가했습니다.")
 
         # --------------------------------------------------
         # DB 최종 저장
@@ -929,7 +986,7 @@ def compare_page(request: Request, week_end: str = ""):
         pair, week_pairs, week_notes = choose_pair(week_end=week_end)
         if pair is None:
             weekly_comparison = []
-            weekly_chart_error = '등록된 연속 2주 원본 CSV가 없어'
+            weekly_chart_error = '연속 2주의 원본 자료가 없습니다.'
         else:
             weekly_comparison = build_weekly_rows(selected, pair=pair)
             weekly_chart_error = None

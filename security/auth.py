@@ -195,7 +195,8 @@ class AuthMiddleware:
                 token = current_user.set(user)
                 scope.setdefault('state', {})['user'] = user
                 if path.startswith('/api/news/'):
-                    require_role(*STAFF)
+                    if user['role'] not in STAFF:
+                        raise HTTPException(403, 'AI News는 JOURNALIST, EDITOR, ADMIN 계정으로 이용할 수 있습니다.')
                 if path.startswith('/api/youtube-video-review/'):
                     require_role('EDITOR', 'ADMIN')
                 if path == '/add-analysis':
@@ -204,6 +205,10 @@ class AuthMiddleware:
                 require_local_analysis_origin(request)
             await self.app(scope, receive, send)
         except HTTPException as exc:
+            if method == 'POST' and path.startswith(('/select-analysis', '/add-analysis', '/remove-analysis/', '/reset-analysis')) and 'text/html' in request.headers.get('accept', ''):
+                from urllib.parse import quote_plus
+                target = '/account' if exc.status_code == 401 else '/?message=' + quote_plus(str(exc.detail))
+                return await RedirectResponse(target, status_code=303)(scope, receive, send)
             await JSONResponse({'detail': exc.detail}, status_code=exc.status_code)(scope, receive, send)
         except RuntimeError:
             await JSONResponse({'detail': '인증 저장소 초기화가 필요합니다.'}, status_code=503)(scope, receive, send)

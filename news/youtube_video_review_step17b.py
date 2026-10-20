@@ -287,10 +287,10 @@ def approve_video(request: Request, body: ApproveRequest):
         raise HTTPException(409, str(exc)) from None
     if approved is not None:
         if approved['video_id'] == body.video_id:
-            raise HTTPException(409, '이 Video ID는 이미 승인됐어. 중복 저장하지 않아.')
+            raise HTTPException(409, '이미 승인된 영상으로, 다시 저장할 필요가 없습니다.')
         raise HTTPException(409,
             f"이미 승인된 영상({approved['video_id']}; {approved['channel']})이 있어. "
-            '다른 영상으로 바꾸려면 기존 승인을 정정하는 별도 검수 절차가 필요해.')
+            '다른 영상으로 변경하려면 기존 승인 정정과 별도 검수가 필요합니다.')
     with _cache_lock:
         _prune_cache(time.monotonic())
         session = _sessions.get(body.review_token)

@@ -55,22 +55,22 @@ def _checked_source_links(root: Path, relpath: str, platform: str) -> dict:
 def _candidate_status(row: dict) -> tuple[str, str]:
     code = row['review_code']
     if code == 'reviewed':
-        return 'DUAL_CHART_REVIEWED', '기존 사람이 검수한 두 플랫폼 Fact Sheet와 원본 CSV를 대조했어. 기사 초안 가능, 출고 승인 아님.'
+        return 'DUAL_CHART_REVIEWED', 'Fact Sheet와 원본 자료를 대조했습니다. 초안 작성은 가능하며, 출고에는 별도 승인이 필요합니다.'
     if code == 'excluded':
-        return 'HOLD_VERSION', '곡 버전 대응이 불명확해서 기사 주요 분석에서 제외했어.'
+        return 'HOLD_VERSION', '곡 버전이 불명확하여 기사 주요 분석에서 제외했습니다.'
     if code == 'mismatch':
-        return 'HOLD_FACT_MISMATCH', '기존 Fact Sheet와 CSV 값이 달라서 새 기사 작성을 중단해야 해.'
+        return 'HOLD_FACT_MISMATCH', 'Fact Sheet와 원본 수치가 달라 기사 작성 전 확인이 필요합니다.'
     if code == 'ambiguous':
-        return 'HOLD_AMBIGUOUS', '동일 이름·아티스트의 복수 기록이 있어 정확한 버전 식별이 필요해.'
+        return 'HOLD_AMBIGUOUS', '같은 이름의 기록이 여러 개 있어 곡 버전 확인이 필요합니다.'
     full_sp = row['spotify_prev'] is not None and row['spotify_current'] is not None
     full_yt = row['youtube_prev'] is not None and row['youtube_current'] is not None
     if full_sp and full_yt:
-        return 'DUAL_CHART_REVIEW_PENDING', '두 주간 양쪽 차트 수치는 있어. 곡 버전·아티스트·분류·출처를 사람이 검수해야 해.'
+        return 'DUAL_CHART_REVIEW_PENDING', '2주간 양쪽 차트 자료가 있습니다. 곡 버전·아티스트·분류·출처의 검수가 필요합니다.'
     if full_sp and not full_yt:
-        return 'SPOTIFY_ONLY_REVIEW_PENDING', 'Spotify 주간 추세는 분석 후보. YouTube Top 100에 완전한 2주 기록이 없어 교차 플랫폼 기사는 보류.'
+        return 'SPOTIFY_ONLY_REVIEW_PENDING', 'Spotify 분석 후보입니다. YouTube Top 100의 2주 기록이 부족하여 교차 플랫폼 기사는 보류됩니다.'
     if full_yt and not full_sp:
-        return 'YOUTUBE_ONLY_REVIEW_PENDING', 'YouTube 주간 추세는 분석 후보. Spotify Top 200에 완전한 2주 기록이 없어 교차 플랫폼 기사는 보류.'
-    return 'INSUFFICIENT_OBSERVATIONS', '같은 지표의 연속 2주 기록이 부족해 변화율·추세를 단정할 수 없어.'
+        return 'YOUTUBE_ONLY_REVIEW_PENDING', 'YouTube 분석 후보입니다. Spotify Top 200의 2주 기록이 부족하여 교차 플랫폼 기사는 보류됩니다.'
+    return 'INSUFFICIENT_OBSERVATIONS', '연속 2주 기록이 부족하여 변화율과 추세를 판단할 수 없습니다.'
 
 
 def build_review_queue(selected: list[dict], pair: WeekPair, root: Path = ROOT) -> dict:

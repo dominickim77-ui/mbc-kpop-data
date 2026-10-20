@@ -13,10 +13,10 @@
 <div class="sidebar-note"><span class="status-dot"></span> Verified data.<br>Human editorial control.</div>
 <div id="lab-account" class="lab-account"><a href="/account">계정 확인</a></div>
 </aside>
-<div class="lab-topbar"><button class="menu-toggle" aria-controls="lab-navigation" aria-expanded="false" aria-label="메뉴 열기">☰</button><a class="top-search" href="/#discover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0"/></svg><span>아티스트를 검색하고 분석을 시작하세요</span><kbd>DISCOVER</kbd></a><a class="top-account" href="/account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0M4 21v-3a8 8 0 0 1 16 0v3"/></svg><span>Account</span></a></div>
+<div class="lab-topbar"><button class="menu-toggle" aria-controls="lab-navigation" aria-expanded="false" aria-label="메뉴 열기">☰</button><a class="top-search" href="/#discover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0"/></svg><span>아티스트를 검색해 주세요</span><kbd>DISCOVER</kbd></a><a class="top-account" href="/account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0M4 21v-3a8 8 0 0 1 16 0v3"/></svg><span>Account</span></a></div>
 <header><h1>📊 Compare · Global Weekly Top Songs</h1><p>{{ selected_period_label }}</p></header>
 <main id="main-content" class="data-page"><a class="back-link" href="/">← K-POP DATA LAB 메인 화면</a>
-<div class="platform-pair"><div class="platform-intro spotify-intro"><span class="eyebrow">SPOTIFY</span><h2>Weekly Streams</h2><p>Global Top 200 · 주간 스트리밍 횟수</p></div><div class="platform-intro youtube-intro"><span class="eyebrow">YOUTUBE</span><h2>Weekly Song Views</h2><p>Global Top 100 · 공식 곡 차트 주간 조회수</p></div></div><!-- KPOP_WEEKLY_MANAGER_STEP13: select an existing, paired chart period -->
+<p>Spotify와 YouTube의 주간 데이터를 비교합니다.</p><div class="platform-pair"><div class="platform-intro spotify-intro"><span class="eyebrow">SPOTIFY</span><h2>Weekly Streams</h2><p>Global Top 200 · 주간 스트리밍 횟수</p></div><div class="platform-intro youtube-intro"><span class="eyebrow">YOUTUBE</span><h2>Weekly Song Views</h2><p>Global Top 100 · 공식 곡 차트 주간 조회수</p></div></div><!-- KPOP_WEEKLY_MANAGER_STEP13: select an existing, paired chart period -->
   <form class="week-manager" method="get" action="/compare">
     <label for="week-selector">📅 주간 비교 기간</label>
     <select id="week-selector" name="week_end" aria-label="비교 주차 선택" required>
@@ -28,10 +28,9 @@
     <button type="submit">주차 적용</button>
   </form>
   {% for note in week_catalog_notes %}<p class="weekly-footnote">⚠ {{ note }}</p>{% endfor %}
-  <p class="weekly-footnote">등록된 원본의 무결성과 차트 형식을 확인한 주차만 표시해. 새 주차는 출처 확인이 필요하고, 곡 버전·기사 승인은 별도 검수해.</p>
+  <p class="weekly-footnote">출처와 형식이 확인된 기간만 표시하며, 곡 버전과 기사는 별도 검수가 필요합니다.</p>
 
-<div class="notice">Spotify 주간 스트리밍과 YouTube 공식 주간 곡 조회수는 서로 다른 지표야.
-같은 기간의 순위와 플랫폼 내부 증감만 확인하고, 수치끼리 빼거나 나누지 않아.</div>
+<div class="notice">두 플랫폼은 집계 기준이 달라 수치를 직접 비교할 수 없습니다. 각 플랫폼의 순위와 주간 변화를 확인해 주세요.</div>
 {% if weekly_chart_error %}<p class="weekly-error" role="alert">{{ weekly_chart_error }}</p>
 {% elif weekly_comparison %}<div class="weekly-table-scroll">
   <table class="weekly-table">
@@ -59,6 +58,7 @@
     </tbody>
   </table>
 </div>
-{% else %}<p>메인 화면 Current Analysis에서 곡을 선택해 줘.</p>{% endif %}
+{% else %}<p>Dashboard에서 분석할 곡을 선택해 주세요.</p>{% endif %}
+<p class="weekly-footnote">—는 해당 차트에서 확인되지 않은 값이며, 재생 수 0을 뜻하지 않습니다. 곡 버전 검수와 기사 승인은 별도로 필요합니다.</p>
 </main><script src="/static/account_status.js?v=26b-final"></script>
 <script src="/static/dark-glass.js?v=26b-final" defer></script></body></html>

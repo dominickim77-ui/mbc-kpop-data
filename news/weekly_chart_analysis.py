@@ -48,7 +48,7 @@ def song_key(artist: str, track: str) -> tuple[str, str]:
 def read_chart(root: Path, rel_path: str, platform: str) -> dict[tuple[str, str], list[dict]]:
     path = root / rel_path
     if not path.is_file():
-        raise ChartValidationError(f'CSV 누락: {rel_path}. data/charts 폴더를 확인해 줘.')
+        raise ChartValidationError(f'CSV 누락: {rel_path}. 운영 담당자에게 원본 자료 확인을 요청해 주세요.')
     is_spotify = platform == 'spotify'
     required = SPOTIFY_REQUIRED if is_spotify else YOUTUBE_REQUIRED
     expected = 200 if is_spotify else 100

@@ -151,7 +151,7 @@ class AnalysisOriginTests(unittest.TestCase):
         self.assertEqual(fake.selection_at_commit, [7, 8])
         self.assertEqual(site.analysis_song_ids, [7, 8])
         self.assertTrue(fake.rolled_back)
-        self.assertNotIn('Analysis에 추가했습니다', unquote_plus(headers['location']))
+        self.assertNotIn('분석 목록에 추가했습니다', unquote_plus(headers['location']))
 
     def test_accepted_add_insert_failure_preserves_p1_state(self):
         fake = FakeDB(fail_write=2)
@@ -209,8 +209,9 @@ class AnalysisOriginTests(unittest.TestCase):
 
     def test_existing_form_template_remains_native(self):
         template = (ROOT / 'templates/index.html').read_text(encoding='utf-8')
-        for action in ['/add-analysis', '/reset-analysis', '/remove-analysis/{{ item.song_id }}']:
+        for action in ['/select-analysis', '/reset-analysis', '/remove-analysis/{{ item.song_id }}']:
             self.assertIn(f'<form method="post" action="{action}">', template)
+        self.assertIn('formaction="/add-analysis" data-collect-confirm', template)
         self.assertIn('name="week_end" value="{{ selected_week_end }}"', template)
 
 

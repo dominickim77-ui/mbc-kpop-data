@@ -42,7 +42,7 @@ def _selection(week_end=''):
         raise HTTPException(409 if week_end and week_end != '2026-10-08' else 422,
                             f'근거 검증 실패: {e}') from None
     except Exception:
-        raise HTTPException(503, 'Current Analysis의 MySQL 데이터를 읽지 못했습니다. 연결을 확인하세요.') from None
+        raise HTTPException(503, '분석 데이터를 불러올 수 없습니다. 데이터 연결을 확인해 주세요.') from None
 
 
 def _public_selection(snapshot):
@@ -74,7 +74,7 @@ def spotify_only_preview(week_end: str = ''):
     except (OSError, ValueError, KeyError, TypeError) as exc:
         raise HTTPException(422, f'Spotify 검수 자료 오류: {exc}') from None
     except Exception:
-        raise HTTPException(503, '선택곡을 읽지 못했어. MySQL 연결을 확인해 줘.') from None
+        raise HTTPException(503, '선택한 곡을 불러올 수 없습니다. 데이터 연결을 확인해 주세요.') from None
 
 
 @router.get('/review-candidates')
@@ -96,7 +96,7 @@ def current_review_candidates(week_end: str = ''):
     except (OSError, ValueError, KeyError, TypeError) as exc:
         raise HTTPException(422, f'검수 후보 자료 오류: {exc}') from None
     except Exception:
-        raise HTTPException(503, '선택곡 데이터베이스를 읽을 수 없어. MySQL 연결을 확인해 줘.') from None
+        raise HTTPException(503, '선택한 곡을 불러올 수 없습니다. 데이터 연결을 확인해 주세요.') from None
 
 
 @router.get('/selection')
@@ -127,7 +127,7 @@ def current_news_selection(week_end: str = ''):
     response['fact_status'] = facts['review_stage']
     if week_end and week_end != fact_week_end:
         response['can_generate'] = False
-        response['week_warning'] = '선택한 차트 주차의 교차 검수된 Fact Sheet가 아직 없어.'
+        response['week_warning'] = '선택한 기간의 Fact Sheet 검수가 필요합니다.'
     return response
 
 
@@ -135,7 +135,7 @@ def current_news_selection(week_end: str = ''):
 def preview_selected_article(week_end: str = ''):
     facts, snapshot = _selection(week_end) if week_end and week_end != '2026-10-08' else _selection()
     if week_end and week_end != facts['week_current']['end']:
-        raise HTTPException(409, '현재 비교 주차의 Fact Sheet 검수가 완료되지 않아 기사 생성을 중단했어.')
+        raise HTTPException(409, '해당 기간의 Fact Sheet 검수 후 기사를 생성할 수 있습니다.')
     try:
         evidence = evidence_for_selected(facts, snapshot)
     except SelectionError as e:
@@ -191,7 +191,7 @@ def generate_selected_article(request: Request, body: GenerateRequest):
     try:
         facts, snapshot = _selection(body.week_end) if body.week_end and body.week_end != '2026-10-08' else _selection()
         if body.week_end and body.week_end != facts['week_current']['end']:
-            raise HTTPException(409, '현재 비교 주차와 기사 Fact Sheet 기간이 달라 유료 호출을 차단했어.')
+            raise HTTPException(409, '비교 기간과 Fact Sheet 기간이 달라 유료 생성을 중단했습니다.')
         try:
             evidence = evidence_for_selected(facts, snapshot)
         except SelectionError as e:

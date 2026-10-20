@@ -34,7 +34,7 @@
   function show(data) {
     box.replaceChildren(); session = data;
     box.append(textElement('p', `${data.artist} — ${data.track} | 영상 후보 ${data.candidates.length}개 | 자동 승인 없음`));
-    if (data.approval_locked) box.append(textElement('p', `🔒 이미 승인된 Video ID: ${data.approved_video_id}. 다른 후보의 신규 승인은 잠겨 있어. 정정 절차가 필요해.`, 'yt17-warning'));
+    if (data.approval_locked) box.append(textElement('p', `🔒 이미 승인된 Video ID: ${data.approved_video_id}. 다른 영상을 승인하려면 정정 절차가 필요합니다.`, 'yt17-warning'));
     box.append(textElement('p', '아래의 누적 조회수는 개별 영상의 현재 누적 수치이며 YouTube 주간 곡 차트 조회수가 아닙니다.', 'yt17-warning'));
     const choices = document.createElement('div'); choices.className = 'yt17-choices';
     for (const [idx, entry] of data.candidates.entries()) {
@@ -53,9 +53,9 @@
     box.append(choices);
     const checks = document.createElement('div'); checks.className = 'yt17-checks';
     checks.append(
-      checkbox('yt17-channel-ok', '채널 페이지를 열어 공식 채널임을 직접 확인했어요.'),
-      checkbox('yt17-version-ok', '영상의 곡명·아티스트·원곡/리믹스 등 버전을 직접 확인했어요.'),
-      checkbox('yt17-metric-ok', '저장되는 조회수는 이 영상 하나의 누적 조회수임을 이해했어요.')
+      checkbox('yt17-channel-ok', '채널 페이지를 열어 공식 채널임을 직접 확인했습니다.'),
+      checkbox('yt17-version-ok', '영상의 곡명·아티스트·원곡/리믹스 등 버전을 직접 확인했습니다.'),
+      checkbox('yt17-metric-ok', '저장되는 조회수는 이 영상 하나의 누적 조회수임을 이해했습니다.')
     );
     box.append(checks);
     const approve = document.createElement('button'); approve.type = 'button'; approve.textContent = '✅ 확인한 Video ID 승인·저장';
@@ -82,7 +82,7 @@
           body:JSON.stringify({song_id:data.song_id,video_id:video.video_id,review_token:data.review_token,
             verified_channel:channel,verified_track_version:version,understood_lifetime_metric:metric})
         });
-        status.textContent = `검수 기록 저장됨: ${result.video_id}. 새로고침 후 YouTube Data 확인해 주세요. 기사 출고는 미승인이에요.`;
+        status.textContent = `검수 기록 저장됨: ${result.video_id}. 새로고침 후 YouTube Data 확인해 주세요. 기사 출고는 별도 승인이 필요합니다.`;
         box.append(textElement('p', `검수 이력: ${result.source}`, 'yt17-success'));
         session = null;
       } catch (err) { status.textContent = `승인 실패: ${err.message}. API·DB 기록을 확인하기 전 다시 승인하지 마세요.`; }
@@ -99,7 +99,7 @@
       const url = `/api/youtube-video-review/candidates?song_id=${encodeURIComponent(select.value)}&week_end=${encodeURIComponent(weekEnd)}`;
       const data = await json(url);
       show(data);
-      status.textContent = data.cached ? '10분 이내 검색 결과를 다시 표시했어. API 재검색 없음.' : '후보를 불러왔어. 직접 공식 채널과 곡 버전을 확인해 줘.';
+      status.textContent = data.cached ? '10분 이내 검색 결과이며, 추가 API 사용은 없습니다.' : '후보를 불러왔습니다. 공식 채널과 곡 버전을 확인해 주세요.';
     } catch (err) { status.textContent = `후보 조회 실패: ${err.message}`; }
     finally {busy=false; search.disabled=false;}
   });
