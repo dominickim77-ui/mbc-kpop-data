@@ -231,6 +231,9 @@ def select_analysis(selected_ranks: list[int] = Form(default=[]),
 
 
 def get_db_connection():
+    from db.postgres_runtime import enabled, chart_connection
+    if enabled():
+        return chart_connection()
 
     connection = mysql.connector.connect(
         host=MYSQL_HOST,

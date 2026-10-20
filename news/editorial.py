@@ -65,9 +65,9 @@ def fresh_evidence(week):
                          for name, path in pair.files.items()}
         evidence = {'facts': facts, 'source_sha256': source_hashes}
         ref = fact_path(selected_news.ROOT, week).relative_to(selected_news.ROOT).as_posix()
-        from security.editorial_store import database_path
+        from security.editorial_store import available
         from news.weekly_facts import ROOT
-        if week != '2026-10-08' and selected_news.ROOT.resolve() == ROOT.resolve() and database_path().is_file():
+        if week != '2026-10-08' and selected_news.ROOT.resolve() == ROOT.resolve() and available():
             with connect() as db:
                 row = db.execute('SELECT id FROM fact_reviews WHERE week_end=? ORDER BY id DESC LIMIT 1', (week,)).fetchone()
             if row: ref = f"editorial-db:fact_reviews/{row['id']}"

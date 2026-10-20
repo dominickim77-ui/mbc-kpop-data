@@ -13,6 +13,12 @@ def main():
     parser.add_argument('--username')
     args = parser.parse_args()
     if args.action == 'status':
+        from db.postgres_runtime import enabled
+        if enabled():
+            with connect() as db:
+                count = db.execute("SELECT COUNT(*) FROM users WHERE role='ADMIN'").fetchone()[0]
+            print(f'ADMIN accounts: {count}; read only')
+            return
         path = database_path().resolve()
         if not path.is_file():
             raise SystemExit('인증 저장소가 없습니다. 운영 설정 경로를 확인해 주세요.')

@@ -142,8 +142,8 @@ def validate_reviewed(facts, root=ROOT):
 def load_reviewed(root, week):
     # Authenticated data reviews are append-only in the separate editorial store.
     # Legacy file reviews remain unchanged and continue to be validated.
-    from security.editorial_store import database_path, connect
-    if Path(root).resolve() == ROOT.resolve() and database_path().is_file():
+    from security.editorial_store import available, connect
+    if Path(root).resolve() == ROOT.resolve() and available():
         with connect() as db:
             row = db.execute('SELECT facts FROM fact_reviews WHERE week_end=? ORDER BY id DESC LIMIT 1', (week,)).fetchone()
         if row:

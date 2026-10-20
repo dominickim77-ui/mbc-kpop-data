@@ -22,6 +22,10 @@ def main():
         raise SystemExit('Unsupported offline task')
     os.chdir(ROOT)
     os.environ['STEP19_RUN_DB_TESTS'] = '0'
+    os.environ['STEP27_RUN_POSTGRES_TESTS'] = '0'
+    os.environ['KPOP_DB_BACKEND'] = 'legacy'
+    os.environ.pop('KPOP_POSTGRES_DSN', None)
+    os.environ.pop('KPOP_POSTGRES_TEST_DSN', None)
     os.environ['PYTHON_DOTENV_DISABLED'] = '1'
     for key in list(os.environ):
         if key.startswith(('MYSQL_', 'OPENAI_', 'YOUTUBE_')):
@@ -39,7 +43,8 @@ def main():
         print('CHECK_SUMMARY ' + json.dumps({'kind': task, 'python_files': count}))
         return 0
     # Block the actual project DB/API entry points; in-process ASGI transports remain usable.
-    with patch('dotenv.load_dotenv', return_value=False), \
+    with patch('db.postgres_runtime._connect_driver', side_effect=deny), \
+         patch('dotenv.load_dotenv', return_value=False), \
          patch('mysql.connector.connect', side_effect=deny), \
          patch('requests.sessions.Session.request', side_effect=deny), \
          patch('urllib.request.urlopen', side_effect=deny), \
