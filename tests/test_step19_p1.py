@@ -43,6 +43,7 @@ class ArticleEvidenceTests(OfflineCase):
         self.addCleanup(temp.cleanup)
         self.root = Path(temp.name)
         shutil.copytree(ROOT / 'data/charts', self.root / 'data/charts')
+        shutil.copytree(ROOT / 'data/chart_registry', self.root / 'data/chart_registry')
         (self.root / 'facts').mkdir()
         self.fact_path = self.root / 'facts/article_ready_fact_sheet_20261008.json'
         shutil.copyfile(ROOT / 'facts' / self.fact_path.name, self.fact_path)

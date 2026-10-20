@@ -1,0 +1,38 @@
+{
+  "spotify": {
+    "source_url": "https://charts.spotify.com/",
+    "region": "Global",
+    "chart_type": "weekly_top_songs",
+    "metric": "weekly_streams",
+    "week_start": "",
+    "week_end": "",
+    "timezone": "UTC",
+    "period_basis": "",
+    "downloaded_at": "",
+    "sha256": "",
+    "reviewer": "",
+    "source_evidence": "",
+    "source_confirmed": false,
+    "period_confirmed": false,
+    "usage_status": "unknown",
+    "usage_evidence": ""
+  },
+  "youtube": {
+    "source_url": "https://charts.youtube.com/",
+    "region": "Global",
+    "chart_type": "weekly_top_songs",
+    "metric": "weekly_song_views",
+    "week_start": "",
+    "week_end": "",
+    "timezone": "",
+    "period_basis": "",
+    "downloaded_at": "",
+    "sha256": "",
+    "reviewer": "",
+    "source_evidence": "",
+    "source_confirmed": false,
+    "period_confirmed": false,
+    "usage_status": "unknown",
+    "usage_evidence": ""
+  }
+}

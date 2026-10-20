@@ -1,7 +1,6 @@
-"""STEP 13: discover paired Spotify/YouTube Global Weekly CSVs from disk.
+"""STEP 21: discover registered Spotify/YouTube Global Weekly CSV pairs.
 
-No network, credentials, MySQL, OpenAI or automatic approval. Filename dates
-identify candidate weeks; provenance must still be reviewed by a human.
+No network, credentials, MySQL, OpenAI or automatic approval. New weeks require source-confirmed intake manifests; legacy weeks are hash-pinned.
 """
 from __future__ import annotations
 
@@ -51,39 +50,20 @@ class WeekPair:
         return f'{self.previous_start:%Y.%m.%d}~{self.previous_end:%m.%d} → {self.current_start:%Y.%m.%d}~{self.current_end:%m.%d}'
 
 
-def _inventory(root: Path) -> dict[date, dict[str, str]]:
-    """Only recognize filenames with known export conventions and Thursday week-end."""
-    result: dict[date, dict[str, str]] = {}
-    for platform, pattern in [('spotify', SPOTIFY_NAME), ('youtube', YOUTUBE_NAME)]:
-        folder = root / 'data' / 'charts' / platform
-        if not folder.is_dir():
-            continue
-        for path in folder.iterdir():
-            if not path.is_file():
-                continue
-            match = pattern.fullmatch(path.name)
-            if not match:
-                continue
-            try:
-                week_end = (date.fromisoformat(match.group(1)) if platform == 'spotify'
-                            else date.fromisoformat(f'{match.group(1)[:4]}-{match.group(1)[4:6]}-{match.group(1)[6:]}'))
-            except ValueError as exc:
-                raise CatalogError(f'{path.name}: 날짜 형식이 잘못됐어') from exc
-            if week_end.weekday() != 3:
-                raise CatalogError(f'{path.name}: 주간 차트 종료일은 목요일이어야 해')
-            record = result.setdefault(week_end, {})
-            if platform in record:
-                raise CatalogError(f'동일 주차 {platform} 파일이 두 개야: {week_end}')
-            record[platform] = path.relative_to(root).as_posix()
-    return result
+def _inventory(root: Path) -> tuple[dict[date, dict[str, str]], list[str]]:
+    """STEP21: only pinned legacy files and verified intake manifests are visible."""
+    from news.chart_import import registered_inventory
+    try:
+        return registered_inventory(Path(root).resolve())
+    except (ValueError, OSError, KeyError, TypeError) as exc:
+        raise CatalogError('등록 목록을 확인할 수 없어 주차 선택을 중단했어: ' + type(exc).__name__) from exc
 
 
 def scan_chart_weeks(root: Path = ROOT) -> tuple[list[WeekPair], list[str]]:
     """Return complete consecutive two-week pairs plus audit notes for partial weeks."""
     root = Path(root)
-    inventory = _inventory(root)
+    inventory, notes = _inventory(root)
     complete = {d for d, files in inventory.items() if set(files) == {'spotify', 'youtube'}}
-    notes = []
     for d in sorted(inventory):
         if d not in complete:
             missing = sorted({'spotify', 'youtube'} - set(inventory[d]))

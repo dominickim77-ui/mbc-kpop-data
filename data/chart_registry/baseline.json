@@ -1,0 +1,40 @@
+{
+  "baseline_commit": "916233682e9de0432b96413b030f568935102111",
+  "notice": "Existing STEP20 evidence only; no new source or usage rights attestation.",
+  "weeks": [
+    {
+      "version": 1,
+      "status": "legacy_preserved",
+      "week_end": "2026-10-01",
+      "files": {
+        "spotify": {
+          "path": "data/charts/spotify/regional-global-weekly-2026-10-01.csv",
+          "sha256": "4fd3748981071e5ab22707b3118bc250ab5a8dc2bdf4343ff082101d1a4a85d8",
+          "working_tree_sha256": "4fd3748981071e5ab22707b3118bc250ab5a8dc2bdf4343ff082101d1a4a85d8"
+        },
+        "youtube": {
+          "path": "data/charts/youtube/youtube-charts-top-songs-global-weekly-20261001.csv",
+          "sha256": "041bd2fd1b652991cf44dd50c70e3cba5e5cfc170b5a9d0d33b5974d6de552c5",
+          "working_tree_sha256": "e84dd790d290362093a94143ab0c1e70e670f3e97510400166985e5991ec925a"
+        }
+      }
+    },
+    {
+      "version": 1,
+      "status": "legacy_preserved",
+      "week_end": "2026-10-08",
+      "files": {
+        "spotify": {
+          "path": "data/charts/spotify/regional-global-weekly-2026-10-08.csv",
+          "sha256": "395eb22193dd049a6ad75ef489f250fe8e389133222770aaa9db377d06e37c52",
+          "working_tree_sha256": "395eb22193dd049a6ad75ef489f250fe8e389133222770aaa9db377d06e37c52"
+        },
+        "youtube": {
+          "path": "data/charts/youtube/youtube-charts-top-songs-global-weekly-20261008.csv",
+          "sha256": "2594c7845cf31b3f2ad8b8d6bbf6893b52d4d905735b5f2e0c759fce9191c83e",
+          "working_tree_sha256": "38742efa6190a2990330d9cc3be7e9e11e9b35170e6f79e720f1da4c61582737"
+        }
+      }
+    }
+  ]
+}

@@ -8,3 +8,7 @@ __pycache__/
 .reports/
 kpop_step12_patch/
 kpop_step13_patch/
+# STEP21 local intake evidence/raw data: review separately, never auto-publish.
+data/chart_imports/
+data/chart_registry/weeks/
+data/chart_registry/import.lock
