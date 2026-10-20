@@ -30,7 +30,7 @@
   {% for note in week_catalog_notes %}<p class="weekly-footnote">⚠ {{ note }}</p>{% endfor %}
   <p class="weekly-footnote">출처와 형식이 확인된 기간만 표시하며, 곡 버전과 기사는 별도 검수가 필요합니다.</p>
 
-<div class="notice">두 플랫폼은 집계 기준이 달라 수치를 직접 비교할 수 없습니다. 각 플랫폼의 순위와 주간 변화를 확인해 주세요.</div>
+<div class="notice">관측된 횟수는 비교할 수 있지만, 집계 기준이 달라 인기나 이용자 수의 우위로 해석할 수 없습니다. 각 플랫폼의 순위와 주간 변화를 함께 확인해 주세요.</div>
 {% if weekly_chart_error %}<p class="weekly-error" role="alert">{{ weekly_chart_error }}</p>
 {% elif weekly_comparison %}<div class="weekly-table-scroll">
   <table class="weekly-table">

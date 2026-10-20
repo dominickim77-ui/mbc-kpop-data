@@ -197,16 +197,18 @@ def build_weekly_rows(selected: list[dict], root: Path = ROOT, pair=None) -> lis
             status_code = 'excluded'
         elif key in verified:
             if _matches_reviewed_facts(verified[key], s0, s1, y0, y1):
-                status = 'Fact Sheet 수치 대조 완료 · 기사 분석 가능'
+                status = '기사 분석에 사용할 수 있습니다.'
                 status_code = 'reviewed'
             else:
                 status = '⚠ Fact Sheet와 원본 CSV 불일치 · 기사 검수 필요'
                 status_code = 'mismatch'
         elif s1 and y1:
-            status = '동일 곡명·대표 아티스트 후보 · 기사 검수 전'
+            status = '곡 정보 검수가 필요합니다.'
             status_code = 'candidate'
         else:
-            status = '차트 내 자료 부족 (Top 200 / Top 100 기준)'
+            status = ('YouTube 주간 차트에서 확인되지 않았습니다.' if s1 else
+                      'Spotify 주간 차트에서 확인되지 않았습니다.' if y1 else
+                      '선택한 기간의 차트에서 확인되지 않았습니다.')
             status_code = 'partial'
         rows.append({
             'artist': artist, 'track': track,

@@ -167,9 +167,18 @@ def get_saved_article(variant: str = 'edited', week_end: str = '2026-10-08'):
         article = paths[variant].read_text(encoding='utf-8').strip()
     except FileNotFoundError:
         raise HTTPException(404, '저장된 예시 기사 파일이 없습니다.') from None
+    # Display provenance from the saved record; never infer a date from chart week or mtime.
+    metadata_path = ARTICLES / ('draft_openai_20261008.json' if variant == 'edited' else paths[variant].with_suffix('.json').name)
+    try:
+        metadata = json.loads(metadata_path.read_text(encoding='utf-8'))
+        source_created_at = metadata.get('created_at_utc')
+    except (OSError, ValueError, AttributeError):
+        source_created_at = None
     return {
         'article': article,
         'mode': 'saved_example',
+        'source_created_at_utc': source_created_at,
+        'creation_date_label': '원본 AI 초안 생성 (편집본 생성 시점은 기록 없음)' if variant == 'edited' else '초안 생성',
         'ai_generated_now': False,
         'source': paths[variant].relative_to(ROOT).as_posix(),
         'review_required': True,

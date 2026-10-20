@@ -195,9 +195,8 @@
                     </table></div>
 
 
-                    <button class="add-analysis-button" type="submit">
-                        선택곡 분석에 추가
-                    </button>
+                    <button class="add-analysis-button" type="submit" aria-describedby="analysis-selection-hint" disabled>분석할 곡을 선택해 주세요</button>
+                    <p id="analysis-selection-hint" role="status">곡을 선택하시면 분석에 추가할 수 있습니다.</p>
 
                     {% if request.state.user.role in ['JOURNALIST', 'EDITOR', 'ADMIN'] %}
                     <details><summary>원본 데이터 관리</summary>
@@ -357,10 +356,11 @@
 
 </div>
 <section id="trends" class="dashboard-section">
-  <h2>📈 Accumulated Analysis — 플랫폼별 2주 변화</h2>
+  <h2>📈 Weekly Chart Trends — 주간 차트 변화</h2>
+  <p>비교 기간: {{ selected_period_label }} · 출처: Spotify Charts / YouTube Charts</p>
   <p>현재 선택한 곡의 <strong>Spotify 주간 스트리밍</strong>과
     <strong>YouTube 공식 Top Songs 주간 조회수</strong>를 별도 그래프로 보여 드립니다.
-    두 플랫폼의 수치를 직접 비교할 수 없습니다.</p>
+    관측된 횟수는 확인할 수 있지만, 집계 기준이 달라 인기나 이용자 수의 우위로 해석할 수 없습니다.</p>
   {% if weekly_chart_error %}
     <p class="weekly-error" role="alert">⚠ 원본 데이터 검증 후 그래프를 확인할 수 있습니다.</p>
   {% elif weekly_comparison %}
@@ -376,10 +376,30 @@
       </div>
     </div>
     <p class="weekly-footnote">회색 또는 빈 값은 관측 자료가 없다는 뜻이며, 조회수 0을 의미하지 않습니다.
-      M은 100만 회입니다. 곡 이름과 정확한 수치는 그래프에 커서를 올리거나 표에서 확인해 주세요. 두 그래프는 단위와 축이 달라 수치의 차이·배율을 비교할 수 없습니다.</p>
+      M은 100만 회입니다. 곡 이름과 정확한 수치는 그래프에 커서를 올리거나 표에서 확인해 주세요. 두 그래프는 축이 다르므로 막대 길이만으로 수치를 비교하지 마세요.</p>
   {% else %}
     <p>분석할 곡을 선택해 주세요.</p>
   {% endif %}
+</section>
+<section id="youtube-video-analytics" class="dashboard-section">
+  <h2>YouTube Video Analytics — 영상 누적 조회수</h2>
+  <p>저장된 개별 영상의 수집 시점까지 누적된 조회수이며, 공식 주간 곡 조회수와는 별개입니다.</p>
+  <div class="video-analytics-grid">
+  {% for item in youtube_data %}
+    <article class="video-analytics-card">
+      <h3>{{ item.artist }} — {{ item.track }}</h3>
+      <p class="video-lifetime-value">{{ "{:,}".format(item.youtube_views) if item.youtube_views is not none else "—" }}{% if item.youtube_views is not none %}<small> 회 · 누적</small>{% endif %}</p>
+      <dl>
+        <dt>영상 제목</dt><dd>{{ item.youtube_title or '저장된 영상 정보가 없습니다.' }}</dd>
+        <dt>채널</dt><dd>{{ item.youtube_channel or '—' }}</dd>
+        <dt>수집 시점</dt><dd>{{ item.collected_at or '확인할 수 없습니다.' }}</dd>
+        <dt>검수 상태</dt><dd>{% if item.youtube_review_status == 'MANUALLY_APPROVED' %}공식 영상으로 검수되었습니다.{% elif item.youtube_video_id %}공식 영상 여부의 검토가 필요합니다.{% else %}저장된 영상이 없습니다.{% endif %}</dd>
+      </dl>
+      {% if item.youtube_video_review_status == 'REVIEW_DATA_MISMATCH' %}<p>승인 영상과 저장된 통계가 일치하지 않아 확인이 필요합니다.</p>{% endif %}
+    </article>
+  {% else %}<p>분석할 곡을 선택해 주세요.</p>{% endfor %}
+  </div>
+  <details><summary>자세히 보기</summary><p>출처: 저장된 YouTube Data API 영상 통계입니다. 최신 저장값만 표시하며 현재 실시간 조회수와 다를 수 있습니다. 주간 조회수나 과거 추세를 추정하지 않습니다. 주간 Top 100 미관측은 영상이 없거나 조회수가 0이라는 뜻이 아닙니다.</p></details>
 </section>
         <!-- ==================================================
              4. SPOTIFY DATA
@@ -561,7 +581,7 @@
   <p>Spotify Global Weekly Top Songs(상위 200곡)와 YouTube Global Weekly Top Songs(상위 100곡),
     <strong>{{ selected_period_label }}</strong> 데이터를 비교합니다.</p>
   <div class="notice">Spotify는 <strong>주간 스트리밍 수</strong>, YouTube는
-    <strong>공식 곡 차트의 주간 조회수</strong>입니다. 집계 기준이 달라 수치를 직접 비교할 수 없습니다. 주간 곡 조회수는 개별 영상 누적 조회수와 다릅니다.</div>
+    <strong>공식 곡 차트의 주간 조회수</strong>입니다. 관측된 횟수는 비교할 수 있지만, 집계 기준이 달라 인기나 이용자 수의 우위로 해석할 수 없습니다. 주간 곡 조회수는 개별 영상 누적 조회수와 다릅니다.</div>
   {% if weekly_chart_error %}
     <p class="weekly-error" role="alert">⚠ 원본 차트 검사 실패: {{ weekly_chart_error }}. 데이터 검증 후 이용할 수 있습니다.</p>
   {% elif weekly_comparison %}
@@ -621,12 +641,18 @@
     </div>
   </div>
   <div class="news-panel-actions">
-    <button type="button" id="news-preview-btn" class="news-saved-button" disabled>🔎 기사 미리보기 (무료)</button>
-    <button type="button" id="news-generate-btn" class="news-generate-button" disabled>✨ AI 초안 생성 (유료)</button>
-    <button type="button" id="news-saved-btn" {% if request.state.user.role not in ['JOURNALIST', 'EDITOR', 'ADMIN'] %}disabled{% endif %} class="news-saved-button">📄 2곡 기사 예시 (무료)</button>
-    <button type="button" id="news-review-queue-btn" {% if request.state.user.role not in ['JOURNALIST', 'EDITOR', 'ADMIN'] %}disabled{% endif %} class="news-saved-button">📋 검증 자료 확인 (무료)</button>
-     <button type="button" id="news-spotify-only-preview-btn" {% if request.state.user.role not in ['JOURNALIST', 'EDITOR', 'ADMIN'] %}disabled{% endif %} class="news-saved-button">🎵 Spotify 초안 확인 (무료)</button>
+    <button type="button" id="news-review-queue-btn" {% if request.state.user.role not in ['JOURNALIST', 'EDITOR', 'ADMIN'] %}disabled{% endif %} class="news-saved-button">데이터 근거 확인</button>
+    <button type="button" id="news-preview-btn" class="news-saved-button" disabled>무료 기사 미리보기</button>
+    <button type="button" id="news-generate-btn" class="news-generate-button" disabled>AI 기사 생성 (유료)</button>
   </div>
+  <details id="news-advanced-tools"><summary>고급 도구</summary>
+    <div class="news-panel-actions">
+      <button type="button" id="news-saved-btn" {% if request.state.user.role not in ['JOURNALIST', 'EDITOR', 'ADMIN'] %}disabled{% endif %} class="news-saved-button">KATSEYE·LISA 기사 예시</button>
+      <button type="button" id="news-spotify-only-preview-btn" {% if request.state.user.role not in ['JOURNALIST', 'EDITOR', 'ADMIN'] %}disabled{% endif %} class="news-saved-button">Spotify 단독 초안</button>
+    </div>
+    <p>기사 예시는 현재 선택과 무관한 과거 사례입니다. Spotify 단독 초안은 무료 검수용이며 자동 승인·공개되지 않습니다.</p>
+  </details>
+  <p id="news-result-context" class="news-result-source" hidden aria-live="polite"></p>
   <p id="news-status" class="news-status" role="status" aria-live="polite">검수된 곡으로만 초안을 생성하며, 기사 출고에는 사람의 승인이 필요합니다.</p>
   <div id="news-review-queue" class="news-review-queue" hidden aria-live="polite"></div>
   <div id="news-article-output" class="news-article-output" hidden></div>

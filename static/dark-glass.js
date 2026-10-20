@@ -29,6 +29,18 @@
     });
   }
   sidebar?.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+  const selectionForm = document.querySelector('form[action="/select-analysis"]');
+  const addButton = selectionForm?.querySelector('.add-analysis-button');
+  function updateSelectionButton() {
+    if (!addButton) return;
+    const count = selectionForm.querySelectorAll('input[name="selected_ranks"]:checked').length;
+    const pending = Boolean(selectionForm.dataset.pending);
+    addButton.disabled = pending || count === 0;
+    addButton.textContent = pending ? '분석에 추가하고 있습니다…' : count ? `선택한 ${count}곡 분석에 추가 →` : '분석할 곡을 선택해 주세요';
+    document.getElementById('analysis-selection-hint').textContent = count ? `${count}곡을 선택했습니다. 최대 10곡까지 분석할 수 있습니다.` : '곡을 선택하시면 분석에 추가할 수 있습니다.';
+  }
+  selectionForm?.addEventListener('change', updateSelectionButton);
+  updateSelectionButton();
   // Keep form errors inside the Dashboard, including expired sessions and bad input.
   document.querySelectorAll('form[action="/select-analysis"],form[action="/reset-analysis"],form[action^="/remove-analysis/"]').forEach(form => {
     form.addEventListener('submit', async event => {
@@ -48,6 +60,7 @@
       form.append(status);
       status.textContent = '선택 목록을 처리하고 있습니다.';
       form.dataset.pending = 'true';
+      if (form === selectionForm) updateSelectionButton();
       if (button) button.disabled = true;
       try {
         const response = await fetch(button?.getAttribute('formaction') || form.action, {
@@ -77,6 +90,7 @@
       } finally {
         delete form.dataset.pending;
         if (button) button.disabled = false;
+        if (form === selectionForm) updateSelectionButton();
       }
     });
   });

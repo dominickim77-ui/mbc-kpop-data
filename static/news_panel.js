@@ -21,6 +21,25 @@
   const weekQuery = '?week_end=' + encodeURIComponent(requestedWeekEnd);
   let busy = false;
   let selection = null;
+  const contextEl = document.getElementById('news-result-context');
+  function factLabel(value) {
+    return ({
+      TRACK_IDENTITY_AND_EDITORIAL_CATEGORY_APPROVED: '곡 정보와 분류 검증 완료',
+      DRAFT: '검증이 필요합니다.',
+      PENDING_HUMAN_REVIEW: '사람의 검수가 필요합니다.'
+    })[value] || '검증 상태를 확인해 주세요.';
+  }
+  function beginResult(kind, historical = false) {
+    output.hidden = true; output.replaceChildren();
+    reviewBox.hidden = true; reviewBox.replaceChildren();
+    sourceEl.textContent = '';
+    const tracks = (selection?.selected_tracks || []).map(t => `${t.artist} — ${t.track}`).join(', ') || '선택한 곡 없음';
+    contextEl.textContent = historical
+      ? `${kind} · KATSEYE — Animal / LISA — SaWaDiKa · 기준 주: 2026-10-08 · 과거 검수용 사례 (현재 선택과 무관)`
+      : `${kind} · 선택: ${tracks} · 기준 주: ${requestedWeekEnd} · Fact Sheet: ${factLabel(selection?.fact_status)} · 최종 승인 필요`;
+    contextEl.hidden = false;
+  }
+
 
   // Presentation gating avoids expected 403 traffic; API authorization remains authoritative.
   if (!['JOURNALIST', 'EDITOR', 'ADMIN'].includes(panel.dataset.userRole)) {
@@ -55,8 +74,11 @@
     countEl.textContent = `현재 선택 ${all}곡 · 교차 검수 완료 ${approved}곡 · 검수 대기 ${data.excluded_tracks.length}곡`;
     if (!approved) addLine(approvedList, '검수 완료된 곡이 없습니다. 곡·버전·분류 검수가 필요합니다.');
     const factStatus = document.getElementById('news-fact-status');
-    if (factStatus) factStatus.textContent = `Fact Sheet ${data.fact_week_end || requestedWeekEnd}: ${data.fact_status || '확인 필요'} · 출고 미승인` + (data.week_warning ? ` · ${data.week_warning}` : '');
-    for (const row of data.approved_tracks) addLine(approvedList, `${row.artist} — ${row.track} (${row.editorial_category})`);
+    if (factStatus) {
+      factStatus.textContent = `Fact Sheet ${data.fact_week_end || requestedWeekEnd}: ${factLabel(data.fact_status)} · 최종 승인 필요` + (data.week_warning ? ` · ${data.week_warning}` : '');
+      factStatus.title = data.fact_status || '';
+    }
+    for (const row of data.approved_tracks) addLine(approvedList, `${row.artist} — ${row.track}`);
     if (!data.excluded_tracks.length) addLine(excludedList, '없음');
     for (const row of data.excluded_tracks) addLine(excludedList, `${row.artist} — ${row.track}: ${row.reason}`);
     setBusy(busy);
@@ -86,9 +108,14 @@
   }
   function displayArticle(data) {
     renderArticle(data.article);
+    if (data.mode !== 'saved_example') {
+      const used = (data.selection?.approved_tracks || selection?.approved_tracks || []).map(t => `${t.artist} — ${t.track}`).join(', ');
+      contextEl.textContent = `${data.ai_generated_now ? 'AI 기사 생성 (유료)' : '무료 기사 미리보기'} · 기사 대상: ${used || '응답의 기사 본문을 확인해 주세요.'} · 기준 주: ${requestedWeekEnd} · 검증된 Fact Sheet · 최종 승인 필요`;
+    }
     sourceEl.textContent = `근거/저장 위치: ${data.source || '없음'} · 최종 검수 필요 · 출고 미승인`;
     if (data.mode === 'saved_example') {
-      statusEl.textContent = '현재 선택과 별개인 2곡 예시이며, 추가 비용은 없습니다.';
+      statusEl.textContent = '현재 선택과 별개인 과거 기사 예시이며, 추가 비용은 없습니다.';
+      contextEl.textContent += ` · ${data.creation_date_label || '생성 시점'}: ${data.source_created_at_utc || '기존 기록에 없음'} · 출처: ${data.source}`;
     } else if (data.ai_generated_now) {
       statusEl.textContent = '검수된 곡으로 AI 초안을 생성했습니다. 수치와 출처를 확인해 주세요.';
     } else {
@@ -103,6 +130,7 @@
   async function runFree(kind) {
     if (busy) return;
     setBusy(true);
+    beginResult(kind === 'preview' ? '선택한 곡의 기사 · 무료 미리보기' : '과거 기사 예시', kind !== 'preview');
     statusEl.textContent = kind === 'preview' ? '선택한 곡을 검증하고 있습니다.' : '기사 예시를 불러오고 있습니다.';
     try {
       if (kind === 'preview') await refreshSelection();
@@ -151,16 +179,24 @@
         const status = document.createElement('td');
         const label = document.createElement('strong');
         const koreanStatus = {
-          'DUAL_CHART_REVIEWED':'교차 차트 검수 완료',
+          'DUAL_CHART_REVIEWED':'기사 분석에 사용할 수 있습니다.',
           'DUAL_CHART_REVIEW_PENDING':'두 플랫폼 곡 식별 검수 대기',
-          'SPOTIFY_ONLY_REVIEW_PENDING':'Spotify 단독 근거 · 검수 대기',
-          'YOUTUBE_ONLY_REVIEW_PENDING':'YouTube 단독 근거 · 검수 대기',
+          'SPOTIFY_ONLY_REVIEW_PENDING':'YouTube 주간 차트에서 확인되지 않았습니다.',
+          'YOUTUBE_ONLY_REVIEW_PENDING':'Spotify 주간 차트에서 확인되지 않았습니다.',
           'HOLD_VERSION':'버전 차이 · 보류',
           'HOLD_FACT_MISMATCH':'원본 수치 불일치 · 중단',
           'HOLD_AMBIGUOUS':'중복 기록 · 식별 필요',
           'INSUFFICIENT_OBSERVATIONS':'연속 주차 근거 부족',
         };
         label.textContent = koreanStatus[row.review_status] || '검수 필요';
+        if (row.review_status === 'SPOTIFY_ONLY_REVIEW_PENDING' &&
+            (row.youtube.previous_week_views != null || row.youtube.current_week_views != null)) {
+          label.textContent = 'YouTube의 연속 2주 자료를 확인할 수 없습니다.';
+        }
+        if (row.review_status === 'YOUTUBE_ONLY_REVIEW_PENDING' &&
+            (row.spotify.previous_week_streams != null || row.spotify.current_week_streams != null)) {
+          label.textContent = 'Spotify의 연속 2주 자료를 확인할 수 없습니다.';
+        }
         label.title = row.review_status;
         label.className = row.eligible_for_current_dual_chart_article ? 'review-queue-ok' : 'review-queue-hold';
         const guidance = document.createElement('p'); guidance.textContent = row.review_note;
@@ -190,7 +226,7 @@
   }
   if (btnReview && reviewBox) btnReview.addEventListener('click', async () => {
     if (busy) return;
-    setBusy(true); statusEl.textContent = '현재 선택곡의 차트 근거를 확인하는 중…';
+    setBusy(true); beginResult('데이터 근거 확인'); statusEl.textContent = '현재 선택곡의 차트 근거를 확인하는 중…';
     try {
       const report = await requestJson('/api/news/review-candidates' + weekQuery);
       showReviewQueue(report);
@@ -202,6 +238,7 @@
   if (btnSpotifyOnly) btnSpotifyOnly.addEventListener('click', async () => {
     if (busy) return;
     setBusy(true);
+    beginResult('Spotify 단독 초안 · 무료 검수용');
     statusEl.textContent = 'Spotify 단독 검수 후보의 2주간 수치를 확인하는 중…';
     try {
       const result = await requestJson('/api/news/spotify-only-preview' + weekQuery);
@@ -225,6 +262,7 @@
       const msg = `현재 검수된 ${fresh.approved_tracks.length}곡(${names})으로 유료 AI 초안을 생성하시겠습니까? (OpenAI 1회 호출)` +
         (excluded ? `\n검수 대기 ${excluded}곡은 제외됩니다.` : '') + '\n기사는 사람의 승인 후 게시할 수 있습니다.';
       if (!window.confirm(msg)) { statusEl.textContent = '유료 생성을 취소했습니다.'; return; }
+      beginResult('선택한 곡의 기사 · 유료 AI 생성');
       statusEl.textContent = '유료 AI 초안을 생성하고 있습니다.';
       const data = await requestJson('/api/news/generate', {
         method:'POST',

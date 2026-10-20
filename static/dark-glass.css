@@ -104,3 +104,17 @@ main{animation:lab-enter .24s ease-out}
  .analysis-workspace .artist-week-manager label,.analysis-workspace .artist-week-manager select{flex-basis:100%;width:100%}
  .analysis-workspace .artist-week-manager button{width:100%}
 }
+
+/* STEP26C final: existing glass theme, accessible personal-selection action. */
+.add-analysis-button{min-height:50px!important;width:100%;background:linear-gradient(110deg,#6d42df,#a447df)!important;color:#fff!important;font-weight:700!important;font-size:16px!important}
+.add-analysis-button:hover:not(:disabled){filter:brightness(1.12)}
+.add-analysis-button:focus-visible{outline:3px solid #d9c9ff;outline-offset:3px}
+.add-analysis-button:disabled{opacity:.55;cursor:not-allowed}
+.video-analytics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px}
+.video-analytics-card{padding:20px;border:1px solid var(--line,rgba(160,182,220,.18));border-radius:16px;background:rgba(139,92,246,.06);min-width:0;overflow-wrap:anywhere}
+.video-lifetime-value{font-size:clamp(23px,3vw,34px);font-weight:700;color:#ddd0ff}
+.video-lifetime-value small{font-size:14px}
+.video-analytics-card dl{margin:0}.video-analytics-card dt{color:#a9bad1;margin-top:12px;font-size:13px}.video-analytics-card dd{margin:4px 0 0}
+#youtube-video-analytics h2{word-break:keep-all;text-wrap:balance}
+#news-advanced-tools{margin:14px 0}#news-advanced-tools summary{cursor:pointer;padding:10px 0}
+#news-result-context{padding:12px;border-left:3px solid #a78bfa;overflow-wrap:anywhere}
