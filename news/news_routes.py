@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, ConfigDict
+from news.provenance import generation_record
 
 from news.selected_news import (
     ROOT, SelectionError, evidence_for_selected, generate_paid_article,
@@ -215,6 +216,7 @@ def generate_selected_article(request: Request, body: GenerateRequest):
             'used_tracks': _public_selection(snapshot)['approved_tracks'],
             'excluded_tracks': snapshot['excluded_tracks'],
             'evidence': evidence,
+            'generation_provenance': generation_record(evidence),
             'review_required': True,
             'publication_approved': False,
             'article_status': 'DRAFT_NOT_FOR_PUBLICATION',

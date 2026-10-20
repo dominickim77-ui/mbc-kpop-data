@@ -1,0 +1,79 @@
+{
+  "sources": [
+    {
+      "title": "K-pop album exports top $300 mil. in 2025 for 1st time",
+      "publisher": "The Korea Times / Yonhap",
+      "url": "https://www.koreatimes.co.kr/amp/entertainment/k-pop/20260116/k-pop-album-exports-top-300-mil-in-2025-for-1st-time",
+      "date": "2026-01-16",
+      "type": "언론 보도",
+      "summary": "2025년 음반 수출액 3억170만 달러, 전년 대비 3.4% 증가라는 관세청 인용 보도. 수출액과 판매 장수는 다른 지표다.",
+      "limit": "기사 본문 확인. 관세청 원표는 직접 재검산하지 않았으므로 보도 인용으로 사용한다."
+    },
+    {
+      "title": "Spotify and FC Barcelona Bring K-Pop to the Game with ITZY in Korea",
+      "publisher": "Spotify Newsroom",
+      "url": "https://newsroom.spotify.com/2025-08-05/spotify-and-fc-barcelona-bring-k-pop-to-the-game-with-itzy-in-korea/",
+      "date": "2025-08-05",
+      "type": "기업 발표",
+      "summary": "ITZY가 참여한 축구 연계 캠페인. 플레이리스트 30곡은 자사 곡 10곡과 워밍업 선곡 20곡으로 구성됐다고 발표했다.",
+      "limit": "기업 홍보 발표다. 수록 곡 수를 이용자 수·캠페인 성과로 해석하지 않는다."
+    },
+    {
+      "title": "BTS becomes 1st group to top 10 bil. Spotify streams in single year",
+      "publisher": "The Korea Times / Yonhap",
+      "url": "https://www.koreatimes.co.kr/entertainment/k-pop/20261016/bts-becomes-1st-group-to-top-10-bil-spotify-streams-in-single-year",
+      "date": "2026-10-16",
+      "type": "언론 보도",
+      "summary": "빅히트뮤직 발표를 인용해 BTS의 해당 연도 Spotify 스트리밍이 100억 회를 넘었다고 보도했다.",
+      "limit": "발행 시점의 누적 스트리밍이다. 주간 차트·고유 청취자 수와 다르며 플랫폼 원시 데이터는 별도 확인하지 않았다."
+    }
+  ],
+  "guidelines": {
+    "v1": "확인한 원본 기사 3건과 요약만 사용해 한국어 제목과 짧은 K-POP 뉴스 본문을 작성한다. 숫자와 날짜를 정확하게 유지하고 출처 링크를 붙인다. 확인되지 않은 사실·인용·원인을 만들지 않는다. 검토 대기 초안으로 저장한다.",
+    "v2": "확인한 원본 기사 3건과 요약만 사용해 한국어 제목과 짧은 K-POP 뉴스 본문을 작성한다. 숫자와 날짜를 정확하게 유지하고 출처 링크를 붙인다. 확인되지 않은 사실·인용·원인을 만들지 않는다. 검토 대기 초안으로 저장한다. 각 수치에 집계 대상·기간·단위를 붙인다. 언론 보도와 기업 발표를 구분하고, 2차 인용은 원발표 주체를 명시한다. 서로 다른 시점·통화·재생 횟수·곡 수를 합치거나 인기·인과관계로 바꾸지 않는다. 원시 자료를 직접 검증하지 못한 부분을 밝힌다. 출처 URL 중복을 확인하고 기존 자료를 덮어쓰지 않는다. 사람 승인 전 공개하지 않는다."
+  },
+  "drafts": [
+    "음반 수출과 스트리밍으로 본 K-POP 소식\n\nThe Korea Times의 2026년 1월 16일 보도에 따르면 2025년 K-POP 음반 수출액은 3억170만 달러로 전년보다 3.4% 증가했다. Spotify는 2025년 8월 5일 ITZY와 FC 바르셀로나 연계 캠페인을 소개하며 30곡 플레이리스트를 발표했다.\n\nThe Korea Times는 2026년 10월 16일 BTS가 해당 연도 Spotify 스트리밍 100억 회를 넘었다는 소속사 발표를 전했다. 세 소식은 발표 시점과 대상이 다르다.",
+    "수출액과 선곡 수와 재생 횟수 K-POP 숫자의 서로 다른 의미\n\nThe Korea Times가 2026년 1월 16일 관세청 자료를 인용한 보도에서 2025년 음반 수출액은 3억170만 달러, 전년 대비 증가율은 3.4%다. 이는 금액으로, 판매 장수나 청취자 수를 나타내지 않는다.\n\nSpotify의 2025년 8월 5일 기업 발표는 ITZY 참여 플레이리스트의 30곡을 자사 곡 10곡과 워밍업 선곡 20곡으로 설명한다. 선곡 규모로 캠페인 흥행을 판단할 수는 없다.\n\n2026년 10월 16일 The Korea Times는 빅히트뮤직을 인용해 BTS의 해당 연도 Spotify 재생이 100억 회를 넘었다고 보도했다. 발행 시점까지의 재생 횟수이며, 고유 이용자 수나 주간 차트 수치가 아니다. 이 초안은 보도·발표 본문을 대조했지만 관세청 원표와 Spotify 원시 데이터를 직접 재검산하지 않았다."
+  ],
+  "source_pages": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"pages\":[{\"id\":\"3ff16efa-972b-81f4-8610-cb6aa9d31495\",\"url\":\"https://app.notion.com/p/3ff16efa972b81f48610cb6aa9d31495?pvs=204\",\"properties\":{\"제목\":\"K-pop album exports top $300 mil. in 2025 for 1st time\",\"출처\":\"The Korea Times / Yonhap\",\"원본 URL\":\"https://www.koreatimes.co.kr/amp/entertainment/k-pop/20260116/k-pop-album-exports-top-300-mil-in-2025-for-1st-time\",\"date:발행일:start\":\"2026-01-16\",\"date:발행일:is_datetime\":0,\"핵심 수치와 요약\":\"2025년 음반 수출액 3억170만 달러, 전년 대비 3.4% 증가라는 관세청 인용 보도. 수출액과 판매 장수는 다른 지표다.\",\"date:확인일:start\":\"2026-10-20\",\"출처 성격\":\"언론 보도\"}},{\"id\":\"3ff16efa-972b-81bc-9828-df15d5439075\",\"url\":\"https://app.notion.com/p/3ff16efa972b81bc9828df15d5439075?pvs=204\",\"properties\":{\"제목\":\"Spotify and FC Barcelona Bring K-Pop to the Game with ITZY in Korea\",\"출처\":\"Spotify Newsroom\",\"원본 URL\":\"https://newsroom.spotify.com/2025-08-05/spotify-and-fc-barcelona-bring-k-pop-to-the-game-with-itzy-in-korea/\",\"date:발행일:start\":\"2025-08-05\",\"date:발행일:is_datetime\":0,\"핵심 수치와 요약\":\"ITZY가 참여한 축구 연계 캠페인. 플레이리스트 30곡은 자사 곡 10곡과 워밍업 선곡 20곡으로 구성됐다고 발표했다.\",\"date:확인일:start\":\"2026-10-20\",\"출처 성격\":\"기업 발표\"}},{\"id\":\"3ff16efa-972b-81a8-aee6-c9e7460cd793\",\"url\":\"https://app.notion.com/p/3ff16efa972b81a8aee6c9e7460cd793?pvs=204\",\"properties\":{\"제목\":\"BTS becomes 1st group to top 10 bil. Spotify streams in single year\",\"출처\":\"The Korea Times / Yonhap\",\"원본 URL\":\"https://www.koreatimes.co.kr/entertainment/k-pop/20261016/bts-becomes-1st-group-to-top-10-bil-spotify-streams-in-single-year\",\"date:발행일:start\":\"2026-10-16\",\"date:발행일:is_datetime\":0,\"핵심 수치와 요약\":\"빅히트뮤직 발표를 인용해 BTS의 해당 연도 Spotify 스트리밍이 100억 회를 넘었다고 보도했다.\",\"date:확인일:start\":\"2026-10-20\",\"출처 성격\":\"언론 보도\"}}]}"
+      }
+    ],
+    "structuredContent": null,
+    "isError": false
+  },
+  "draft_pages": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"pages\":[{\"id\":\"3ff16efa-972b-818b-be22-c57aa59b887e\",\"url\":\"https://app.notion.com/p/3ff16efa972b818bbe22c57aa59b887e?pvs=204\",\"properties\":{\"기사 제목\":\"v1 K-POP 뉴스 초안\",\"원본 기사\":[\"3ff16efa-972b-81f4-8610-cb6aa9d31495\",\"3ff16efa-972b-81bc-9828-df15d5439075\",\"3ff16efa-972b-81a8-aee6-c9e7460cd793\"],\"지침 버전\":\"v1\",\"date:생성일:start\":\"2026-10-20\",\"검토 상태\":\"검토 대기\",\"생성 도구\":\"Codex 현재 대화 / GPT-6 계열, 정확한 실행 모델 ID 미제공 / 별도 유료 API 미호출\"}},{\"id\":\"3ff16efa-972b-811e-b6c1-d83dcbbbf313\",\"url\":\"https://app.notion.com/p/3ff16efa972b811eb6c1d83dcbbbf313?pvs=204\",\"properties\":{\"기사 제목\":\"v2 수치의 의미와 출처를 구분한 K-POP 뉴스\",\"원본 기사\":[\"3ff16efa-972b-81f4-8610-cb6aa9d31495\",\"3ff16efa-972b-81bc-9828-df15d5439075\",\"3ff16efa-972b-81a8-aee6-c9e7460cd793\"],\"지침 버전\":\"v2\",\"date:생성일:start\":\"2026-10-20\",\"검토 상태\":\"검토 대기\",\"생성 도구\":\"Codex 현재 대화 / GPT-6 계열, 정확한 실행 모델 ID 미제공 / 별도 유료 API 미호출\"}}]}"
+      }
+    ],
+    "structuredContent": null,
+    "isError": false
+  },
+  "notion": "https://app.notion.com/p/3ff16efa972b819eaef9edbab9935ee9",
+  "chat_share": "https://chatgpt.com/s/cx_6ad6df665a6c819199d8c8d948b35df8",
+  "automation": {
+    "id": "k-pop",
+    "schedule": "09:00 Asia/Seoul daily",
+    "status": "ACTIVE",
+    "scheduled_run_evidence": false
+  },
+  "submission_recency_audit": {
+    "as_of": "2026-10-20",
+    "teacher_example_window": "recent 3 days",
+    "publication_dates": [
+      "2026-01-16",
+      "2025-08-05",
+      "2026-10-16"
+    ],
+    "meets_recency": false,
+    "requirement_08_status": "PARTIAL",
+    "next_action": "Preserve existing comparison; add recent source articles and update linked drafts in STEP26."
+  }
+}

@@ -1,5 +1,10 @@
 # 🎧 K-POP DATA LAB
 
+> **2026-10-20 제출 기준:** 현재 앱은 MySQL + SQLite이며 PostgreSQL 런타임 전환·배포는 미완료다.
+> 기능정의·화면구성·ERD·실행·실제 시험 및 제출 링크는 [STEP 25 과제 답안과 증거](docs/step25_submission.md),
+> 항목별 판정은 [평가 대조표](docs/step25_requirements_audit.md)를 참조한다.
+> 아래 초기 실습 설명은 개발 경과이며 최신 권한·기사 검수 동작은 STEP 23~25 문서를 따른다.
+
 > **Spotify + YouTube Data Journalism Dashboard**  
 > MBC AI 데이터 저널리즘 수업 실습 프로젝트  
 > 📅 2026.10.07

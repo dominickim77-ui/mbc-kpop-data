@@ -11,6 +11,7 @@ import os
 import re
 import unicodedata
 from pathlib import Path
+from news.provenance import SELECTED_INSTRUCTIONS
 
 from news.generation import ROOT, FACT_PATH, DEFAULT_MODEL, check_fact_sheet
 
@@ -191,17 +192,7 @@ def generate_paid_article(evidence: dict) -> tuple[str, str]:
         raise RuntimeError('OPENAI_API_KEY가 없습니다. .env에 등록한 뒤 다시 확인하세요.')
     from openai import OpenAI, APIError, APITimeoutError, AuthenticationError, RateLimitError
     model = os.getenv('OPENAI_MODEL', DEFAULT_MODEL).strip() or DEFAULT_MODEL
-    instructions = (
-        '너는 데이터 저널리즘 기사의 초안을 작성하는 편집 보조자다. 제공된 JSON의 analysis_tracks에 '\
-        '있는 곡만 다룬다. 한국어 제목 한 줄과 본문 두세 문단을 작성한다. '\
-        'Global 범위, 두 주간 날짜, 각 곡의 두 플랫폼 순위 변화 및 플랫폼 내부 수치 변화율을 정확히 표기하라. '\
-        'Spotify는 주간 스트리밍, YouTube는 Weekly Top Songs 주간 조회수이며 동일 지표가 아니다. '\
-        '차트의 상위 200곡/100곡 범위 차이를 밝혀라. '\
-        '제공된 곡 외의 곡·인터뷰·원인·팬덤 규모·인구 추정·외부 통계를 만들어내지 마라. '\
-        '인기도 배율이나 플랫폼 간 수치 차이 계산을 금한다. '\
-        'K-POP 전체 현상으로 일반화하지 않는다. 출처 Spotify Charts와 YouTube Charts를 적고, '\
-        '검수 전 초안이며 최종 출고 미승인임을 끝에 적는다. 입력에 없는 숫자는 추가하지 마라.'
-    )
+    instructions = SELECTED_INSTRUCTIONS
     try:
         with OpenAI(api_key=key, timeout=30.0, max_retries=0) as client:
             opts = {'reasoning': {'effort': 'none'}} if model == DEFAULT_MODEL else {}

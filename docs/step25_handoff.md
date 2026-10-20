@@ -1,22 +1,24 @@
 # STEP 25 인수인계 — 과제 요구사항 점검 및 미완성 기능 보완
 
-기록일: 2026-10-20. STEP 24는 **부분 완료 / Git 반영 승인 대기**다.
+기록일: 2026-10-20. STEP 24 개발·검증·Commit·Push는 **완료**다.
+PostgreSQL 런타임 전환은 완료하지 않았다. 아래 검증 수치는 STEP 24의 과거 기록이다.
 
 ## 기준과 산출물
 
 - 원본 프로젝트: `C:/WORKSPACE/mbc-kpop-data`
 - 원본 브랜치: `feature/kpop-news-analysis`
-- 확인한 로컬·원격 기준 SHA: `fa01d88211ea9af372ff72825256ba3f50d84b80`
+- STEP 24 최종 SHA: `6e1c4d6e934289778f21200e63eefdb403bea001`
+- STEP 25 시작 시 로컬 HEAD와 clean 상태 확인. 원격 일치는 STEP 24 Notion 최종 기록에서 확인했다.
 - 작업 사본: 이 채팅 프로젝트의 `step24_work/`
 - 추가: PostgreSQL 11개 테이블 SQL, sequence SQL, 오프라인 변환 계획,
   별도 로컬 시험 DB 로더, 신규 테스트 14개, 이전·복구·실행 문서.
 - 수정: Windows cp949 출력 오류를 막는 검증 실행기의 UTF-8 출력 처리.
-- 아직 원본 코드에 복사하거나 Commit·Push하지 않았다. 승인 후 명시된
-  변경 파일만 반영하고 HEAD/변경 상태를 다시 확인한다.
+- 승인된 변경 파일 10개를 원본 브랜치에 반영하고 Commit·Push했다.
+  STEP 25의 새 변경은 별도의 변경 목록·시험 결과를 제시한 뒤 Commit·Push 승인을 받는다.
 
 ## 검증 결과
 
-- PASS: Python 3.14.7, 구문 검사 83개 파일.
+- PASS: Python 3.14.7, 최종 통합 구문 검사 90개 파일.
 - PASS: 오프라인 회귀 154개, FAIL 0개.
 - SKIP: 실제 MySQL 시험 16개. 운영 MySQL 직접 연결 시험을 실행하지 않았다.
 - PASS: 등록된 10/08 비교 주차의 원본 CSV 4개 기본 형식 검증.
@@ -31,7 +33,8 @@
   로그아웃과 Dashboard의 영역 표시. 실제 차트 값·직원 기사 작성/검수
   전체 흐름은 브라우저 PASS가 아니다.
 
-실행 증거: 작업 사본 `.reports/step24-elevated.json`,
+최종 통합 실행 증거: 원본 프로젝트 `.reports/step24-final.json`.
+이전 격리 실행 증거: 작업 사본 `.reports/step24-elevated.json`,
 `.reports-step24-elevated.log`, `.reports/browser-dashboard.png`.
 초기 샌드박스 실행 지연과 cp949 보고서 출력 실패는 최종 성공과 구분해 보관했다.
 
@@ -43,7 +46,8 @@
 추가 역할 부여·기사 작성·차트 수집은 하지 않았고, 계정/감사 기록도
 임의 삭제하지 않았다. 정리가 필요하면 사용자 승인 아래 기존 불변
 감사 이력을 보존할 방법을 먼저 결정한다.
-기존 서버는 종료하지 않았다. 클라우드 배포·main 병합·Git 반영 없음.
+기존 서버는 종료하지 않았다. 클라우드 배포·main 병합 없음.
+STEP 24 Git 반영은 위 최종 커밋으로 완료했다.
 
 ## STEP 25 우선순위
 

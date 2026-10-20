@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if __package__ in (None, ''):
     import sys
     sys.path.insert(0, str(ROOT))
+from news.provenance import LEGACY_INSTRUCTIONS, generation_record
 FACT_PATH = ROOT / 'facts' / 'article_ready_fact_sheet_20261008.json'
 OUTPUT_DIR = ROOT / 'articles'
 DEFAULT_MODEL = 'gpt-5.4-mini-2026-03-17'
@@ -151,17 +152,7 @@ def generate_openai_article(facts: dict) -> tuple[str, str]:
         raise RuntimeError('OpenAI Python SDK가 없습니다. python -m pip install openai python-dotenv') from exc
 
     model = os.getenv('OPENAI_MODEL', DEFAULT_MODEL).strip() or DEFAULT_MODEL
-    instructions = (
-        '너는 K-POP 데이터 기사 작성 보조자다. 제공된 JSON 이외의 사실은 사용하지 않는다. '
-        '한국어로 제목 1줄 + 본문 2문단의 짧은 기사 초안을 작성한다(가능하면 450자 이내). '
-        '반드시 두 주차의 정확한 기간, Global 지역, Animal·SaWaDiKa의 플랫폼별 순위 변화 및 각 플랫폼 내부 소비량 증감률을 적는다. '
-        'Spotify 주간 스트리밍과 YouTube 주간 곡 차트 조회수는 다른 지표라고 설명한다. '
-        'Spotify 상위 200곡, YouTube 상위 100곡이라는 차트 범위 차이도 적는다. '
-        'Spotify Charts와 YouTube Charts를 출처로 표시한다. '
-        'Hootie Frutti는 검수 보류로 주요 분석에서 제외되었으니 언급하지 않는다. '
-        '확인되지 않은 원인, 사용자 수, 인용문, 팬덤 규모, 인기 배수, 글로벌 K-POP 전체의 일반화는 절대 작성하지 않는다. '
-        '새로운 수치를 계산하거나 창작하지 않는다. 출고 승인되었다고 표현하지 않는다.'
-    )
+    instructions = LEGACY_INSTRUCTIONS
     try:
         with OpenAI(api_key=key, timeout=30.0, max_retries=0) as client:
             opts = {'reasoning': {'effort': 'none'}} if model == DEFAULT_MODEL else {}
@@ -221,6 +212,8 @@ def main():
         'mode': args.mode,
         'ai_generated': args.mode == 'openai',
         'model': model,
+        'generation_provenance': generation_record(curated_facts(facts),
+            selected=facts.get('schema_version') == 22, ai_generated=args.mode == 'openai'),
         'review_required': True,
         'publication_approved': False,
         'article_status': 'DRAFT_NOT_FOR_PUBLICATION',

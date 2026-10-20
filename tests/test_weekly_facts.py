@@ -211,6 +211,10 @@ class WeeklyFactTests(unittest.TestCase):
         self.assertEqual(paid.call_args.args[0]['week_current']['end'], self.week)
         record = json.loads(next((self.root / 'articles').glob('*.json')).read_text(encoding='utf-8'))
         self.assertEqual(record['article_status'], 'DRAFT_NOT_FOR_PUBLICATION')
+        provenance = record['generation_provenance']
+        self.assertEqual(json.loads(provenance['input_json']), paid.call_args.args[0])
+        self.assertEqual(provenance['prompt_version'], 'selected-v1')
+        self.assertIn('입력에 없는 숫자는 추가하지 마라', provenance['instructions'])
 
 
 if __name__ == '__main__':
