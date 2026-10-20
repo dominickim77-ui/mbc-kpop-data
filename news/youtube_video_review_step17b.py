@@ -117,8 +117,15 @@ def _youtube_json(endpoint: str, params: dict) -> dict:
         response = requests.get('https://www.googleapis.com/youtube/v3/' + endpoint, params=params, timeout=12)
     except requests.RequestException:
         raise HTTPException(502, 'YouTube API 네트워크 요청 실패. 서버 연결을 확인해 주세요.') from None
-    if response.status_code == 403:
-        raise HTTPException(429, 'YouTube API 할당량 또는 접근 권한을 확인해 주세요.')
+    if response.status_code in (403, 429):
+        try:
+            error = response.json().get('error', {})
+            reasons = {item.get('reason') for item in error.get('errors', []) if isinstance(item, dict)}
+        except (ValueError, AttributeError, TypeError):
+            reasons = set()
+        if response.status_code == 429 or reasons & {'quotaExceeded', 'dailyLimitExceeded', 'rateLimitExceeded', 'userRateLimitExceeded'}:
+            raise HTTPException(429, 'YouTube API 사용 한도에 도달했습니다. 할당량을 확인한 뒤 다시 시도해 주세요.')
+        raise HTTPException(502, 'YouTube API 접근이 거부되었습니다. 운영 담당자가 API 설정과 키 권한을 확인해야 합니다.')
     if response.status_code in (400, 401):
         raise HTTPException(502, 'YouTube API 키 또는 요청 권한을 확인해 주세요.')
     if not response.ok:

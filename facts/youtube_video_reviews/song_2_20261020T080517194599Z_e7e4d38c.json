@@ -1,0 +1,33 @@
+{
+  "status": "VIDEO_IDENTITY_REVIEW",
+  "db_status": "DB_STORED",
+  "reviewer_id": 3,
+  "song_id": 2,
+  "artist": "BTS",
+  "track": "NORMAL",
+  "video_id": "GEk4jHwfFTA",
+  "video_title": "BTS (방탄소년단) ‘NORMAL’ Official MV",
+  "youtube_channel": "HYBE LABELS",
+  "channel_id": "UC3IZKseVpdzPSBaWxBxundA",
+  "approved_at_utc": "2026-10-20T08:05:17.194599+00:00",
+  "week_end": "2026-10-08",
+  "manually_checked_channel": true,
+  "manually_checked_track_version": true,
+  "cumulative_view_count": 43329557,
+  "youtube_metric": "INDIVIDUAL_VIDEO_LIFETIME",
+  "publication_approved": false,
+  "original_candidate": {
+    "video_id": "GEk4jHwfFTA",
+    "title": "BTS (방탄소년단) ‘NORMAL’ Official MV",
+    "channel_title": "HYBE LABELS",
+    "channel_id": "UC3IZKseVpdzPSBaWxBxundA",
+    "published_at": "2026-07-19T04:00:02Z",
+    "cumulative_views": 43329557,
+    "cumulative_likes": 1763031,
+    "cumulative_comments": 75013,
+    "video_url": "https://www.youtube.com/watch?v=GEk4jHwfFTA",
+    "source": "SEARCH_RESULT",
+    "review_hint": "버전·채널 확인 필요",
+    "status": "PENDING_HUMAN_REVIEW"
+  }
+}

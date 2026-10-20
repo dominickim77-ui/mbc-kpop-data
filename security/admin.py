@@ -1,15 +1,26 @@
 """Local operator bootstrap; no public elevation endpoint and no default password."""
 import argparse
 import getpass
-from security.editorial_store import initialize, connect, audit
+import sqlite3
+from contextlib import closing
+from security.editorial_store import initialize, connect, audit, database_path
 from security.auth import password_hash
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('action', choices=['init', 'bootstrap'])
+    parser.add_argument('action', choices=['status', 'init', 'bootstrap'])
     parser.add_argument('--username')
     args = parser.parse_args()
+    if args.action == 'status':
+        path = database_path().resolve()
+        if not path.is_file():
+            raise SystemExit('인증 저장소가 없습니다. 운영 설정 경로를 확인해 주세요.')
+        with closing(sqlite3.connect(path.as_uri() + '?mode=ro', uri=True)) as db:
+            db.execute('PRAGMA query_only=ON')
+            count = db.execute("SELECT COUNT(*) FROM users WHERE role='ADMIN'").fetchone()[0]
+        print(f'ADMIN 계정: {count}개. 계정과 역할은 변경하지 않았습니다.')
+        return
     if args.action == 'init':
         initialize()
         print('별도 인증·기사 DB 초기화 완료. 기존 MySQL 변경 없음.')

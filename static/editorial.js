@@ -75,7 +75,13 @@ run(async()=>{
       const line=document.createElement('div'),label=document.createElement('span'),select=document.createElement('select'),button=document.createElement('button');
       label.textContent=user.username+' · '+user.role;
       for(const role of ['READER','JOURNALIST','EDITOR','ADMIN']){const opt=document.createElement('option');opt.value=role;opt.textContent=role;opt.selected=role===user.role;select.append(opt);}
-      button.textContent='역할 변경';button.onclick=()=>run(async()=>{await api(`/api/auth/users/${user.id}/role`,'PUT',{role:select.value});location.reload();});
+      button.textContent='역할 변경';button.onclick=()=>run(async()=>{
+        if(select.value===user.role)return;
+        if(!confirm(`${user.username} 계정의 역할을 ${user.role} → ${select.value}로 변경하시겠습니까? 해당 사용자는 다시 로그인해야 합니다.`))return;
+        await api(`/api/auth/users/${user.id}/role`,'PUT',{role:select.value});
+        if(user.id===me.id)location.href='/account';
+        else location.reload();
+      });
       line.append(label,select,button);$('#users').append(line);
     }
   }

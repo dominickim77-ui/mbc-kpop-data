@@ -57,8 +57,20 @@
           const data = await response.json();
           throw new Error(typeof data.detail === 'string' ? data.detail : '입력 내용을 확인해 주세요.');
         }
-        if (response.redirected) location.assign(response.url);
-        else location.reload();
+        if (response.redirected) {
+          const target = new URL(response.url);
+          if (target.origin === location.origin && target.pathname === '/') {
+            const artist = new URL(location.href).searchParams.get('artist');
+            if (artist && !target.searchParams.has('artist')) target.searchParams.set('artist', artist);
+            const removing = /\/(?:remove-analysis\/|reset-analysis)/.test(form.action);
+            target.hash = matchMedia('(max-width:767px)').matches && removing
+              ? 'current-analysis' : 'analysis-workspace';
+          }
+          if (target.origin === location.origin && target.pathname === location.pathname && target.search === location.search) {
+            history.replaceState(null, '', target.href);
+            location.reload();
+          } else location.assign(target.href);
+        } else location.reload();
       } catch (error) {
         status.textContent = error instanceof TypeError ? '서버에 연결할 수 없습니다. 연결 상태를 확인해 주세요.' : error.message;
         status.focus();

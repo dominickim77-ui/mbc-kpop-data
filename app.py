@@ -159,13 +159,18 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.exception_handlers import request_validation_exception_handler
 
 
+def analysis_redirect(url, status_code=303):
+    """All selection forms return to the shared search/selection workspace."""
+    return RedirectResponse(url=url + '#analysis-workspace', status_code=status_code)
+
+
 @app.exception_handler(RequestValidationError)
 async def form_validation_error(request, exc):
     if request.url.path.startswith(('/select-analysis', '/add-analysis', '/remove-analysis/', '/reset-analysis')):
         from fastapi.responses import JSONResponse
         message = '입력값이 올바르지 않습니다. 곡과 비교 기간을 다시 선택해 주세요.'
         if 'text/html' in request.headers.get('accept', ''):
-            return RedirectResponse('/?message=' + quote_plus(message), status_code=303)
+            return analysis_redirect('/?message=' + quote_plus(message), status_code=303)
         return JSONResponse({'detail': message}, status_code=422)
     return await request_validation_exception_handler(request, exc)
 
@@ -213,7 +218,7 @@ def select_analysis(selected_ranks: list[int] = Form(default=[]),
             message = str(exc)
         except mysql.connector.Error:
             message = '저장된 데이터에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.'
-    return RedirectResponse('/?artist=' + quote_plus(search_artist) + '&week_end=' +
+    return analysis_redirect('/?artist=' + quote_plus(search_artist) + '&week_end=' +
                             quote_plus(week_end) + '&message=' + quote_plus(message), status_code=303)
 
 
@@ -603,7 +608,7 @@ def _add_analysis(selected_ranks: list[int], search_artist: str, week_end: str):
 
         message = "분석에 추가할 곡을 선택해 주세요."
 
-        return RedirectResponse(
+        return analysis_redirect(
             url=(
                 f"/?artist={quote_plus(search_artist)}"
                 f"&week_end={quote_plus(week_end)}"
@@ -622,7 +627,7 @@ def _add_analysis(selected_ranks: list[int], search_artist: str, week_end: str):
         spotify_csv = load_spotify_csv(pair.current_end.isoformat())
         week_end = pair.current_end.isoformat()
     except (CatalogError, ChartValidationError, OSError, ValueError) as exc:
-        return RedirectResponse(
+        return analysis_redirect(
             url=f'/?artist={quote_plus(search_artist)}&week_end={quote_plus(week_end)}'
                 f'&message={quote_plus("주차 확인 실패: " + str(exc))}',
             status_code=303,
@@ -862,7 +867,7 @@ def _add_analysis(selected_ranks: list[int], search_artist: str, week_end: str):
 
     message_text = " ".join(messages)
 
-    return RedirectResponse(
+    return analysis_redirect(
         url=(
             f"/?artist={quote_plus(search_artist)}"
             f"&week_end={quote_plus(week_end)}"
@@ -887,7 +892,7 @@ def remove_analysis(song_id: int, week_end: str = Form(default="")):
         if song_id in analysis_song_ids:
             analysis_song_ids.remove(song_id)
 
-    return RedirectResponse(
+    return analysis_redirect(
         url='/?week_end=' + quote_plus(week_end),
         status_code=303,
     )
@@ -907,7 +912,7 @@ def reset_analysis(week_end: str = Form(default="")):
     with _analysis_write_lock:
         analysis_song_ids.clear()
 
-    return RedirectResponse(
+    return analysis_redirect(
         url='/?week_end=' + quote_plus(week_end),
         status_code=303,
     )

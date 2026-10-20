@@ -198,7 +198,8 @@ class AuthMiddleware:
                     if user['role'] not in STAFF:
                         raise HTTPException(403, 'AI News는 JOURNALIST, EDITOR, ADMIN 계정으로 이용할 수 있습니다.')
                 if path.startswith('/api/youtube-video-review/'):
-                    require_role('EDITOR', 'ADMIN')
+                    if user['role'] not in {'EDITOR', 'ADMIN'}:
+                        raise HTTPException(403, 'YouTube 영상 검수는 EDITOR·ADMIN 권한이 필요합니다.')
                 if path == '/add-analysis':
                     require_role(*STAFF)  # Existing endpoint writes MySQL and may query YouTube.
             if method not in {'GET', 'HEAD', 'OPTIONS'}:
@@ -207,7 +208,7 @@ class AuthMiddleware:
         except HTTPException as exc:
             if method == 'POST' and path.startswith(('/select-analysis', '/add-analysis', '/remove-analysis/', '/reset-analysis')) and 'text/html' in request.headers.get('accept', ''):
                 from urllib.parse import quote_plus
-                target = '/account' if exc.status_code == 401 else '/?message=' + quote_plus(str(exc.detail))
+                target = '/account' if exc.status_code == 401 else '/?message=' + quote_plus(str(exc.detail)) + '#analysis-workspace'
                 return await RedirectResponse(target, status_code=303)(scope, receive, send)
             await JSONResponse({'detail': exc.detail}, status_code=exc.status_code)(scope, receive, send)
         except RuntimeError:

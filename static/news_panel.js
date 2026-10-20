@@ -22,6 +22,17 @@
   let busy = false;
   let selection = null;
 
+  // Presentation gating avoids expected 403 traffic; API authorization remains authoritative.
+  if (!['JOURNALIST', 'EDITOR', 'ADMIN'].includes(panel.dataset.userRole)) {
+    [btnPreview, btnPaid, btnSaved, btnReview, btnSpotifyOnly].forEach(button => {
+      if (button) button.disabled = true;
+    });
+    countEl.textContent = '개인 분석은 Dashboard에서 이용할 수 있습니다.';
+    document.getElementById('news-fact-status').textContent = 'AI News 이용 권한이 필요합니다.';
+    statusEl.textContent = 'AI News는 JOURNALIST·EDITOR·ADMIN 권한이 필요합니다. 관리자에게 역할 부여를 요청해 주세요.';
+    return;
+  }
+
   function setBusy(flag) {
     busy = flag;
     btnPreview.disabled = flag || !newsWeekCompatible || !selection || !selection.can_generate;

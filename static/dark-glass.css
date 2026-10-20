@@ -93,3 +93,14 @@ main{animation:lab-enter .24s ease-out}
  .page-account main .auth-heading h1{font-size:30px}
 }
 @media(prefers-reduced-motion:reduce){.glass,.dashboard-section,.search-panel,.page-account input{transition:none}}
+
+/* STEP 26C follow-up: keep the selection workspace together before the charts. */
+.analysis-workspace{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start;scroll-margin-top:24px}
+.analysis-workspace>#discover,.analysis-workspace>#current-analysis{grid-column:auto}
+.analysis-workspace>.success-message{grid-column:1/-1;margin:0}
+@media(max-width:767px){.analysis-workspace{grid-template-columns:minmax(0,1fr);gap:14px}}
+@media(min-width:768px) and (max-width:1000px){
+ .analysis-workspace .artist-week-manager{flex-wrap:wrap}
+ .analysis-workspace .artist-week-manager label,.analysis-workspace .artist-week-manager select{flex-basis:100%;width:100%}
+ .analysis-workspace .artist-week-manager button{width:100%}
+}

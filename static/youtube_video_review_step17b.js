@@ -11,12 +11,22 @@
   let session = null;
   let busy = false;
 
+  if (!['EDITOR', 'ADMIN'].includes(root.dataset.userRole)) {
+    search.disabled = true;
+    status.textContent = '영상 후보 검색과 검수는 EDITOR·ADMIN 권한이 필요합니다. 관리자에게 역할 부여를 요청해 주세요.';
+    return;
+  }
+
   async function json(url, options = {}) {
     const {headers: extraHeaders, ...rest} = options;
     const res = await fetch(url, {cache:'no-store', ...rest, headers:{'X-Requested-With':'KpopYouTubeReview', ...(extraHeaders || {})}});
     let body;
     try { body = await res.json(); } catch { throw new Error('서버 응답을 해석할 수 없습니다.'); }
-    if (!res.ok) throw new Error(body.detail || `HTTP ${res.status}`);
+    if (!res.ok) {
+      const error = new Error(typeof body.detail === 'string' ? body.detail : '입력 내용을 확인해 주세요.');
+      error.status = res.status;
+      throw error;
+    }
     return body;
   }
   function textElement(tag, content, className='') {
@@ -100,7 +110,11 @@
       const data = await json(url);
       show(data);
       status.textContent = data.cached ? '10분 이내 검색 결과이며, 추가 API 사용은 없습니다.' : '후보를 불러왔습니다. 공식 채널과 곡 버전을 확인해 주세요.';
-    } catch (err) { status.textContent = `후보 조회 실패: ${err.message}`; }
-    finally {busy=false; search.disabled=false;}
+    } catch (err) {
+      const labels = {401:'로그인 필요',403:'접근 권한 확인',404:'검색 결과 없음',429:'API 할당량 초과',502:'YouTube 연결·설정 오류',503:'YouTube 설정 필요'};
+      status.textContent = `${labels[err.status] || '후보 조회 실패'}: ${err.message}`;
+      if (err.status === 401 || err.status === 403) root.dataset.accessRevoked = 'true';
+    }
+    finally {busy=false; search.disabled=root.dataset.accessRevoked === 'true' || !select.value;}
   });
 })();
