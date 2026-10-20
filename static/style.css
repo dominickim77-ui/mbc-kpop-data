@@ -341,7 +341,7 @@ th {
 .news-selection-lists li { overflow-wrap: anywhere; }
 .news-panel-actions button:disabled { opacity: .5; cursor: not-allowed; }
 .analysis-two-charts { display: grid; grid-template-columns: 1fr; gap: 22px; }
-.analysis-chart-standalone { min-height: 300px; }
+.analysis-chart-standalone { min-height: 300px; min-width: 0; }
 .analysis-chart-standalone .chart-container { height: 300px; }
 .analysis-chart-standalone h3 { font-size: 16px; margin: 12px 0; }
 .analysis-chart-hint { color: #5c5661; font-size: 13px; line-height: 1.65; }
@@ -399,3 +399,5 @@ th {
 .review-queue-link {display:inline-block;margin-right:12px;margin-top:6px}
 .review-queue-link a {color:#57348c}
 .news-review-caution {padding:12px;border-radius:8px;background:#f8f6fb}
+
+.dashboard-table-scroll { max-width: 100%; overflow-x: auto; }

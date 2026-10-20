@@ -24,6 +24,7 @@ function evidenceText(evidence) {
   return lines.join('\n');
 }
 function showArticle(row){
+  $('#status').dataset.status=row?.status||'DRAFT';
   selected=row; $('#title').value=row?.title||''; $('#body').value=row?.body||''; $('#week').value=row?.week_end||'2026-10-08';
   $('#status').textContent=row?`${row.status} · 기사 ${row.id} · 버전 ${row.version}`:'새 초안';
   $('#evidence').textContent=row?evidenceText(row.evidence):'';
@@ -46,7 +47,7 @@ async function refresh(){
   for(const row of published){const el=document.createElement('article'), h=document.createElement('h3'), p=document.createElement('pre');h.textContent=row.title;p.textContent=row.body;el.append(h,p);$('#published').append(el);}
   if(me.role==='READER') return;
   $('#workspace').hidden=false; $('#list').replaceChildren();
-  for(const row of await api('/api/editorial/articles')){const b=document.createElement('button');b.textContent=`${row.status} · ${row.title} · v${row.version}`;b.onclick=()=>run(()=>openArticle(row.id));$('#list').append(b);}
+  for(const row of await api('/api/editorial/articles')){const b=document.createElement('button');b.dataset.status=row.status;b.textContent=`${row.status} · ${row.title} · v${row.version}`;b.onclick=()=>run(()=>openArticle(row.id));$('#list').append(b);}
 }
 $('#new').onclick=()=>showArticle(null);
 $('#article-form').onsubmit=e=>{e.preventDefault();run(async()=>{

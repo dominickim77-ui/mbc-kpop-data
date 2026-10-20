@@ -8,21 +8,34 @@
     <title>{{ title }}</title>
 
     <link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/dark-glass.css?v=26b-final">
+    <!-- K-POP DATA LAB brand favicon: raster fallback, scalable SVG, iOS touch icon. -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/icons/favicon-16x16.png?v=26b1">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/icons/favicon-32x32.png?v=26b1">
+    <link rel="icon" type="image/svg+xml" sizes="any" href="/static/icons/favicon.svg?v=26b1">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/apple-touch-icon.png?v=26b1">
 </head>
 
-<body>
+<body class="page-spotify"><a class="skip-link" href="#main-content">본문으로 이동</a>
+<aside class="lab-sidebar" id="lab-navigation">
+<a class="lab-brand" href="/" aria-label="K-POP DATA LAB 홈"><span class="brand-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span>K-POP<br>DATA LAB<small>GLOBAL MUSIC<br>INTELLIGENCE</small></span></a>
+<nav aria-label="주요 메뉴"><a href="/" data-nav="home" class="nav-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10 12 3l9 7v10H15v-6H9v6H3Z"/></svg><span>Dashboard</span></a><a href="/#discover" data-nav="search" class="nav-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0"/></svg><span>Discover</span></a><a href="/spotify" data-nav="spotify" class="nav-spotify"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9c6-3 12-3 18 0M5 13c5-2 9-2 14 0M7 17c3-1 7-1 10 0"/></svg><span>Spotify</span></a><a href="/youtube" data-nav="youtube" class="nav-youtube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7l8 5-8 5ZM3 4h18v16H3Z"/></svg><span>YouTube</span></a><a href="/compare" data-nav="compare" class="nav-compare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V12h3v8ZM10 20V4h3v16ZM16 20V8h3v12Z"/></svg><span>Compare</span></a><a href="/#news-inline-panel" data-nav="news" class="nav-news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h10l4 4v14H5ZM9 11h6M9 15h6M9 7h3"/></svg><span>AI News</span></a><a href="/editorial" data-nav="edit" class="nav-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16 16 4l4 4L8 20H4ZM14 6l4 4"/></svg><span>Editorial</span></a><a href="/account" data-nav="user" class="nav-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0M4 21v-3a8 8 0 0 1 16 0v3"/></svg><span>Account</span></a></nav>
+<div class="sidebar-note"><span class="status-dot"></span> Verified data.<br>Human editorial control.</div>
+<div id="lab-account" class="lab-account"><a href="/account">계정 확인</a></div>
+</aside>
+<div class="lab-topbar"><button class="menu-toggle" aria-controls="lab-navigation" aria-expanded="false" aria-label="메뉴 열기">☰</button><a class="top-search" href="/#discover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0"/></svg><span>아티스트를 검색하고 분석을 시작하세요</span><kbd>DISCOVER</kbd></a><a class="top-account" href="/account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0M4 21v-3a8 8 0 0 1 16 0v3"/></svg><span>Account</span></a></div>
 
     <header>
         <h1>🎵 Spotify Data</h1>
-        <p>2026 Spotify Weekly Top Songs Global</p>
+        <p>Spotify Weekly Top Songs · Global</p>
     </header>
 
-    <main class="data-page">
+    <main id="main-content" class="data-page">
 
         <!-- HOME으로 돌아가기 -->
         <a class="back-link" href="/">← HOME</a>
 
-        <table>
+        <div class="platform-intro spotify-intro"><span class="eyebrow">SPOTIFY / WEEKLY DATA</span><h2>Weekly Streams</h2><p>저장된 곡별 스트리밍 자료입니다. 각 행의 Chart Date를 확인하세요.</p><a href="/compare">동일 기간으로 비교 →</a></div><div class="dashboard-table-scroll"><table>
 
             <thead>
                 <tr>
@@ -63,15 +76,15 @@
                     </td>
                 </tr>
 
-                {% endfor %}
+                {% else %}<tr><td colspan="5">표시할 Spotify 데이터가 없습니다.</td></tr>{% endfor %}
 
             </tbody>
 
-        </table>
+        </table></div>
 
     </main>
 
-<script src="/static/account_status.js"></script>
-</body>
+<script src="/static/account_status.js?v=26b-final"></script>
+<script src="/static/dark-glass.js?v=26b-final" defer></script></body>
 
 </html>

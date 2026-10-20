@@ -14,25 +14,62 @@
     -->
     <link rel="stylesheet" href="/static/style.css">
 <link rel="stylesheet" href="/static/youtube_video_review_step17b.css">
+<link rel="stylesheet" href="/static/dark-glass.css?v=26b-final">
+    <!-- K-POP DATA LAB brand favicon: raster fallback, scalable SVG, iOS touch icon. -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/icons/favicon-16x16.png?v=26b1">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/icons/favicon-32x32.png?v=26b1">
+    <link rel="icon" type="image/svg+xml" sizes="any" href="/static/icons/favicon.svg?v=26b1">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/apple-touch-icon.png?v=26b1">
 </head>
 
 
-<body>
+<body class="page-index"><a class="skip-link" href="#main-content">본문으로 이동</a>
+<aside class="lab-sidebar" id="lab-navigation">
+<a class="lab-brand" href="/" aria-label="K-POP DATA LAB 홈"><span class="brand-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span>K-POP<br>DATA LAB<small>GLOBAL MUSIC<br>INTELLIGENCE</small></span></a>
+<nav aria-label="주요 메뉴"><a href="/" data-nav="home" class="nav-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10 12 3l9 7v10H15v-6H9v6H3Z"/></svg><span>Dashboard</span></a><a href="/#discover" data-nav="search" class="nav-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0"/></svg><span>Discover</span></a><a href="/spotify" data-nav="spotify" class="nav-spotify"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9c6-3 12-3 18 0M5 13c5-2 9-2 14 0M7 17c3-1 7-1 10 0"/></svg><span>Spotify</span></a><a href="/youtube" data-nav="youtube" class="nav-youtube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7l8 5-8 5ZM3 4h18v16H3Z"/></svg><span>YouTube</span></a><a href="/compare" data-nav="compare" class="nav-compare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V12h3v8ZM10 20V4h3v16ZM16 20V8h3v12Z"/></svg><span>Compare</span></a><a href="/#news-inline-panel" data-nav="news" class="nav-news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h10l4 4v14H5ZM9 11h6M9 15h6M9 7h3"/></svg><span>AI News</span></a><a href="/editorial" data-nav="edit" class="nav-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16 16 4l4 4L8 20H4ZM14 6l4 4"/></svg><span>Editorial</span></a><a href="/account" data-nav="user" class="nav-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0M4 21v-3a8 8 0 0 1 16 0v3"/></svg><span>Account</span></a></nav>
+<div class="sidebar-note"><span class="status-dot"></span> Verified data.<br>Human editorial control.</div>
+<div id="lab-account" class="lab-account"><a href="/account">계정 확인</a></div>
+</aside>
+<div class="lab-topbar"><button class="menu-toggle" aria-controls="lab-navigation" aria-expanded="false" aria-label="메뉴 열기">☰</button><a class="top-search" href="/#discover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0"/></svg><span>아티스트를 검색하고 분석을 시작하세요</span><kbd>DISCOVER</kbd></a><a class="top-account" href="/account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0M4 21v-3a8 8 0 0 1 16 0v3"/></svg><span>Account</span></a></div>
 
     <!-- ==================================================
          PAGE HEADER
     =================================================== -->
 
-    <header>
-        <h1>K-POP DATA LAB</h1>
-
-        <p>
-            Spotify + YouTube Data Journalism Dashboard
-        </p>
-    </header>
 
 
-    <main class="dashboard">
+
+    <main id="main-content" class="dashboard"><section class="overview-grid" aria-label="분석 요약">
+<div class="hero glass"><span class="eyebrow">K-POP DATA LAB / OVERVIEW</span><h1>Global Music<br><span>Intelligence</span></h1><p>Discover the data behind K-POP.</p><a class="primary-link" href="#discover">Start Analysis <span aria-hidden="true">→</span></a><div class="hero-orbit" aria-hidden="true"></div></div>
+<div class="summary-card glass"><span class="summary-icon violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0M4 21v-3a8 8 0 0 1 16 0v3"/></svg></span><h2>Selected Artists</h2><p class="metric">{{ artist_count }}<small> / {{ max_artists }}</small></p><meter min="0" max="{{ max_artists }}" value="{{ artist_count }}" aria-label="선택 아티스트 수"></meter><p class="micro">선택한 아티스트</p></div>
+<div class="summary-card glass"><span class="summary-icon coral">♫</span><h2>Selected Tracks</h2><p class="metric">{{ track_count }}<small> / {{ max_tracks }}</small></p><meter min="0" max="{{ max_tracks }}" value="{{ track_count }}" aria-label="선택 곡 수"></meter><p class="micro">현재 분석 중인 곡</p></div>
+<div class="summary-card glass"><span class="summary-icon violet">▦</span><h2>Chart Period</h2><p class="period">{{ selected_week_end or '등록된 주차 없음' }}</p><p class="micro">선택 차트 종료일</p><a href="#comparison">비교 기간 확인 →</a></div>
+<div class="summary-card glass"><span class="summary-icon mint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V12h3v8ZM10 20V4h3v16ZM16 20V8h3v12Z"/></svg></span><h2>Data Sources</h2><p class="source-label"><span class="status-dot"></span>Spotify · YouTube</p><p class="micro">{{ '비교 가능한 원본 주차 있음' if week_options else '비교 가능한 원본 주차 없음' }}</p><p class="micro">곡별 관측·검수 상태는<br>아래 분석에서 확인</p></div>
+</section><section id="trends" class="dashboard-section">
+  <h2>📈 Accumulated Analysis — 플랫폼별 2주 변화</h2>
+  <p>현재 선택한 곡의 <strong>Spotify 주간 스트리밍</strong>과
+    <strong>YouTube 공식 Top Songs 주간 조회수</strong>를 별도의 그래프로 그려.
+    두 플랫폼 수치의 크기는 직접 비교하지 않아.</p>
+  {% if weekly_chart_error %}
+    <p class="weekly-error" role="alert">⚠ 원본 주간 차트가 검증되지 않아 그래프를 그리지 않았어.</p>
+  {% elif weekly_comparison %}
+    <script id="weeklyChartPayload" type="application/json">{{ weekly_chart_data | tojson }}</script>
+    <div class="analysis-two-charts">
+      <div class="analysis-chart-standalone">
+        <h3>Spotify · Global Weekly Top Songs · 스트리밍 수 (상위 200곡)</h3>
+        <div class="chart-container"><canvas id="spotifyWeekTrend" role="img" aria-label="Spotify 주간 스트리밍 횟수 2주 비교"></canvas></div>
+      </div>
+      <div class="analysis-chart-standalone">
+        <h3>YouTube · Global Weekly Top Songs · 주간 조회수 (상위 100곡)</h3>
+        <div class="chart-container"><canvas id="youtubeWeekTrend" role="img" aria-label="YouTube 공식 곡 차트 주간 조회수 2주 비교"></canvas></div>
+      </div>
+    </div>
+    <p class="weekly-footnote">회색 또는 빈 값은 누락 데이터야. 조회수가 0이라는 뜻이 아니야.
+      축의 M은 100만 회야. 긴 곡 이름과 정확한 수치는 Tooltip과 비교 표에서 확인해. 두 그래프는 서로 다른 단위와 축을 사용해. 두 주의 집계 기간은 같아도 플랫폼 간 소비량을 나누거나 빼면 안 돼.</p>
+  {% else %}
+    <p>먼저 Current Analysis에 분석할 곡을 추가해 줘.</p>
+  {% endif %}
+</section>
 
         
 
@@ -42,7 +79,7 @@
              1. ARTIST SEARCH
         =================================================== -->
 
-        <section class="search-panel">
+        <section id="discover" class="search-panel">
 
             <h2>🔎 Artist Search</h2>
 
@@ -77,7 +114,7 @@
             <form class="search-form" method="get" action="/">
                 <input type="hidden" name="week_end" value="{{ selected_week_end }}">
 
-                <input type="text" name="artist" value="{{ search_artist }}" placeholder="예: BLACKPINK" required>
+                <input type="text" name="artist" value="{{ search_artist }}" placeholder="아티스트 이름으로 검색" aria-label="아티스트 이름" required>
 
                 <button type="submit">
                     Search
@@ -127,7 +164,7 @@
                     <input type="hidden" name="week_end" value="{{ selected_week_end }}">
 
 
-                    <table>
+                    <div class="dashboard-table-scroll"><table>
 
                         <thead>
                             <tr>
@@ -147,7 +184,7 @@
                             <tr>
 
                                 <td>
-                                    <input type="checkbox" name="selected_ranks" value="{{ song.rank }}">
+                                    <label class="track-checkbox"><input type="checkbox" name="selected_ranks" value="{{ song.rank }}" aria-label="{{ song.artist_names }} — {{ song.track_name }} 선택"></label>
                                 </td>
 
                                 <td>
@@ -172,7 +209,7 @@
 
                         </tbody>
 
-                    </table>
+                    </table></div>
 
 
                     <button class="add-analysis-button" type="submit">
@@ -205,7 +242,7 @@
              3. CURRENT ANALYSIS
         =================================================== -->
 
-        <section class="dashboard-section">
+        <section id="current-analysis" class="dashboard-section">
 
             <div class="analysis-header">
 
@@ -296,7 +333,7 @@
                         —
 
                         {{ item.track }}
-
+                        {% for row in spotify_data if row.song_id == item.song_id %}<div class="track-meta"><span>Spotify {{ '#' ~ row.spotify_rank if row.spotify_rank is not none else '—' }}</span><span>{{ "{:,}".format(row.spotify_streams) ~ ' streams' if row.spotify_streams is not none else '관측 자료 없음' }}</span></div>{% endfor %}
                     </div>
 
 
@@ -309,7 +346,7 @@
                     <form method="post" action="/remove-analysis/{{ item.song_id }}">
                         <input type="hidden" name="week_end" value="{{ selected_week_end }}">
 
-                        <button class="remove-button" type="submit" title="Remove from Analysis">
+                        <button class="remove-button" type="submit" title="Remove from Analysis" aria-label="{{ item.artist }} — {{ item.track }} 분석에서 제거">
                             ×
                         </button>
 
@@ -338,7 +375,7 @@
              4. SPOTIFY DATA
         =================================================== -->
 
-        <section class="dashboard-section">
+        <section id="spotify-data" class="dashboard-section">
 
             <h2>🎵 Spotify Data</h2>
 
@@ -346,7 +383,7 @@
               해당 주차에 없는 곡은 <strong>—</strong>로 표시하며, MySQL의 다른 주차 숫자로 대체하지 않아.</p>
 
 
-            <table>
+            <div class="dashboard-table-scroll"><table>
 
                 <thead>
                     <tr>
@@ -391,7 +428,7 @@
 
                 </tbody>
 
-            </table>
+            </table></div>
 
         </section>
 
@@ -400,7 +437,7 @@
              5. YOUTUBE DATA
         =================================================== -->
 
-        <section class="dashboard-section">
+        <section id="youtube-data" class="dashboard-section">
 
             <h2>▶ YouTube Data</h2>
 
@@ -410,7 +447,7 @@
             </p>
 
 
-            <table>
+            <div class="dashboard-table-scroll"><table>
 
                 <thead>
                     <tr>
@@ -470,7 +507,7 @@
 
                 </tbody>
 
-            </table>
+            </table></div>
 
         
         <!-- KPOP_YOUTUBE_VIDEO_HUMAN_REVIEW_STEP17B -->
@@ -495,7 +532,7 @@
 
         <!-- STEP12 · CURRENT SELECTION, VERIFIED GLOBAL WEEKLY CSV -->
         <!-- KPOP_WEEKLY_CHARTS_STEP12 -->
-<section class="dashboard-section">
+<section id="comparison" class="dashboard-section">
   <h2>📊 Compare — 동일 기간 Global 주간 곡 차트</h2>
 <!-- KPOP_WEEKLY_MANAGER_STEP13: select an existing, paired chart period -->
   <form class="week-manager" method="get" action="/">
@@ -552,31 +589,7 @@
   {% endif %}
 </section>
 
-        <section class="dashboard-section">
-  <h2>📈 Accumulated Analysis — 플랫폼별 2주 변화</h2>
-  <p>현재 선택한 곡의 <strong>Spotify 주간 스트리밍</strong>과
-    <strong>YouTube 공식 Top Songs 주간 조회수</strong>를 별도의 그래프로 그려.
-    두 플랫폼 수치의 크기는 직접 비교하지 않아.</p>
-  {% if weekly_chart_error %}
-    <p class="weekly-error" role="alert">⚠ 원본 주간 차트가 검증되지 않아 그래프를 그리지 않았어.</p>
-  {% elif weekly_comparison %}
-    <script id="weeklyChartPayload" type="application/json">{{ weekly_chart_data | tojson }}</script>
-    <div class="analysis-two-charts">
-      <div class="analysis-chart-standalone">
-        <h3>Spotify · Global Weekly Top Songs · 스트리밍 수 (상위 200곡)</h3>
-        <div class="chart-container"><canvas id="spotifyWeekTrend" role="img" aria-label="Spotify 주간 스트리밍 횟수 2주 비교"></canvas></div>
-      </div>
-      <div class="analysis-chart-standalone">
-        <h3>YouTube · Global Weekly Top Songs · 주간 조회수 (상위 100곡)</h3>
-        <div class="chart-container"><canvas id="youtubeWeekTrend" role="img" aria-label="YouTube 공식 곡 차트 주간 조회수 2주 비교"></canvas></div>
-      </div>
-    </div>
-    <p class="weekly-footnote">회색 또는 빈 값은 누락 데이터야. 조회수가 0이라는 뜻이 아니야.
-      두 그래프는 서로 다른 단위와 축을 사용해. 두 주의 집계 기간은 같아도 플랫폼 간 소비량을 나누거나 빼면 안 돼.</p>
-  {% else %}
-    <p>먼저 Current Analysis에 분석할 곡을 추가해 줘.</p>
-  {% endif %}
-</section>
+
 
         <!-- KPOP_NEWS_INLINE_V1 -->
 <!-- K-POP NEWS ANALYSIS: 메인 페이지 인라인 기사 생성 -->
@@ -626,31 +639,46 @@
   'use strict';
   const el = document.getElementById('weeklyChartPayload');
   if (!el || typeof Chart === 'undefined') return;
+  Chart.defaults.color = '#b8c8e4';
+  Chart.defaults.borderColor = 'rgba(160,182,220,.12)';
   let payload;
   try { payload = JSON.parse(el.textContent); } catch { return; }
   function render(canvasId, label, before, after) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
+    canvas.parentElement.style.height = Math.max(230, payload.labels.length * 64) + "px";
     new Chart(canvas, {
       type: 'bar',
       data: {
         labels: payload.labels,
         datasets: [
-          {label:'{{ previous_week_start_display }}~{{ previous_week_end }}', data:payload[before]},
-          {label:'{{ current_week_start_display }}~{{ current_week_end }}', data:payload[after]},
+          {label:'{{ previous_week_start_display }}~{{ previous_week_end }}', data:payload[before], backgroundColor:canvasId === 'spotifyWeekTrend' ? '#138c80' : '#a34070', borderRadius:5},
+          {label:'{{ current_week_start_display }}~{{ current_week_end }}', data:payload[after], backgroundColor:canvasId === 'spotifyWeekTrend' ? '#26e6c4' : '#ff7daa', borderRadius:5},
         ],
       },
       options: {
         indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        animation: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? false : {duration:350},
         plugins: {
-          legend:{position:'top'},
-          tooltip:{callbacks:{label:ctx => ctx.raw == null ? '차트 내 자료 없음' :
-            `${ctx.dataset.label}: ${Number(ctx.raw).toLocaleString()}회`}}
+          legend:{position:'top', labels:{boxWidth:12,boxHeight:12,padding:12,font:{size:12}}},
+          tooltip:{displayColors:false,bodyFont:{size:12},titleFont:{size:12},
+            callbacks:{
+              title:items => {
+                const title = String(items[0]?.label || '');
+                return title.match(/.{1,20}/gu) || [];
+              },
+              label:ctx => ctx.raw == null ? '차트 내 자료 없음' :
+                [ctx.dataset.label, `${Number(ctx.raw).toLocaleString()}회`]
+            }}
         },
         scales: {
           x:{beginAtZero:true, title:{display:true, text:label},
-              ticks:{callback:v => Number(v).toLocaleString()}},
-          y:{title:{display:true,text:'선택한 곡'}}
+              ticks:{maxTicksLimit:4,maxRotation:0,font:{size:12},
+                callback:v => Number(v) >= 1000000 ? (Number(v)/1000000).toLocaleString()+'M' : Number(v).toLocaleString()}},
+          y:{title:{display:false},ticks:{font:{size:12},callback:function(value) {
+            const text = String(this.getLabelForValue(value));
+            return text.length > 17 ? text.slice(0,16)+'…' : text;
+          }}}
         }
       }
     });
@@ -661,7 +689,7 @@
 </script>
 {% endif %}
 <script src="/static/youtube_video_review_step17b.js" defer></script>
-<script src="/static/account_status.js"></script>
-</body>
+<script src="/static/account_status.js?v=26b-final"></script>
+<script src="/static/dark-glass.js?v=26b-final" defer></script></body>
 
 </html>
