@@ -118,6 +118,7 @@
       contextEl.textContent += ` · ${data.creation_date_label || '생성 시점'}: ${data.source_created_at_utc || '기존 기록에 없음'} · 출처: ${data.source}`;
     } else if (data.ai_generated_now) {
       statusEl.textContent = '검수된 곡으로 AI 초안을 생성했습니다. 수치와 출처를 확인해 주세요.';
+      if (data.generation_id) sourceEl.textContent += ` · 기사 저장 시 사용할 생성 기록 ID: ${data.generation_id}`;
     } else {
       statusEl.textContent = '선택한 곡의 무료 초안이며, 유료 AI는 사용하지 않았습니다.';
     }

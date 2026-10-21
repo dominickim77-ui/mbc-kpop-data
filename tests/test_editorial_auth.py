@@ -60,6 +60,12 @@ class EditorialAuthTests(unittest.TestCase):
         self.admin=self.user('admin','ADMIN')
 
     def call(self,path,method='GET',data=None,cookie='',**kw):
+        # Existing fixture articles are explicitly human-authored synthetic text.
+        if isinstance(data,dict) and {'title','body','week_end'} <= data.keys():
+            data = dict(data)
+            data.setdefault('origin','HUMAN'); data.setdefault('human_authored',data['origin']=='HUMAN')
+        if '/articles/' in path and path.endswith('/review') and isinstance(data,dict):
+            data=dict(data);data.setdefault('authorship_confirmed',True)
         return asyncio.run(request(path,method,data,cookie,**kw))
 
     def user(self,name,role):

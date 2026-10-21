@@ -26,6 +26,11 @@ function evidenceText(evidence) {
 function showArticle(row){
   $('#status').dataset.status=row?.status||'DRAFT';
   selected=row; $('#title').value=row?.title||''; $('#body').value=row?.body||''; $('#week').value=row?.week_end||'2026-10-08';
+  $('#origin').value=row?.authorship?.origin||'UNKNOWN';
+  $('#human-authored').checked=row?.authorship?.human_authored===true;
+  $('#generation-id').value=row?.authorship?.generation_id||'';
+  $('#authorship-confirmed').checked=false;
+  $('#provenance-status').textContent=row?(row.provenance_valid?'작성 근거 확인됨':'작성 근거 미확인 — 승인·공개 불가'):'';
   $('#status').textContent=row?`${row.status} · 기사 ${row.id} · 버전 ${row.version}`:'새 초안';
   $('#evidence').textContent=row?evidenceText(row.evidence):'';
   $('#fresh').textContent=row?(row.evidence_current?'현재 근거와 일치':'근거 변경 또는 검증 실패 — 다시 저장하고 검수 요청 필요'):'';
@@ -54,17 +59,17 @@ async function refresh(){
 }
 $('#new').onclick=()=>showArticle(null);
 $('#article-form').onsubmit=e=>{e.preventDefault();run(async()=>{
-  const data={title:$('#title').value,body:$('#body').value,week_end:$('#week').value};
+  const data={title:$('#title').value,body:$('#body').value,week_end:$('#week').value,origin:$('#origin').value,human_authored:$('#human-authored').checked,generation_id:$('#generation-id').value};
   if(selected)data.expected_version=selected.version;
   const row=await api('/api/editorial/articles'+(selected?'/'+selected.id:''),selected?'PUT':'POST',data);
   await refresh();await openArticle(row.id);
 });};
 $('#facts').onclick=()=>run(async()=>{const data=await api('/api/editorial/facts/'+$('#week').value);$('#evidence').textContent=evidenceText(data.evidence);});
-$('#preview').onclick=()=>run(async()=>{const r=await api('/api/news/preview?week_end='+$('#week').value);$('#body').value=r.article;});
+$('#preview').onclick=()=>run(async()=>{const r=await api('/api/news/preview?week_end='+$('#week').value);$('#body').value=r.article;$('#origin').value='UNKNOWN';$('#human-authored').checked=false;$('#generation-id').value='';$('#provenance-status').textContent='자동 요약은 직접 작성 기사가 아닙니다. 작성 방식을 확인해 주세요.';});
 for(const action of ['submit','withdraw']) $('#'+action).onclick=()=>run(async()=>{if(!selected)return;await api(`/api/editorial/articles/${selected.id}/${action}`,'POST',{expected_version:selected.version});await refresh();await openArticle(selected.id);});
 $('#review-form').onsubmit=e=>{e.preventDefault();run(async()=>{
   const checklist={};['numbers','period_units','no_unsupported_claims','sources'].forEach(k=>checklist[k]=$('#'+k).checked);
-  const result=await api(`/api/editorial/articles/${selected.id}/review`,'POST',{expected_version:selected.version,evidence_hash:selected.evidence_hash,checklist,comment:$('#comment').value,decision:e.submitter.value});
+  const result=await api(`/api/editorial/articles/${selected.id}/review`,'POST',{expected_version:selected.version,evidence_hash:selected.evidence_hash,checklist,comment:$('#comment').value,authorship_confirmed:$('#authorship-confirmed').checked,decision:e.submitter.value});
   await refresh();await openArticle(selected.id);if(result.approval_blocked)$('#message').textContent='체크리스트가 모두 통과하지 않아 서버에서 승인을 차단하고 보류로 기록했습니다.';
 });};
 run(async()=>{

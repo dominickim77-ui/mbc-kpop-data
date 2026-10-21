@@ -11,6 +11,9 @@ from news.chart_data_manager import choose_pair
 from news.weekly_chart_analysis import build_weekly_rows
 from fastapi import HTTPException
 from starlette.requests import Request
+from tests.support.generation import generation_session
+from news import article_origin
+from security import editorial_store as store
 
 
 class WeeklyFactTests(unittest.TestCase):
@@ -161,7 +164,7 @@ class WeeklyFactTests(unittest.TestCase):
         request = Request({'type': 'http', 'method': 'POST', 'headers': [
             (b'host', b'localhost'), (b'origin', b'http://localhost'),
             (b'x-requested-with', b'KpopNewsPanel'), (b'content-type', b'application/json')]})
-        with patch.object(routes, 'generate_paid_article', side_effect=AssertionError('API forbidden')) as paid:
+        with generation_session(), patch.object(routes, 'generate_paid_article', side_effect=AssertionError('API forbidden')) as paid:
             for confirm in (False, True):
                 with self.assertRaises(HTTPException):
                     routes.generate_selected_article(request, routes.GenerateRequest(confirm_paid=confirm, week_end=self.week))
@@ -204,9 +207,13 @@ class WeeklyFactTests(unittest.TestCase):
         request = Request({'type': 'http', 'method': 'POST', 'headers': [
             (b'host', b'localhost'), (b'origin', b'http://localhost'),
             (b'x-requested-with', b'KpopNewsPanel'), (b'content-type', b'application/json')]})
-        with patch.object(routes, 'ARTICLES', self.root / 'articles'), \
+        with generation_session() as (user, cookie), patch.object(routes, 'ARTICLES', self.root / 'articles'), \
              patch.object(routes, 'generate_paid_article', return_value=('SYNTHETIC TEST DRAFT', 'offline-stub')) as paid:
             result = routes.generate_selected_article(request, routes.GenerateRequest(confirm_paid=True, week_end=self.week))
+            with store.connect() as db:
+                receipt = article_origin.receipt(db, result['generation_id'], user['id'])
+            self.assertEqual(receipt['output'], result['article'])
+            self.assertEqual(json.loads(receipt['generation']['input_json']), paid.call_args.args[0])
         self.assertFalse(result['publication_approved'])
         self.assertEqual(paid.call_args.args[0]['week_current']['end'], self.week)
         record = json.loads(next((self.root / 'articles').glob('*.json')).read_text(encoding='utf-8'))

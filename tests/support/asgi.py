@@ -1,13 +1,16 @@
 """In-process HTTP requests; no sockets or running server."""
 import json
+from contextlib import nullcontext
 from urllib.parse import urlencode
 import app as site
 
 
-async def asgi_request(path, method='GET', payload=None):
+async def asgi_request(path, method='GET', payload=None, *, cookie=None):
     events = []
     headers = {'host': '127.0.0.1:8000', 'origin': 'http://127.0.0.1:8000',
                'content-type': 'application/json', 'x-requested-with': 'KpopNewsPanel'}
+    if cookie is not None:
+        headers['cookie'] = cookie
     route, _, query = path.partition('?')
     scope = {'type': 'http', 'asgi': {'version': '3.0'}, 'http_version': '1.1',
              'method': method, 'scheme': 'http', 'path': route, 'raw_path': route.encode(),
@@ -30,7 +33,8 @@ async def asgi_request(path, method='GET', payload=None):
     # Existing route regressions supply a server-authenticated editor fixture.
     # STEP23 tests exercise real login, cookies, and RBAC separately.
     from unittest.mock import patch
-    with patch('security.auth.session_user', return_value={'id': 999, 'username': 'regression-editor', 'role': 'EDITOR'}):
+    session = nullcontext() if cookie is not None else patch('security.auth.session_user', return_value={'id': 999, 'username': 'regression-editor', 'role': 'EDITOR'})
+    with session:
         await site.app(scope, receive, send)
     status = next(e['status'] for e in events if e['type'] == 'http.response.start')
     body = b''.join(e.get('body', b'') for e in events if e['type'] == 'http.response.body')

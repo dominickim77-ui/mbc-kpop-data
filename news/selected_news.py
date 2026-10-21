@@ -11,7 +11,7 @@ import os
 import re
 import unicodedata
 from pathlib import Path
-from news.provenance import SELECTED_INSTRUCTIONS
+from news.provenance import SELECTED_INSTRUCTIONS, generation_record
 
 from news.generation import ROOT, FACT_PATH, DEFAULT_MODEL, check_fact_sheet
 
@@ -192,14 +192,15 @@ def generate_paid_article(evidence: dict) -> tuple[str, str]:
         raise RuntimeError('OPENAI_API_KEY가 없습니다. .env에 등록한 뒤 다시 확인하세요.')
     from openai import OpenAI, APIError, APITimeoutError, AuthenticationError, RateLimitError
     model = os.getenv('OPENAI_MODEL', DEFAULT_MODEL).strip() or DEFAULT_MODEL
-    instructions = SELECTED_INSTRUCTIONS
+    request_record = generation_record(evidence)
+    instructions = request_record['instructions']
     try:
         with OpenAI(api_key=key, timeout=30.0, max_retries=0) as client:
             opts = {'reasoning': {'effort': 'none'}} if model == DEFAULT_MODEL else {}
             response = client.responses.create(
                 model=model,
                 instructions=instructions,
-                input=json.dumps(evidence, ensure_ascii=False),
+                input=request_record['input_json'],
                 max_output_tokens=950,
                 store=False,
                 **opts,

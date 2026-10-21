@@ -2,6 +2,8 @@
 import hashlib
 import json
 from datetime import date
+from typing import Literal
+from news import article_origin
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, ConfigDict, Field, StrictBool
@@ -93,6 +95,9 @@ class ArticleInput(BaseModel):
     title: str = Field(min_length=1, max_length=300)
     body: str = Field(min_length=1, max_length=100000)
     week_end: str = Field(pattern=r'^\d{4}-\d{2}-\d{2}$')
+    origin: Literal['HUMAN', 'AI', 'LEGACY', 'UNKNOWN'] = 'UNKNOWN'
+    human_authored: StrictBool = False
+    generation_id: str = Field(default='', max_length=48, pattern=r'^(?:[a-f0-9]{48})?$')
 
 
 class ArticleEdit(ArticleInput):
@@ -113,6 +118,7 @@ class Checklist(BaseModel):
 
 
 class ReviewInput(VersionInput):
+    authorship_confirmed: StrictBool = False
     evidence_hash: str = Field(pattern=r'^[a-f0-9]{64}$')
     checklist: Checklist
     comment: str = Field(min_length=1, max_length=5000)
@@ -147,6 +153,7 @@ def create_article(body: ArticleInput):
                          "VALUES(?,?,?,?,?,?,?,'DRAFT')", (user['id'], body.title, body.body, body.week_end,
                          ref, json.dumps(evidence, ensure_ascii=False), fingerprint)).lastrowid
         row = readable(db, aid, user)
+        article_origin.bind(db, row, user['id'], body, selected_news.ROOT)
         save_revision(db, row, user['id'])
         audit(db, user['id'], 'ARTICLE_CREATED', aid, {'version': 1})
     return row
@@ -157,6 +164,10 @@ def article(aid: int):
     user = require_role(*STAFF)
     with connect() as db:
         row = readable(db, aid, user)
+        origin_events = article_origin.events(db, 'ARTICLE_ORIGIN', aid)
+        origin_records = [json.loads(e['data']) for e in origin_events if json.loads(e['data']).get('version') == row['version']]
+        row['authorship'] = origin_records[-1] if origin_records else {'origin': 'UNKNOWN', 'generation_id': '', 'human_authored': False}
+        row['provenance_valid'] = article_origin.eligible(db, row)
         row['reviews'] = [dict(r) for r in db.execute('SELECT * FROM reviews WHERE article_id=? ORDER BY id', (aid,))]
         row['revisions'] = [dict(r) for r in db.execute('SELECT * FROM revisions WHERE article_id=? ORDER BY version', (aid,))]
     row['evidence'] = json.loads(row['evidence'])
@@ -185,6 +196,7 @@ def edit_article(aid: int, body: ArticleEdit):
                    'version=version+1,status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?',
                    (body.title, body.body, body.week_end, ref, json.dumps(evidence, ensure_ascii=False), fingerprint, status, aid))
         row = readable(db, aid, user)
+        article_origin.bind(db, row, user['id'], body, selected_news.ROOT, previous=True)
         save_revision(db, row, user['id'])
         audit(db, user['id'], 'ARTICLE_EDITED', aid, {'version': row['version']})
     return row
@@ -201,6 +213,7 @@ def submit(aid: int, body: VersionInput):
             raise HTTPException(409, '수정한 최신 기사만 검수를 요청할 수 있습니다.')
         if fresh_evidence(row['week_end'])[1] != row['evidence_hash']:
             raise HTTPException(409, '근거가 변경되었습니다. 기사를 다시 저장하세요.')
+        article_origin.require_eligible(db, row)
         db.execute("UPDATE articles SET status='PENDING_REVIEW',updated_at=CURRENT_TIMESTAMP WHERE id=?", (aid,))
         audit(db, user['id'], 'REVIEW_REQUESTED', aid, {'version': row['version']})
     return {'id': aid, 'status': 'PENDING_REVIEW'}
@@ -219,13 +232,17 @@ def review(aid: int, body: ReviewInput):
             raise HTTPException(409, '검수 대기 상태 또는 기사 버전이 달라졌습니다.')
         if body.evidence_hash != row['evidence_hash'] or fresh_evidence(row['week_end'])[1] != row['evidence_hash']:
             raise HTTPException(409, '근거 지문이 변경되었습니다. 수정 후 재검수가 필요합니다.')
+        if body.decision == 'APPROVED':
+            article_origin.require_eligible(db, row)
+            if not body.authorship_confirmed:
+                raise HTTPException(409, '작성 방식과 생성 근거에 대한 편집자 확인이 필요합니다.')
         checks = body.checklist.model_dump()
         decision = body.decision if all(checks.values()) else 'ON_HOLD'
         db.execute('INSERT INTO reviews(article_id,version,reviewer_id,evidence_hash,checklist,comment,decision) '
                    'VALUES(?,?,?,?,?,?,?)', (aid, row['version'], user['id'], row['evidence_hash'],
                    json.dumps(checks), body.comment.strip(), decision))
         db.execute('UPDATE articles SET status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?', (decision, aid))
-        audit(db, user['id'], 'ARTICLE_REVIEWED', aid, {'version': row['version'], 'decision': decision})
+        audit(db, user['id'], 'ARTICLE_REVIEWED', aid, {'version': row['version'], 'decision': decision, 'authorship_confirmed': body.authorship_confirmed, 'binding_sha256': article_origin.binding_hash(row)})
     return {'id': aid, 'status': decision, 'approval_blocked': decision != body.decision}
 
 
@@ -247,7 +264,7 @@ def withdraw(aid: int, body: VersionInput):
 def published():
     require_role()
     with connect() as db:
-        rows = [dict(r) for r in db.execute("SELECT * FROM articles WHERE status='APPROVED'")]
+        rows = [dict(r) for r in db.execute("SELECT * FROM articles WHERE status='APPROVED'") if article_origin.approved_version(db, dict(r))]
     result = []
     for row in rows:
         try:

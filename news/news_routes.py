@@ -7,6 +7,9 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, ConfigDict
 from news.provenance import generation_record
+from security.auth import require_role, STAFF
+from security.editorial_store import connect
+from news.article_origin import issue_receipt
 
 from news.selected_news import (
     ROOT, SelectionError, evidence_for_selected, generate_paid_article,
@@ -177,6 +180,8 @@ def get_saved_article(variant: str = 'edited', week_end: str = '2026-10-08'):
     return {
         'article': article,
         'mode': 'saved_example',
+        'origin': 'LEGACY' if variant in ('ai', 'edited') else 'UNKNOWN',
+        'provenance_status': '재현성 미확인',
         'source_created_at_utc': source_created_at,
         'creation_date_label': '원본 AI 초안 생성 (편집본 생성 시점은 기록 없음)' if variant == 'edited' else '초안 생성',
         'ai_generated_now': False,
@@ -189,6 +194,7 @@ def get_saved_article(variant: str = 'edited', week_end: str = '2026-10-08'):
 
 @router.post('/generate')
 def generate_selected_article(request: Request, body: GenerateRequest):
+    user = require_role(*STAFF)
     if not _same_origin(request) or request.headers.get('x-requested-with') != 'KpopNewsPanel':
         raise HTTPException(403, '현재 로컬 웹사이트의 버튼에서만 실행할 수 있습니다.')
     if not request.headers.get('content-type', '').startswith('application/json'):
@@ -205,12 +211,22 @@ def generate_selected_article(request: Request, body: GenerateRequest):
             evidence = evidence_for_selected(facts, snapshot)
         except SelectionError as e:
             raise HTTPException(422, str(e)) from None
+        from news.editorial import fresh_evidence
+        current_evidence, current_hash, _ = fresh_evidence(facts['week_current']['end'])
+        if current_evidence['facts'] != facts:
+            raise HTTPException(409, '선택 근거와 현재 Fact Sheet가 달라 생성을 중단했습니다.')
+        request_record = generation_record(evidence)
         try:
             article, model = generate_paid_article(evidence)
         except RuntimeError as e:
             raise HTTPException(502, str(e)) from None
         except Exception:
             raise HTTPException(502, '모델 요청 실패: 과금 기록 확인 후 다시 판단하세요.') from None
+
+        if fresh_evidence(facts['week_current']['end'])[1] != current_hash:
+            raise HTTPException(409, '생성 중 근거가 변경되어 승인용 기록을 발급하지 않았습니다.')
+        with connect(True) as db:
+            generation_id = issue_receipt(db, user['id'], record=request_record, output=article, model=model, week=facts['week_current']['end'], evidence_hash=current_hash)
 
         timestamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
         stem = 'draft_openai_selected_' + facts['week_current']['end'].replace('-', '') + '_' + timestamp
@@ -225,7 +241,8 @@ def generate_selected_article(request: Request, body: GenerateRequest):
             'used_tracks': _public_selection(snapshot)['approved_tracks'],
             'excluded_tracks': snapshot['excluded_tracks'],
             'evidence': evidence,
-            'generation_provenance': generation_record(evidence),
+            'generation_provenance': request_record,
+            'generation_id': generation_id,
             'review_required': True,
             'publication_approved': False,
             'article_status': 'DRAFT_NOT_FOR_PUBLICATION',
@@ -242,6 +259,8 @@ def generate_selected_article(request: Request, body: GenerateRequest):
             'mode': 'openai',
             'model': model,
             'ai_generated_now': True,
+            'origin': 'AI',
+            'generation_id': generation_id,
             'selection': _public_selection(snapshot),
             'source': md_file.relative_to(ROOT).as_posix(),
             'review_required': True,

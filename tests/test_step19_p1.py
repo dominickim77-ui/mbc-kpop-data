@@ -24,6 +24,9 @@ from news import selected_news as selection, news_routes as routes
 from news.chart_data_manager import choose_pair
 from tests.support.asgi import asgi_request
 from tests.support.fakes import FakeDB
+from tests.support.generation import generation_session
+from news import article_origin
+from security import editorial_store as store
 
 
 class OfflineCase(unittest.TestCase):
@@ -92,17 +95,23 @@ class ArticleEvidenceTests(OfflineCase):
         self.assertFalse(data['publication_approved'])
 
     def test_paid_success_uses_verified_evidence_stub_only(self):
-        with patch.object(routes, 'generate_paid_article', return_value=('TEST DRAFT', 'offline-stub')) as paid:
+        with generation_session() as (user, cookie), patch.object(routes, 'generate_paid_article', return_value=('TEST DRAFT', 'offline-stub')) as paid:
             status, data = asyncio.run(asgi_request('/api/news/generate', 'POST',
-                                                {'confirm_paid': True, 'week_end': '2026-10-08'}))
-            self.assertEqual(status, 200)
+                                                {'confirm_paid': True, 'week_end': '2026-10-08'}, cookie=cookie))
+            self.assertEqual(status, 200, data)
             paid.assert_called_once()
             self.assertEqual(len(paid.call_args.args[0]['analysis_tracks']), 2)
             self.assertFalse(data['publication_approved'])
+            with store.connect() as db:
+                receipt = article_origin.receipt(db, data['generation_id'], user['id'])
+            self.assertEqual(json.loads(receipt['generation']['input_json']), paid.call_args.args[0])
+            self.assertEqual(receipt['output'], data['article'])
         records = list((self.root / 'articles').glob('*.json'))
         self.assertEqual(len(records), 1)
-        self.assertEqual(json.loads(records[0].read_text(encoding='utf-8'))['article_status'],
-                         'DRAFT_NOT_FOR_PUBLICATION')
+        saved = json.loads(records[0].read_text(encoding='utf-8'))
+        self.assertEqual(saved['article_status'], 'DRAFT_NOT_FOR_PUBLICATION')
+        self.assertEqual(saved['generation_id'], data['generation_id'])
+        self.assertEqual(saved['generation_provenance'], receipt['generation'])
 
     def test_mutated_fact_with_consistent_rate_blocked(self):
         p = self.facts['analysis_tracks'][0]['spotify']
