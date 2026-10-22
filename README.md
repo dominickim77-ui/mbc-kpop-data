@@ -214,3 +214,7 @@ py -3.14 -m venv .venv-new
 | 최근 3일 원본 기사 조건 | 기존 평가 기록상 PARTIAL | 기존 3건을 보존하고 조건에 맞는 신규 기사·연결 초안 증거 필요 |
 
 전체 과제 완료나 배포 완료로 표시하지 않는다. [평가 대조표](docs/step25_requirements_audit.md)와 [제출 근거](docs/step25_submission.md)의 과거 단계 상태는 작성 시점 기록으로 읽는다. 이번 변경은 로컬 문서 갱신이며 Commit·Push·main 병합·Vercel/Supabase 배포·운영 DB 쓰기를 수행하지 않았다.
+
+## 📘 최종 프로젝트 보고서 (Notion)
+
+[K-POP DATA LAB | MBC AI 데이터 저널리즘 최종 프로젝트](https://app.notion.com/p/K-POP-DATA-LAB-MBC-AI-40116efa972b815e92d2c071a730e8e7)
