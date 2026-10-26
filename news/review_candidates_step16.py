@@ -16,7 +16,8 @@ from urllib.parse import urlparse
 from news.chart_data_manager import WeekPair, choose_pair
 from news.weekly_chart_analysis import build_weekly_rows, song_key
 
-ROOT = Path(__file__).resolve().parent.parent
+from security.preview_data import data_root
+ROOT = data_root()
 
 
 class ReviewQueueError(ValueError):

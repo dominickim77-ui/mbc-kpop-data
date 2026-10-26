@@ -1,4 +1,6 @@
 """Validate browser source origin before analysis mutations; no DB or session state."""
+import os
+import re
 from urllib.parse import urlsplit
 
 from fastapi import HTTPException, Request
@@ -39,6 +41,30 @@ def _single_header(request: Request, name: str) -> str | None:
     return values[0] if values else None
 
 
+def configured_origin():
+    """Exact server-configured HTTPS origin; never trust forwarded headers."""
+    value = os.environ.get('KPOP_PUBLIC_ORIGIN', '').strip()
+    if not value and os.environ.get('VERCEL') == '1':
+        # Vercel supplies trusted deployment metadata. Preview requests use
+        # their deployment URL; production requests use the assigned stable
+        # project domain. Never derive either value from request headers.
+        vercel_env = os.environ.get('VERCEL_ENV')
+        if vercel_env == 'preview':
+            hostname = os.environ.get('VERCEL_URL', '')
+        elif vercel_env == 'production':
+            hostname = os.environ.get('VERCEL_PROJECT_PRODUCTION_URL', '')
+        else:
+            hostname = ''
+        if re.fullmatch(r'[a-z0-9][a-z0-9-]*\.vercel\.app',hostname):
+            value='https://'+hostname
+    if not value:
+        return None
+    result = _origin(value)
+    if result[0] != 'https':
+        raise ValueError('Public origin must use HTTPS')
+    return result
+
+
 def require_local_analysis_origin(request: Request) -> None:
     """FastAPI dependency for the three native HTML analysis POST forms only."""
     try:
@@ -49,8 +75,12 @@ def require_local_analysis_origin(request: Request) -> None:
         if not host or request.scope.get('scheme') not in {'http', 'https'}:
             raise ValueError('No trusted target')
         # Do not derive the allowlist from Host or client-supplied forwarded headers.
-        target = _origin(request.scope['scheme'] + '://' + host)
-        if target not in ALLOWED_ANALYSIS_ORIGINS:
+        public = configured_origin()
+        # TLS can terminate at the platform proxy. The configured origin alone
+        # supplies the scheme, and Host must still match that exact authority.
+        target = _origin(('https' if public else request.scope['scheme']) + '://' + host)
+        allowed = {public} if public else ALLOWED_ANALYSIS_ORIGINS
+        if target not in allowed:
             raise ValueError('Target not allowlisted')
         if fetch_site is not None and fetch_site not in _FETCH_SITES:
             raise ValueError('Cross-site or invalid Fetch Metadata')

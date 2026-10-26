@@ -11,7 +11,8 @@ from news.chart_data_manager import choose_pair
 from news.chart_import import BASELINE, WEEKS, safe_path, week_date
 from news.weekly_chart_analysis import read_chart, song_key, _change
 
-ROOT = Path(__file__).resolve().parents[1]
+from security.preview_data import data_root
+ROOT = data_root()
 LEGACY_WEEK = '2026-10-08'
 CATEGORIES = {'KPOP_RELATED_GLOBAL', 'KPOP_SOLO'}
 
@@ -90,6 +91,12 @@ def build_draft(root, week):
                            'No cross-platform popularity ratios or causal claims.',
                            'Article requires separate human editorial review and publication approval.']}
     result['draft_sha256'] = digest(result)
+    from security.preview_data import fixture_root
+    if fixture_root(root):
+        result['dataset_kind']='SYNTHETIC'
+        result['sources']={'synthetic_fixture':'urn:kpop:synthetic-fixture:v1'}
+        result['cautions'].insert(0,'Generated fictional data; not official Spotify or YouTube observations.')
+        result['draft_sha256']=digest({k:v for k,v in result.items() if k!='draft_sha256'})
     return result
 
 

@@ -83,6 +83,8 @@ _analysis_write_lock = threading.Lock()
 # --------------------------------------------------
 
 load_dotenv(dotenv_path=BASE_DIR / ".env", override=False)
+from security.deployment import validate as validate_deployment
+validate_deployment()
 
 
 # --------------------------------------------------
@@ -110,6 +112,12 @@ from news.editorial import router as editorial_router
 app.add_middleware(AuthMiddleware)
 app.include_router(auth_router)
 app.include_router(editorial_router)
+from security.preview_data import synthetic, data_root
+
+@app.get('/api/preview/status')
+def preview_status():
+    return {'synthetic': synthetic(), 'default_week': '2026-09-24' if synthetic() else '2026-10-08',
+            'external_collection_enabled': not synthetic(), 'paid_generation_enabled': not synthetic()}
 
 @app.get('/account')
 def account_page():
@@ -351,7 +359,7 @@ def get_dashboard_data():
     )
 
     dashboard_data = apply_approved_youtube_videos(
-        dashboard_data, cursor, Path(__file__).resolve().parent
+        dashboard_data, cursor, data_root()
     )
     
     from news.youtube_video_review_step17b import video_review_status

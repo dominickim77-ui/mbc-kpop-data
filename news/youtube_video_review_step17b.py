@@ -24,7 +24,8 @@ from fastapi import APIRouter, HTTPException, Request
 from security.auth import current_user
 from pydantic import BaseModel, ConfigDict, Field
 
-ROOT = Path(__file__).resolve().parent.parent
+from security.preview_data import data_root
+ROOT = data_root()
 REVIEW_DIR = ROOT / 'facts' / 'youtube_video_reviews'
 VIDEO_ID = re.compile(r'^[A-Za-z0-9_-]{11}$')
 ROUTER_PREFIX = '/api/youtube-video-review'
@@ -80,6 +81,8 @@ def _candidate_hint(title: str) -> str:
 
 
 def _require_local_request(request: Request, *, approval: bool = False) -> None:
+    from security.deployment import require_supported_write
+    require_supported_write()
     host_header = request.headers.get('host', '')
     hostname = host_header.rsplit(':', 1)[0].strip('[]')
     try:

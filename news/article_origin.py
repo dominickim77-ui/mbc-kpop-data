@@ -72,6 +72,8 @@ def bind(db,row,actor,body,root,previous=None):
             raise HTTPException(409,'직접 작성 확인이 필요합니다. AI 생성 기록을 함께 사용할 수 없습니다.')
         if known_ai_body(db,row['body'],root):
             raise HTTPException(409,'알려진 AI 초안은 직접 작성 기사로 등록할 수 없습니다.')
+    elif origin=='AI' and not body.generation_id:
+        raise HTTPException(409,'AI 기사는 실제 생성 기록이 필요합니다. 근거가 없는 초안을 새 기사로 저장할 수 없습니다.')
     elif origin=='AI' and body.generation_id:
         try:
             rec=receipt(db,body.generation_id,actor)

@@ -7,6 +7,9 @@ import os
 import re
 import sqlite3
 from contextlib import contextmanager
+from contextlib import nullcontext
+import tempfile
+from pathlib import Path
 
 # Shared by all editorial writers, including bootstrap and role changes.
 # READ COMMITTED + transaction-scoped advisory lock preserves BEGIN IMMEDIATE's
@@ -30,18 +33,39 @@ def open_connection():
 
 def _connect_driver(dsn):
     """Single physical connection boundary, blocked by offline checks."""
+    db = None
     try:
         import psycopg
     except ImportError:
         raise RuntimeError('Install requirements-postgres.txt in an isolated environment') from None
     try:
+        schema = os.environ.get('KPOP_POSTGRES_SCHEMA', 'public')
+        if not re.fullmatch(r'[a-z][a-z0-9_]{0,62}', schema):
+            raise RuntimeError('Invalid PostgreSQL schema configuration')
         # Explicit isolation is required for the lock-then-read protocol.
-        db = psycopg.connect(dsn, connect_timeout=5,
-                             options='-c timezone=UTC -c search_path=public -c statement_timeout=15000',
-                             autocommit=False)
+        pem=os.environ.get('KPOP_POSTGRES_SSLROOTCERT_PEM','')
+        if pem and ('-----BEGIN CERTIFICATE-----' not in pem or 'PRIVATE KEY' in pem or len(pem)>32768):
+            raise RuntimeError('Invalid public TLS certificate configuration')
+        # A public trust certificate is recreatable instance configuration.
+        # It is not a private evidence file and contains no credentials.
+        with (tempfile.TemporaryDirectory(prefix='kpop_tls_') if pem else nullcontext(None)) as certdir:
+            tls={}
+            if pem:
+                cert=Path(certdir)/'root.pem';cert.write_text(pem,encoding='ascii')
+                tls['sslrootcert']=str(cert)
+            db = psycopg.connect(dsn, connect_timeout=5,
+                                 prepare_threshold=None,autocommit=False,**tls)
         db.isolation_level = psycopg.IsolationLevel.READ_COMMITTED
+        # Supavisor may reject startup options. Configure the authenticated
+        # session with bound values, keeping all requests bounded.
+        db.execute("SELECT set_config('timezone', %s, false), "
+                   "set_config('search_path', %s, false), "
+                   "set_config('statement_timeout', %s, false)",
+                   ('UTC', schema + ',pg_catalog', '15000'))
         return db
     except psycopg.Error:
+        if db is not None:
+            db.close()
         # DSNs/credentials and server diagnostics must not appear in HTTP output.
         raise RuntimeError('PostgreSQL connection unavailable') from None
 

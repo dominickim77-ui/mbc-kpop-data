@@ -1,0 +1,37 @@
+{
+  "baseline_commit": "SYNTHETIC_FIXTURE_V1",
+  "dataset_kind": "SYNTHETIC",
+  "notice": "Generated fictional data, not official Spotify/YouTube charts. No human review implied.",
+  "weeks": [
+    {
+      "version": 1,
+      "status": "synthetic_fixture",
+      "week_end": "2026-09-17",
+      "files": {
+        "spotify": {
+          "path": "data/charts/spotify/regional-global-weekly-2026-09-17.csv",
+          "sha256": "b076c8a8557eae22adb44cd191d76a4fd832f091ff3e746a20d3c722ecc68767"
+        },
+        "youtube": {
+          "path": "data/charts/youtube/youtube-charts-top-songs-global-weekly-20260917.csv",
+          "sha256": "736c883174f28ca426602ade590ce0322ccb1da5d01432c40d5df053d6626fd4"
+        }
+      }
+    },
+    {
+      "version": 1,
+      "status": "synthetic_fixture",
+      "week_end": "2026-09-24",
+      "files": {
+        "spotify": {
+          "path": "data/charts/spotify/regional-global-weekly-2026-09-24.csv",
+          "sha256": "400871c98f8a2bb2b10267942b9505453da09e47ae135862ac30426632bf90af"
+        },
+        "youtube": {
+          "path": "data/charts/youtube/youtube-charts-top-songs-global-weekly-20260924.csv",
+          "sha256": "aec2349a6c88f160e5f5ee516a0ec22a1b16f0b6ee89574c0575364b1e4172af"
+        }
+      }
+    }
+  ]
+}

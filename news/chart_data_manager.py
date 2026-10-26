@@ -10,7 +10,8 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+from security.preview_data import data_root
+ROOT = data_root()
 SPOTIFY_NAME = re.compile(r'^regional-global-weekly-(\d{4}-\d{2}-\d{2})\.csv$')
 YOUTUBE_NAME = re.compile(r'^youtube-charts-top-songs-global-weekly-(\d{8})\.csv$')
 

@@ -13,7 +13,7 @@ from contextvars import ContextVar
 from fastapi import APIRouter, HTTPException, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel, ConfigDict, Field
-from security.analysis_origin import require_local_analysis_origin
+from security.analysis_origin import require_local_analysis_origin, configured_origin
 from security.editorial_store import connect, audit
 
 COOKIE = 'kpop_session'
@@ -102,7 +102,7 @@ def login(body: Credentials, request: Request, response: Response):
                    (now, token_hash(request.cookies.get(COOKIE, ''))))
         db.execute('INSERT INTO sessions VALUES(?,?,?)', (token_hash(token), row['id'], now+28800))
     response.set_cookie(COOKIE, token, httponly=True, samesite='strict', max_age=28800,
-                        secure=request.url.scheme == 'https', path='/')
+                        secure=bool(configured_origin()) or request.url.scheme == 'https', path='/')
     return {k: row[k] for k in ('id', 'username', 'role')}
 
 
@@ -183,7 +183,7 @@ class AuthMiddleware:
             return await self.app(scope, receive, send)
         request = Request(scope)
         path, method = request.url.path, request.method
-        public = path.startswith('/static/') or path == '/account' or path in {'/api/auth/signup', '/api/auth/login'}
+        public = path.startswith('/static/') or path == '/account' or path in {'/api/auth/signup', '/api/auth/login','/api/preview/status'}
         token = None
         try:
             if not public:

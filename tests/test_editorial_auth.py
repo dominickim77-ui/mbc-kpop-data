@@ -53,6 +53,9 @@ class EditorialAuthTests(unittest.TestCase):
         self.real_evidence=editorial.fresh_evidence
         p=patch.object(editorial,'fresh_evidence',side_effect=lambda week:(self.evidence,editorial.digest(self.evidence),'SYNTHETIC ONLY'))
         p.start();self.addCleanup(p.stop)
+        # These workflow tests use intentionally synthetic evidence; byte-archive behavior is tested separately.
+        p=patch('security.private_evidence.expected_objects',return_value={'synthetic-test-source.csv':b'SYNTHETIC TEST EVIDENCE'})
+        p.start();self.addCleanup(p.stop)
         self.reader=self.user('reader','READER')
         self.writer=self.user('writer','JOURNALIST')
         self.other=self.user('other','JOURNALIST')

@@ -118,3 +118,5 @@ main{animation:lab-enter .24s ease-out}
 #youtube-video-analytics h2{word-break:keep-all;text-wrap:balance}
 #news-advanced-tools{margin:14px 0}#news-advanced-tools summary{cursor:pointer;padding:10px 0}
 #news-result-context{padding:12px;border-left:3px solid #a78bfa;overflow-wrap:anywhere}
+
+.preview-banner{padding:14px 18px;border:1px solid #38bdf8;border-radius:12px;background:#102333;color:#e0f2fe;font-weight:600}.preview-facts-panel{padding:20px;margin:18px 0;border:1px solid #334155;border-radius:16px;background:#111827}.preview-facts-panel label{display:block;margin:12px 0}.preview-facts-panel pre{max-height:300px;overflow:auto;white-space:pre-wrap}

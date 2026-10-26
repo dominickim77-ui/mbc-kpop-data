@@ -73,7 +73,12 @@ def fresh_evidence(week):
             with connect() as db:
                 row = db.execute('SELECT id FROM fact_reviews WHERE week_end=? ORDER BY id DESC LIMIT 1', (week,)).fetchone()
             if row: ref = f"editorial-db:fact_reviews/{row['id']}"
+        from security.private_evidence import expected_objects
+        with connect() as db:
+            expected_objects(db,{'week_end':week,'fact_ref':ref,'evidence_hash':digest(evidence)},evidence)
         return evidence, digest(evidence), ref
+    except PermissionError:
+        raise HTTPException(503,'근거 저장소에 접근할 수 없습니다.') from None
     except (ValueError, OSError, KeyError, TypeError) as exc:
         raise HTTPException(409, 'Fact Sheet·원본·주차 검증 실패: ' + str(exc)) from None
 
@@ -155,6 +160,8 @@ def create_article(body: ArticleInput):
         row = readable(db, aid, user)
         article_origin.bind(db, row, user['id'], body, selected_news.ROOT)
         save_revision(db, row, user['id'])
+        from security.private_evidence import archive
+        archive(db,user['id'],row,evidence)
         audit(db, user['id'], 'ARTICLE_CREATED', aid, {'version': 1})
     return row
 
@@ -181,6 +188,16 @@ def article(aid: int):
     return row
 
 
+@router.get('/articles/{aid}/evidence-manifest')
+def evidence_manifest(aid:int):
+    user=require_role(*STAFF)
+    from security.private_evidence import require_archive
+    with connect() as db:
+        row=readable(db,aid,user)
+        result=require_archive(db,row)
+    return {'article_id':aid,'version':row['version'],'objects':result}
+
+
 @router.put('/articles/{aid}')
 def edit_article(aid: int, body: ArticleEdit):
     user = require_role(*STAFF)
@@ -198,6 +215,8 @@ def edit_article(aid: int, body: ArticleEdit):
         row = readable(db, aid, user)
         article_origin.bind(db, row, user['id'], body, selected_news.ROOT, previous=True)
         save_revision(db, row, user['id'])
+        from security.private_evidence import archive
+        archive(db,user['id'],row,evidence)
         audit(db, user['id'], 'ARTICLE_EDITED', aid, {'version': row['version']})
     return row
 
@@ -211,6 +230,8 @@ def submit(aid: int, body: VersionInput):
             raise HTTPException(403, '작성자만 검수를 요청할 수 있습니다.')
         if row['version'] != body.expected_version or row['status'] not in {'DRAFT', 'REVISED'}:
             raise HTTPException(409, '수정한 최신 기사만 검수를 요청할 수 있습니다.')
+        from security.private_evidence import require_archive
+        require_archive(db,row)
         if fresh_evidence(row['week_end'])[1] != row['evidence_hash']:
             raise HTTPException(409, '근거가 변경되었습니다. 기사를 다시 저장하세요.')
         article_origin.require_eligible(db, row)
@@ -230,6 +251,8 @@ def review(aid: int, body: ReviewInput):
             raise HTTPException(403, '자신이 작성한 기사는 다른 편집자가 검수해야 합니다.')
         if row['status'] != 'PENDING_REVIEW' or row['version'] != body.expected_version:
             raise HTTPException(409, '검수 대기 상태 또는 기사 버전이 달라졌습니다.')
+        from security.private_evidence import require_archive
+        require_archive(db,row)
         if body.evidence_hash != row['evidence_hash'] or fresh_evidence(row['week_end'])[1] != row['evidence_hash']:
             raise HTTPException(409, '근거 지문이 변경되었습니다. 수정 후 재검수가 필요합니다.')
         if body.decision == 'APPROVED':
@@ -263,8 +286,16 @@ def withdraw(aid: int, body: VersionInput):
 @router.get('/published')
 def published():
     require_role()
+    from security.private_evidence import require_archive
     with connect() as db:
-        rows = [dict(r) for r in db.execute("SELECT * FROM articles WHERE status='APPROVED'") if article_origin.approved_version(db, dict(r))]
+        rows=[]
+        for raw in db.execute("SELECT * FROM articles WHERE status='APPROVED'"):
+            row=dict(raw)
+            try:require_archive(db,row)
+            except HTTPException as exc:
+                if exc.status_code==409:continue
+                raise
+            if article_origin.approved_version(db,row):rows.append(row)
     result = []
     for row in rows:
         try:

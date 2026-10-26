@@ -161,8 +161,8 @@ class WeeklyFactTests(unittest.TestCase):
             wf.validate_reviewed(facts, self.root)
 
     def test_paid_confirmation_required_and_draft_blocks_api(self):
-        request = Request({'type': 'http', 'method': 'POST', 'headers': [
-            (b'host', b'localhost'), (b'origin', b'http://localhost'),
+        request = Request({'type': 'http', 'method': 'POST', 'scheme': 'http', 'headers': [
+            (b'host', b'localhost:8000'), (b'origin', b'http://localhost:8000'),
             (b'x-requested-with', b'KpopNewsPanel'), (b'content-type', b'application/json')]})
         with generation_session(), patch.object(routes, 'generate_paid_article', side_effect=AssertionError('API forbidden')) as paid:
             for confirm in (False, True):
@@ -204,8 +204,8 @@ class WeeklyFactTests(unittest.TestCase):
 
     def test_new_week_paid_route_stub_preserves_draft_status(self):
         self.save_reviewed()
-        request = Request({'type': 'http', 'method': 'POST', 'headers': [
-            (b'host', b'localhost'), (b'origin', b'http://localhost'),
+        request = Request({'type': 'http', 'method': 'POST', 'scheme': 'http', 'headers': [
+            (b'host', b'localhost:8000'), (b'origin', b'http://localhost:8000'),
             (b'x-requested-with', b'KpopNewsPanel'), (b'content-type', b'application/json')]})
         with generation_session() as (user, cookie), patch.object(routes, 'ARTICLES', self.root / 'articles'), \
              patch.object(routes, 'generate_paid_article', return_value=('SYNTHETIC TEST DRAFT', 'offline-stub')) as paid:

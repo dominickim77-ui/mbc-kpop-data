@@ -24,7 +24,7 @@ class OriginTests(EditorialAuthTests):
         facts={'week_current':{'end':'2026-10-08'}}
         self.evidence['facts']=facts
         snapshot={'approved_tracks':[],'selected_tracks':[],'excluded_tracks':[]}
-        request=Request({'type':'http','method':'POST','headers':[(b'host',b'localhost'),(b'origin',b'http://localhost'),(b'x-requested-with',b'KpopNewsPanel'),(b'content-type',b'application/json')]})
+        request=Request({'type':'http','method':'POST','scheme':'http','headers':[(b'host',b'localhost:8000'),(b'origin',b'http://localhost:8000'),(b'x-requested-with',b'KpopNewsPanel'),(b'content-type',b'application/json')]})
         try:
             with patch.object(routes,'ROOT',Path(self.tmp.name)),patch.object(routes,'ARTICLES',Path(self.tmp.name)/'articles'),patch.object(routes,'_selection',return_value=(facts,snapshot)),patch.object(routes,'evidence_for_selected',return_value={'analysis_tracks':[{'track_name':'Test'}]}),patch.dict(os.environ,{'OPENAI_API_KEY':'synthetic-not-a-key'}),patch('openai.OpenAI',return_value=client):
                 result=routes.generate_selected_article(request,routes.GenerateRequest(confirm_paid=True))
@@ -49,12 +49,9 @@ class OriginTests(EditorialAuthTests):
         self.assertEqual(status,201);self.submit(row)
         self.assertEqual(self.review(row)[0],200);self.assertEqual(len(self.visible()),1)
 
-    def test_missing_ai_approval_and_forced_status_publication_denied(self):
-        status,row,_=self.ai();self.assertEqual(status,201)
-        self.assertEqual(self.call(f"/api/editorial/articles/{row['id']}/submit",'POST',{'expected_version':1},self.writer['cookie'])[0],409)
-        self.force(row,'PENDING_REVIEW');self.assertEqual(self.review(row)[0],409)
-        self.force(row,'APPROVED');self.assertEqual(self.visible(),[])
-
+    def test_missing_ai_generation_record_is_blocked_at_creation(self):
+        status,row,_=self.ai();self.assertEqual(status,409)
+        self.assertEqual(self.visible(),[])
     def test_status_without_review_never_publishes_even_valid_ai(self):
         rid,text=self.receipt();_,row,_=self.ai(rid,text)
         self.force(row,'APPROVED');self.assertEqual(self.visible(),[])
@@ -119,8 +116,7 @@ class OriginTests(EditorialAuthTests):
         for p in files:
             data=json.loads(p.read_text(encoding='utf-8'));text=data['article'].strip()
             with self.subTest(file=p.name):
-                status,row,_=self.ai(output=text);self.assertEqual(status,201)
-                self.force(row,'PENDING_REVIEW');self.assertEqual(self.review(row)[0],409)
-                self.force(row,'APPROVED');self.assertEqual(self.visible(),[])
+                status,_,_=self.ai(output=text);self.assertEqual(status,409)
+                self.assertEqual(self.visible(),[])
                 status,_,_=self.call('/api/editorial/articles','POST',{'title':'Relabel','body':text,'week_end':'2026-10-08','origin':'HUMAN','human_authored':True},self.writer['cookie'])
                 self.assertEqual(status,409)

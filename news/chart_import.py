@@ -18,7 +18,8 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
 
-ROOT = Path(__file__).resolve().parents[1]
+from security.preview_data import data_root
+ROOT = data_root()
 BASELINE = Path('data/chart_registry/baseline.json')
 WEEKS = Path('data/chart_registry/weeks')
 OBJECTS = Path('data/chart_imports/objects')
@@ -208,6 +209,9 @@ def _check_record(root, record, legacy=False):
 
 def registered_inventory(root):
     """Read only. Bad new records never remove unaffected historical weeks."""
+    from security.preview_data import fixture_root, inventory
+    if fixture_root(root):
+        return inventory(root)
     inventory, notes = {}, []
     baseline = read_json(safe_path(root, BASELINE))
     if not isinstance(baseline, dict) or baseline.get('baseline_commit') != '916233682e9de0432b96413b030f568935102111':

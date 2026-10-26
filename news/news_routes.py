@@ -28,9 +28,12 @@ class GenerateRequest(BaseModel):
 
 
 def _same_origin(request: Request) -> bool:
-    origin = request.headers.get('origin', '')
-    host = request.headers.get('host', '')
-    return origin in (f'http://{host}', f'https://{host}') and host.split(':')[0] in {'localhost', '127.0.0.1'}
+    from security.analysis_origin import require_local_analysis_origin
+    try:
+        require_local_analysis_origin(request)
+        return True
+    except HTTPException:
+        return False
 
 
 def _selection(week_end=''):
@@ -69,7 +72,13 @@ def spotify_only_preview(week_end: str = ''):
         if pair is None:
             raise HTTPException(409, '연속 2주간의 Spotify·YouTube 공식 차트 파일이 준비되지 않았어.')
         selected = read_current_selection()  # browser cannot inject artist names
-        return make_spotify_only_preview(selected, pair, root=ROOT)
+        result=make_spotify_only_preview(selected, pair, root=ROOT)
+        from security.preview_data import synthetic
+        if synthetic():
+            result['dataset_kind']='SYNTHETIC'
+            result['article']='[합성 데이터 Preview · 실제 차트 관측 아님]\n'+result['article'].replace('출처: Spotify Charts (https://charts.spotify.com/).','출처: 수업용 합성 CSV 예제.')
+            result['evidence']['source']='urn:kpop:synthetic-fixture:v1'
+        return result
     except (CatalogError, ChartValidationError, SpotifyOnlyPreviewError) as exc:
         raise HTTPException(422, str(exc)) from None
     except HTTPException:
@@ -143,8 +152,12 @@ def preview_selected_article(week_end: str = ''):
         evidence = evidence_for_selected(facts, snapshot)
     except SelectionError as e:
         raise HTTPException(422, str(e)) from None
+    article_text=preview_text(evidence)
+    from security.preview_data import synthetic
+    if synthetic():
+        article_text='[합성 데이터 Preview · 실제 차트 관측 아님]\n\n'+article_text.replace('출처: Spotify Charts(https://charts.spotify.com/), YouTube Charts(https://charts.youtube.com/).','출처: 수업용으로 생성한 합성 CSV 예제. 공식 차트 다운로드 자료가 아닙니다.')
     return {
-        'article': preview_text(evidence),
+        'article': article_text,
         'mode': 'template',
         'ai_generated_now': False,
         'selection': _public_selection(snapshot),
@@ -157,6 +170,9 @@ def preview_selected_article(week_end: str = ''):
 
 @router.get('/article')
 def get_saved_article(variant: str = 'edited', week_end: str = '2026-10-08'):
+    from security.preview_data import synthetic
+    if synthetic():
+        raise HTTPException(409,'합성 Preview에는 과거 실제 기사 자료를 포함하지 않습니다. 기사 검수 화면에서 합성 초안을 확인하세요.')
     if week_end != '2026-10-08':
         raise HTTPException(409, '이 저장 기사 예시는 10/08 주차 전용입니다. 선택 주차의 무료 미리보기를 사용하세요.')
     paths = {
@@ -195,6 +211,8 @@ def get_saved_article(variant: str = 'edited', week_end: str = '2026-10-08'):
 @router.post('/generate')
 def generate_selected_article(request: Request, body: GenerateRequest):
     user = require_role(*STAFF)
+    from security.deployment import require_supported_write
+    require_supported_write()
     if not _same_origin(request) or request.headers.get('x-requested-with') != 'KpopNewsPanel':
         raise HTTPException(403, '현재 로컬 웹사이트의 버튼에서만 실행할 수 있습니다.')
     if not request.headers.get('content-type', '').startswith('application/json'):

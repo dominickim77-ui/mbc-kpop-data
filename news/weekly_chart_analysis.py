@@ -13,7 +13,8 @@ import re
 import unicodedata
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+from security.preview_data import data_root
+ROOT = data_root()
 PREVIOUS_WEEK = ('2026-09-25', '2026-10-01')
 CURRENT_WEEK = ('2026-10-02', '2026-10-08')
 FILES = {

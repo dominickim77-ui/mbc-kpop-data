@@ -13,7 +13,8 @@ from news.chart_data_manager import WeekPair
 from news.review_candidates_step16 import build_review_queue
 from news.weekly_chart_analysis import normalize
 
-ROOT = Path(__file__).resolve().parent.parent
+from security.preview_data import data_root
+ROOT = data_root()
 
 
 class SpotifyOnlyPreviewError(ValueError):

@@ -1,6 +1,7 @@
 'use strict';
 const $ = s => document.querySelector(s);
 let me, selected = null;
+let defaultWeek='2026-10-08';
 async function api(path, method='GET', data) {
   const r = await fetch(path,{method,headers:{'Content-Type':'application/json'},...(data!==undefined?{body:JSON.stringify(data)}:{})});
   const result = await r.json();
@@ -25,7 +26,7 @@ function evidenceText(evidence) {
 }
 function showArticle(row){
   $('#status').dataset.status=row?.status||'DRAFT';
-  selected=row; $('#title').value=row?.title||''; $('#body').value=row?.body||''; $('#week').value=row?.week_end||'2026-10-08';
+  selected=row; $('#title').value=row?.title||''; $('#body').value=row?.body||''; $('#week').value=row?.week_end||defaultWeek;
   $('#origin').value=row?.authorship?.origin||'UNKNOWN';
   $('#human-authored').checked=row?.authorship?.human_authored===true;
   $('#generation-id').value=row?.authorship?.generation_id||'';
@@ -73,6 +74,7 @@ $('#review-form').onsubmit=e=>{e.preventDefault();run(async()=>{
   await refresh();await openArticle(selected.id);if(result.approval_blocked)$('#message').textContent='체크리스트가 모두 통과하지 않아 서버에서 승인을 차단하고 보류로 기록했습니다.';
 });};
 run(async()=>{
+  const mode=await api('/api/preview/status');if(mode.synthetic)defaultWeek=mode.default_week;
   me=await api('/api/auth/me');await refresh();showArticle(null);
   if(me.role==='ADMIN'){
     $('#admin').hidden=false;

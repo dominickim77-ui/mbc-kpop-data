@@ -21,6 +21,8 @@ if __package__ in (None, ''):
     import sys
     sys.path.insert(0, str(ROOT))
 from news.provenance import LEGACY_INSTRUCTIONS, generation_record
+from security.preview_data import data_root
+ROOT = data_root()
 FACT_PATH = ROOT / 'facts' / 'article_ready_fact_sheet_20261008.json'
 OUTPUT_DIR = ROOT / 'articles'
 DEFAULT_MODEL = 'gpt-5.4-mini-2026-03-17'
